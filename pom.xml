@@ -18,6 +18,7 @@
         <module>query-transformer</module>
         <module>star-transformer</module>
         <module>sqlapi-generator</module>
+        <module>jsonschema</module>
     </modules>
 
     <name>Allison 1875</name>
