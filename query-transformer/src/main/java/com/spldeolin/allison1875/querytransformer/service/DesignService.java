@@ -14,9 +14,11 @@ import com.spldeolin.allison1875.querytransformer.service.impl.DesignServiceImpl
 @ImplementedBy(DesignServiceImpl.class)
 public interface DesignService {
 
-    ClassOrInterfaceDeclaration detectDesign(AstForest astForest, MethodCallExpr chain);
+    ClassOrInterfaceDeclaration detectDesignOrJoinDesign(AstForest astForest, String qualifier);
 
-    DesignMetaDto analyzeDesignMeta(ClassOrInterfaceDeclaration design);
+    DesignMetaDto findDesignMeta(AstForest astForest, MethodCallExpr designChain);
+
+    DesignMetaDto findDesignMeta(ClassOrInterfaceDeclaration design);
 
     void replaceDesign(ReplaceDesignArgs args);
 

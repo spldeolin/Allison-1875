@@ -31,7 +31,6 @@ import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
-import com.spldeolin.allison1875.querytransformer.exception.SameNameTerminationMethodException;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
@@ -51,11 +50,10 @@ public class DesignServiceImpl implements DesignService {
     private TransformMethodCallService transformMethodCallService;
 
     @Override
-    public ClassOrInterfaceDeclaration detectDesign(AstForest astForest, MethodCallExpr chain) {
-        String designQualifier = chain.findAll(NameExpr.class).get(0).calculateResolvedType().describe();
-        Optional<CompilationUnit> opt = astForest.findCu(designQualifier);
+    public ClassOrInterfaceDeclaration detectDesignOrJoinDesign(AstForest astForest, String qualifier) {
+        Optional<CompilationUnit> opt = astForest.findCu(qualifier);
         if (!opt.isPresent()) {
-            throw new SameNameTerminationMethodException();
+            throw new IllegalDesignException("cannot found Design [" + qualifier + "]");
         }
         CompilationUnit designCu = opt.get();
 
@@ -75,14 +73,21 @@ public class DesignServiceImpl implements DesignService {
 
         if (!hashing.equals(hashcode)) {
             throw new IllegalDesignException(
-                    "modifications exist in Type [" + designQualifier + "], this Design file need to regenerate");
+                    "modifications exist in Type [" + qualifier + "], this Design file need to regenerate");
         }
 
         return designCu.getType(0).asClassOrInterfaceDeclaration();
     }
 
     @Override
-    public DesignMetaDto analyzeDesignMeta(ClassOrInterfaceDeclaration design) {
+    public DesignMetaDto findDesignMeta(AstForest astForest, MethodCallExpr designChain) {
+        String designQualifier = designChain.findAll(NameExpr.class).get(0).calculateResolvedType().describe();
+        ClassOrInterfaceDeclaration design = this.detectDesignOrJoinDesign(astForest, designQualifier);
+        return findDesignMeta(design);
+    }
+
+    @Override
+    public DesignMetaDto findDesignMeta(ClassOrInterfaceDeclaration design) {
         FieldDeclaration queryMetaField = design.getFieldByName(TokenWordConstant.META_FIELD_NAME).orElseThrow(
                 () -> new IllegalChainException(
                         "Meta Field is not exist in Design [" + design.getNameAsString() + "]"));

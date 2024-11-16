@@ -26,7 +26,6 @@ import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
-import com.spldeolin.allison1875.querytransformer.QueryTransformerConfig;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
 import com.spldeolin.allison1875.querytransformer.enums.PredicateEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
@@ -48,15 +47,11 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     private CommonConfig commonConfig;
 
     @Inject
-    private QueryTransformerConfig config;
-
-    @Inject
     private JavabeanGeneratorService javabeanGeneratorService;
 
     @Override
-    public GenerateParamRetval generateParam(ChainAnalysisDto chainAnalysis, DesignMetaDto designMeta,
-            AstForest astForest) {
-        Map<String, PropertyDto> properties = designMeta.getProperties();
+    public GenerateParamRetval generateParam(ChainAnalysisDto chainAnalysis, AstForest astForest) {
+        Map<String, PropertyDto> properties = chainAnalysis.getDesignMeta().getProperties();
 
         List<Parameter> params = Lists.newArrayList();
         boolean isJavabean = false;
@@ -134,8 +129,8 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     }
 
     @Override
-    public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDto chainAnalysis, DesignMetaDto designMeta,
-            AstForest astForest) {
+    public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDto chainAnalysis, AstForest astForest) {
+        DesignMetaDto designMeta = chainAnalysis.getDesignMeta();
         boolean isAssigned = isAssigned(chainAnalysis);
         GenerateReturnTypeRetval result = new GenerateReturnTypeRetval();
 
