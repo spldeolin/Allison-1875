@@ -15,6 +15,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DesignMetaDto {
 
+    String designQualifier;
+
+    String designName;
+
     String entityQualifier;
 
     String entityName;

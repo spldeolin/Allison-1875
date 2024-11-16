@@ -102,7 +102,8 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
             if (describe.startsWith(designQualifier + ".QueryChain")) {
                 queryPhrases.add(new PhraseDto().setSubjectPropertyName(fae.getNameAsString()));
             }
-            if (describe.startsWith(ByChainPredicate.class.getName()) && fae.getParentNode().isPresent()) {
+            if (describe.startsWith(ByChainPredicate.class.getName() + "<" + designQualifier + ".NextableByChainReturn")
+                    && fae.getParentNode().isPresent()) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
                 PredicateEnum predicate = PredicateEnum.of(parent.getNameAsString());
                 PhraseDto phrase = new PhraseDto();

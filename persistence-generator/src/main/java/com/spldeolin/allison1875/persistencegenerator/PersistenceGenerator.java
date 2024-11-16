@@ -2,6 +2,8 @@ package com.spldeolin.allison1875.persistencegenerator;
 
 import java.io.File;
 import java.util.List;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.common.collect.Lists;
@@ -18,6 +20,8 @@ import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
+import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
+import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinDesignArgs;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
 import com.spldeolin.allison1875.persistencegenerator.javabean.KeyMethodNameDto;
 import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDto;
@@ -73,6 +77,7 @@ public class PersistenceGenerator implements Allison1875MainService {
         }
 
         List<FileFlush> flushes = Lists.newArrayList();
+        Mutable<CompilationUnit> joinDesignCu = new MutableObject<>();
         for (TableStructureAnalysisDto tableStructureAnalysis : tableStructureAnalysisList) {
             flushes.addAll(tableStructureAnalysis.getFlushes());
 
@@ -98,7 +103,19 @@ public class PersistenceGenerator implements Allison1875MainService {
             gdArgs.setEntityGeneration(entityGeneration);
             gdArgs.setMapper(mapper);
             gdArgs.setAstForest(astForest);
-            designGeneratorService.generateDesign(gdArgs).ifPresent(flushes::add);
+            GenerateDesignRetval gdRetval = designGeneratorService.generateDesign(gdArgs);
+            if (gdRetval.getDesignFile() != null) {
+                flushes.add(gdRetval.getDesignFile());
+            }
+
+            // 生产JoinDesign
+            GenerateJoinDesignArgs gjdArgs = new GenerateJoinDesignArgs();
+            gjdArgs.setTableStructureAnalysis(tableStructureAnalysis);
+            gjdArgs.setEntityGeneration(entityGeneration);
+            gjdArgs.setAstForest(astForest);
+            gjdArgs.setJoinDesignCu(joinDesignCu.getValue());
+            gjdArgs.setDesignQualifier(gdRetval.getDesignQualifer());
+            designGeneratorService.generateJoinDesign(gjdArgs).ifPresent(joinDesignCu::setValue);
 
             // 在Mapper中生成基础方法
             GenerateMethodToMapperArgs gmtmArgs = new GenerateMethodToMapperArgs();
@@ -182,6 +199,10 @@ public class PersistenceGenerator implements Allison1875MainService {
                     log.error("写入Mapper.xml时发生异常 tableStructureAnalysis={}", tableStructureAnalysis, e);
                 }
             }
+        }
+
+        if (joinDesignCu.getValue() != null) {
+            flushes.add(FileFlush.build(joinDesignCu.getValue()));
         }
 
         // write all to file

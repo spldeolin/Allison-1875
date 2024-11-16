@@ -9,61 +9,61 @@ import java.util.Collection;
  *
  * @author Deolin 2020-01-11
  */
-public interface ByChainPredicate<E, C> {
+public interface ByChainPredicate<RT, ARG> {
 
     /**
      * EQual
      */
-    E eq(C value);
+    RT eq(ARG value);
 
     /**
      * Not Equal
      */
-    E ne(C value);
+    RT ne(ARG value);
 
     /**
      * IN
      */
-    E in(Collection<C> values);
+    RT in(Collection<ARG> values);
 
     /**
      * Not IN
      */
-    E nin(Collection<C> values);
+    RT nin(Collection<ARG> values);
 
     /**
      * Greater Than
      */
-    E gt(C value);
+    RT gt(ARG value);
 
     /**
      * Greater or Equals
      */
-    E ge(C value);
+    RT ge(ARG value);
 
     /**
      * Lesser Than
      */
-    E lt(C value);
+    RT lt(ARG value);
 
     /**
      * Lesser or Equal
      */
-    E le(C value);
+    RT le(ARG value);
 
     /**
      * NOT NULL
      */
-    E notnull();
+    RT notnull();
 
     /**
      * IS NULL
      */
-    E isnull();
+    RT isnull();
 
     /**
      * LIKE
      */
-    E like(C value);
+    RT like(ARG value);
 
 }

@@ -1,9 +1,12 @@
 package com.spldeolin.allison1875.persistencegenerator.service;
 
 import java.util.Optional;
+import com.github.javaparser.ast.CompilationUnit;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
+import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
+import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinDesignArgs;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.DesignGeneratorServiceImpl;
 
 /**
@@ -12,6 +15,10 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.DesignGenerat
 @ImplementedBy(DesignGeneratorServiceImpl.class)
 public interface DesignGeneratorService {
 
-    Optional<FileFlush> generateDesign(GenerateDesignArgs args);
+    String concatDesignName(TableStructureAnalysisDto persistence);
+
+    GenerateDesignRetval generateDesign(GenerateDesignArgs args);
+
+    Optional<CompilationUnit> generateJoinDesign(GenerateJoinDesignArgs args);
 
 }
