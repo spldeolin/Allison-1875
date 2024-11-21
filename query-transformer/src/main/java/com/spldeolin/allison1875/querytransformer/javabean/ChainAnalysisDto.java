@@ -36,7 +36,7 @@ public class ChainAnalysisDto {
 
     Set<PhraseDto> orderPhrases = Sets.newLinkedHashSet();
 
-    Set<JoinDto> joins = Sets.newLinkedHashSet();
+    Set<JoinClauseDto> joins = Sets.newLinkedHashSet();
 
     Set<PhraseDto> updatePhrases = Sets.newLinkedHashSet();
 

@@ -15,7 +15,6 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -27,6 +26,7 @@ import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
+import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.TokenWordConstant;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.querytransformer.QueryTransformerConfig;
@@ -37,12 +37,14 @@ import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
-import com.spldeolin.allison1875.querytransformer.javabean.JoinDto;
+import com.spldeolin.allison1875.querytransformer.javabean.JoinClauseDto;
+import com.spldeolin.allison1875.querytransformer.javabean.JoinConditionDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinedPropertyDto;
 import com.spldeolin.allison1875.querytransformer.javabean.PhraseDto;
 import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.QueryChainAnalyzerService;
 import com.spldeolin.allison1875.support.ByChainPredicate;
+import com.spldeolin.allison1875.support.EntityKey;
 import com.spldeolin.allison1875.support.OrderChainPredicate;
 import lombok.extern.slf4j.Slf4j;
 
@@ -114,9 +116,9 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         Set<PhraseDto> queryPhrases = Sets.newLinkedHashSet();
         Set<PhraseDto> byPhrases = Sets.newLinkedHashSet();
         Set<PhraseDto> orderPhrases = Sets.newLinkedHashSet();
-        Set<JoinDto> joins = Sets.newLinkedHashSet();
+        Set<JoinClauseDto> joins = Sets.newLinkedHashSet();
         Set<PhraseDto> updatePhrases = Sets.newLinkedHashSet();
-        Map<String/*joinedEntityName*/, List<PhraseDto>/*onPhrases*/> onPhrases = Maps.newHashMap();
+        Map<String/*joinedEntityDesignQualifier*/, List<JoinConditionDto>> joinConditions = Maps.newHashMap();
 
         // 防Cond中的字段名重复（分析where和update中使用）
         List<String> antiVarNameDuplInCond = Lists.newArrayList();
@@ -160,19 +162,12 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 PhraseDto phrase = new PhraseDto();
                 phrase.setSubjectPropertyName(fae.getNameAsString());
                 phrase.setPredicate(predicate);
-                if (predicate != PredicateEnum.IS_NULL && predicate != PredicateEnum.NOT_NULL) {
+                if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
                             antiVarNameDuplInCond);
                     antiVarNameDuplInCond.add(varName);
                     phrase.setVarName(varName);
-                }
-                if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     phrase.setObjectExpr(parent.getArgument(0));
-                }
-                if (Lists.newArrayList(predicate, PredicateEnum.IN, PredicateEnum.NOT_IN).contains(predicate)) {
-                    // 将分析过的in()和nin()中的实际参数替换为null，
-                    // 以确保后续的in()和nin()出现在scope的mce或fae进行calculateResolvedType时，不会因无法解析泛型而抛出异常
-                    parent.setArguments(new NodeList<>(new NullLiteralExpr()));
                 }
                 byPhrases.add(phrase);
             }
@@ -193,65 +188,61 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                     && fae.getParentNode().isPresent()) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
                 PredicateEnum predicate = PredicateEnum.of(parent.getNameAsString());
-                PhraseDto phrase = new PhraseDto();
-                phrase.setSubjectPropertyName(fae.getNameAsString());
-                phrase.setPredicate(predicate);
-                if (predicate != PredicateEnum.IS_NULL
-                        && predicate != PredicateEnum.NOT_NULL) { // TODO 还需判断arguments[0]是否是EntityKey
-                    String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
-                            antiVarNameDuplInCond);
-                    antiVarNameDuplInCond.add(varName);
-                    phrase.setVarName(varName);
-                }
+                JoinConditionDto joinCondition = new JoinConditionDto();
+                joinCondition.setSubjectPropertyName(fae.getNameAsString());
+                joinCondition.setPredicate(predicate);
                 if (CollectionUtils.isNotEmpty(parent.getArguments())) {
-                    phrase.setObjectExpr(parent.getArgument(0));
+                    if (!parent.getArgument(0).calculateResolvedType().describe()
+                            .startsWith(EntityKey.class.getName() + "<")) {
+                        String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
+                                antiVarNameDuplInCond);
+                        antiVarNameDuplInCond.add(varName);
+                        joinCondition.setVarName(varName);
+                        joinCondition.setObjectExpr(parent.getArgument(0));
+                    } else {
+                        // 说明是MyEntityDesign.myProperty，无需anti-dupl，但需要在onPhrase记录propertyName4Comparing，应该不能用PhraseDTO了
+                        joinCondition.setPropertyName4Comparing(
+                                parent.getArgument(0).asFieldAccessExpr().getNameAsString());
+                    }
                 }
-                if (Lists.newArrayList(predicate, PredicateEnum.IN, PredicateEnum.NOT_IN).contains(predicate)) {
-                    // 将分析过的in()和nin()中的实际参数替换为null，
-                    // 以确保后续的in()和nin()出现在scope的mce或fae进行calculateResolvedType时，不会因无法解析泛型而抛出异常
-//                    parent.setArguments(new NodeList<>(new NullLiteralExpr()));
-                }
-
-                // TODO 获取属于什么Entity fae.resolve().asField().declaringType().asClass().getAllSuperClasses().get(0)
-                //  .describe()
-                byPhrases.add(phrase);
+                String designMarkerQualifier = fae.resolve().asField().declaringType().asClass().getAllInterfaces()
+                        .get(0).describe();
+                String joinedEntityDesignQualifier = MoreStringUtils.splitAndGetLastPart(designMarkerQualifier, ".")
+                        .replace('_', '.');
+                joinConditions.computeIfAbsent(joinedEntityDesignQualifier, v -> Lists.newArrayList())
+                        .add(joinCondition);
             }
         }
 
         // JOIN部分
         Matcher matcher = matchJoinPropertyNames.matcher(chainCode);
-        if (matcher.find()) {
-            do {
+        while (matcher.find()) {
+            // 对应JOIN子句的tbl_name
+            String joinedEntityWithProperty = matcher.group(2);
+            String entityName = joinedEntityWithProperty.split("\\.")[0];
+            ClassOrInterfaceDeclaration joinedEntityDesign = designService.detectDesignOrJoinDesign(astForest,
+                    this.getJoinedDesignQualifier(joinDesign, entityName));
+            DesignMetaDto joinedEntityMeta = designService.findDesignMeta(joinedEntityDesign);
 
-                // 对应JOIN子句的tbl_name
-                String joinedEntityWithProperty = matcher.group(2);
-                String entityName = joinedEntityWithProperty.split("\\.")[0];
-                ClassOrInterfaceDeclaration joinedEntityDesign = designService.detectDesignOrJoinDesign(astForest,
-                        this.getJoinedDesignQualifier(joinDesign, entityName));
-                DesignMetaDto joinedEntityMeta = designService.findDesignMeta(joinedEntityDesign);
+            // 对应SELECT子句中的col_name（join表的col）
+            List<JoinedPropertyDto> joinedProperties = Lists.newArrayList();
+            Arrays.stream(StringUtils.substringAfter(joinedEntityWithProperty, ".").split("\\.")).distinct()
+                    .forEach(joinedPropertyName -> {
+                        String varName = antiDuplicationService.getNewElementIfExist(joinedPropertyName,
+                                antiVarNameDuplInRecord);
+                        antiVarNameDuplInCond.add(varName);
+                        JoinedPropertyDto joinedProperty = new JoinedPropertyDto();
+                        joinedProperty.setPropertyName(joinedPropertyName);
+                        joinedProperty.setVarName(varName);
+                        joinedProperties.add(joinedProperty);
+                    });
 
-                // 对应SELECT子句中的col_name（join表的col）
-                List<JoinedPropertyDto> joinedProperties = Lists.newArrayList();
-                Arrays.stream(StringUtils.substringAfter(joinedEntityWithProperty, ".").split("\\.")).distinct()
-                        .forEach(joinedPropertyName -> {
-                            String varName = antiDuplicationService.getNewElementIfExist(joinedPropertyName,
-                                    antiVarNameDuplInRecord);
-                            antiVarNameDuplInCond.add(varName);
-                            JoinedPropertyDto joinedProperty = new JoinedPropertyDto();
-                            joinedProperty.setPropertyName(joinedPropertyName);
-                            joinedProperty.setVarName(varName);
-                            joinedProperties.add(joinedProperty);
-                        });
-
-                // 对应JOIN子句的ON子句的binary
-
-
-                JoinDto join = new JoinDto();
-                join.setJoinType(JoinTypeEnum.of(matcher.group(1)));
-                join.setDesignMeta(joinedEntityMeta);
-                join.setJoinedProperties(joinedProperties);
-                join.setOnPhrases(onPhrases.get(joinedEntityMeta.getEntityName()));
-            } while (matcher.find());
+            JoinClauseDto join = new JoinClauseDto();
+            join.setJoinType(JoinTypeEnum.of(matcher.group(1)));
+            join.setJoinedDesignMeta(joinedEntityMeta);
+            join.setJoinedProperties(joinedProperties);
+            join.setJoinConditions(joinConditions.get(joinedEntityMeta.getDesignQualifier()));
+            joins.add(join);
         }
 
         // 如果终结方法是Each或者MultiEach，确保queryPhrases中必须包含each的key
@@ -287,6 +278,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         log.info("queryPhrases={}", queryPhrases);
         log.info("byPhrases={}", byPhrases);
         log.info("orderPhrases={}", orderPhrases);
+        log.info("joinPhrases={}", joins);
         log.info("updatePhrases={}", updatePhrases);
 
         ChainAnalysisDto result = new ChainAnalysisDto();
@@ -310,7 +302,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         return joinDesign.getFieldByName(entityName)
                 .orElseThrow(() -> new IllegalDesignException("Entity Field is absent in JoinDesign")).getVariable(0)
                 .getInitializer().orElseThrow(() -> new IllegalDesignException("Initializer is absent in Entity Field"))
-                .asFieldAccessExpr().getScope().asNameExpr().getNameAsString().replace('$', '.');
+                .asFieldAccessExpr().getScope().asNameExpr().getNameAsString().replace('_', '.');
     }
 
     private String analyzeSpecifiedMethodName(ChainMethodEnum chainMethod, MethodCallExpr chain,

@@ -3,7 +3,7 @@ package com.spldeolin.allison1875.support;
 import java.util.Collection;
 
 /**
- * by()调用链的谓语
+ * 链环：where子句中的逻辑比较符
  *
  * 适配Allison 1875 query-transformer
  *

@@ -14,14 +14,14 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class JoinDto {
+public class JoinClauseDto {
 
     JoinTypeEnum joinType;
 
-    DesignMetaDto designMeta;
+    DesignMetaDto joinedDesignMeta;
 
     List<JoinedPropertyDto> joinedProperties;
 
-    List<PhraseDto> onPhrases;
+    List<JoinConditionDto> joinConditions;
 
 }

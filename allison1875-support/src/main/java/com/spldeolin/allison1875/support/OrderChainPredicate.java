@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.support;
 
 /**
- * order()调用链的谓语
+ * 链环：Order by子句中的排序顺序
  *
  * 适配Allison 1875 query-transformer
  *
