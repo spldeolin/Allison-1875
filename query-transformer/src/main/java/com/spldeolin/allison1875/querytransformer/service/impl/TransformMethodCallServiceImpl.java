@@ -10,17 +10,19 @@ import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.exception.ParentAbsentException;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
-import com.spldeolin.allison1875.querytransformer.enums.PredicateEnum;
-import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
+import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDto;
+import com.spldeolin.allison1875.querytransformer.javabean.Binary;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.PhraseDto;
+import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
 import com.spldeolin.allison1875.querytransformer.service.TransformMethodCallService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,10 +41,9 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
             String condQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
             result += MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(condQualifier, "."));
         } else {
-            Set<PhraseDto> phrases = chainAnalysis.getUpdatePhrases();
-            phrases.addAll(chainAnalysis.getByPhrases());
-            result += phrases.stream().filter(p -> p.getPredicate() != PredicateEnum.IS_NULL
-                            && p.getPredicate() != PredicateEnum.NOT_NULL).map(p -> p.getObjectExpr().toString())
+            Set<Binary> binaries = Sets.newLinkedHashSet(chainAnalysis.getAssignments());
+            binaries.addAll(chainAnalysis.getSearchConditions());
+            result += binaries.stream().filter(b -> b.getArgument() != null).map(p -> p.getArgument().toString())
                     .collect(Collectors.joining(", "));
         }
         result += ")";
@@ -60,18 +61,17 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
         List<Statement> result = Lists.newArrayList();
         result.add(StaticJavaParser.parseStatement(
                 "final " + javabeanTypeQualifier + " " + javabeanVarName + " = new " + javabeanTypeQualifier + "();"));
-        for (PhraseDto updatePhrase : chainAnalysis.getUpdatePhrases()) {
+        for (AssignmentDto assigment : chainAnalysis.getAssignments()) {
             result.add(StaticJavaParser.parseStatement(
-                    javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(updatePhrase.getVarName()) + "("
-                            + updatePhrase.getObjectExpr() + ");"));
+                    javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(assigment.getVarName()) + "("
+                            + assigment.getArgument() + ");"));
         }
-        for (PhraseDto byPhrase : chainAnalysis.getByPhrases()) {
-            if (Lists.newArrayList(PredicateEnum.IS_NULL, PredicateEnum.NOT_NULL).contains(byPhrase.getPredicate())) {
-                continue;
+        for (SearchConditionDto searchCond : chainAnalysis.getSearchConditions()) {
+            if (searchCond.getArgument() != null) {
+                result.add(StaticJavaParser.parseStatement(
+                        javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(searchCond.getVarName()) + "("
+                                + searchCond.getArgument() + ");"));
             }
-            result.add(StaticJavaParser.parseStatement(
-                    javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(byPhrase.getVarName()) + "("
-                            + byPhrase.getObjectExpr() + ");"));
         }
         return result;
     }
@@ -81,7 +81,7 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
             GenerateReturnTypeRetval resultGeneration) {
         Map<String, PropertyDto> properties = designMeta.getProperties();
 
-        if (chainAnalysis.getReturnClassify() == ReturnClassifyEnum.each) {
+        if (chainAnalysis.getReturnShape() == ReturnShapeEnum.each) {
             String propertyName = chainAnalysis.getChain().getArgument(0).asFieldAccessExpr().getNameAsString();
             String propertyTypeName = properties.get(propertyName).getJavaType().getSimpleName();
             String elementTypeName = StringUtils.substringAfterLast(resultGeneration.getElementTypeQualifier(), ".");
@@ -104,7 +104,7 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
             return statements;
         }
 
-        if (chainAnalysis.getReturnClassify() == ReturnClassifyEnum.multiEach) {
+        if (chainAnalysis.getReturnShape() == ReturnShapeEnum.multiEach) {
             String propertyName = chainAnalysis.getChain().getArgument(0).asFieldAccessExpr().getNameAsString();
             String propertyTypeName = properties.get(propertyName).getJavaType().getSimpleName();
             String elementTypeName = StringUtils.substringAfterLast(resultGeneration.getElementTypeQualifier(), ".");

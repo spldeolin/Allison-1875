@@ -34,14 +34,16 @@ import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMeta
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.querytransformer.QueryTransformerConfig;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
-import com.spldeolin.allison1875.querytransformer.enums.PredicateEnum;
-import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
+import com.spldeolin.allison1875.querytransformer.enums.OrderSequenceEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
+import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDto;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperArgs;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperXmlArgs;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.PhraseDto;
+import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
+import com.spldeolin.allison1875.querytransformer.javabean.SortPropertyDto;
 import com.spldeolin.allison1875.querytransformer.javabean.XmlSourceFile;
 import com.spldeolin.allison1875.querytransformer.service.MapperLayerService;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +71,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
 
     @Override
     public Optional<FileFlush> generateMethodToMapper(GenerateMethodToMapperArgs args) {
-        ClassOrInterfaceDeclaration mapper = this.findMapper(args.getAstForest(), args.getDesignMeta(),
+        ClassOrInterfaceDeclaration mapper = this.findMapper(args.getAstForest(), args.getMapperQualifier(),
                 args.getMethodAddedMappers());
         if (mapper == null) {
             return Optional.empty();
@@ -124,13 +126,12 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                     xmlLines.add(SINGLE_INDENT + BaseConstant.FORMATTER_OFF_MARKER);
                 }
                 xmlLines.add(SINGLE_INDENT + "SELECT");
-                if (chainAnalysis.getReturnClassify() == ReturnClassifyEnum.count) {
+                if (chainAnalysis.getReturnShape() == ReturnShapeEnum.count) {
                     xmlLines.add(DOUBLE_INDENT + "COUNT(*)");
-                } else if (CollectionUtils.isEmpty(chainAnalysis.getQueryPhrases())) {
+                } else if (CollectionUtils.isEmpty(chainAnalysis.getSelectProperties())) {
                     xmlLines.add(DOUBLE_INDENT + "<include refid='all' />");
                 } else {
-                    for (PhraseDto queryPhrase : chainAnalysis.getQueryPhrases()) {
-                        PropertyDto property = designMeta.getProperties().get(queryPhrase.getSubjectPropertyName());
+                    for (PropertyDto property : chainAnalysis.getSelectProperties()) {
                         xmlLines.add(
                                 DOUBLE_INDENT + "`" + property.getColumnName() + "` AS " + property.getPropertyName()
                                         + ",");
@@ -142,18 +143,18 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 xmlLines.add(SINGLE_INDENT + "FROM");
                 xmlLines.add(DOUBLE_INDENT + "`" + designMeta.getTableName() + "`");
                 xmlLines.addAll(concatWhereSection(designMeta, chainAnalysis, true));
-                if (CollectionUtils.isNotEmpty(chainAnalysis.getOrderPhrases())) {
+                if (CollectionUtils.isNotEmpty(chainAnalysis.getSortProperties())) {
                     xmlLines.add(SINGLE_INDENT + "ORDER BY");
-                    for (PhraseDto orderPhrase : chainAnalysis.getOrderPhrases()) {
-                        PropertyDto property = designMeta.getProperties().get(orderPhrase.getSubjectPropertyName());
+                    for (SortPropertyDto sortProp : chainAnalysis.getSortProperties()) {
+                        PropertyDto property = designMeta.getProperties().get(sortProp.getPropertyName());
                         xmlLines.add(DOUBLE_INDENT + "`" + property.getColumnName() + "`" + (
-                                orderPhrase.getPredicate() == PredicateEnum.DESC ? " DESC," : ","));
+                                sortProp.getOrderSequence() == OrderSequenceEnum.DESC ? " DESC," : ","));
                     }
                     // 删除最后一个语句中，最后的逗号
                     int last = xmlLines.size() - 1;
                     xmlLines.set(last, MoreStringUtils.replaceLast(xmlLines.get(last), ",", ""));
                 }
-                if (chainAnalysis.getReturnClassify() == ReturnClassifyEnum.one) {
+                if (chainAnalysis.getReturnShape() == ReturnShapeEnum.one) {
                     xmlLines.add(SINGLE_INDENT + "LIMIT 1");
                 }
 
@@ -171,10 +172,10 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 }
                 xmlLines.add(SINGLE_INDENT + "UPDATE `" + designMeta.getTableName() + "`");
                 xmlLines.add(SINGLE_INDENT + "SET");
-                for (PhraseDto updatePhrase : chainAnalysis.getUpdatePhrases()) {
-                    PropertyDto property = designMeta.getProperties().get(updatePhrase.getSubjectPropertyName());
-                    xmlLines.add(DOUBLE_INDENT + "`" + property.getColumnName() + "` = #{" + updatePhrase.getVarName()
-                            + "},");
+                for (AssignmentDto assignment : chainAnalysis.getAssignments()) {
+                    PropertyDto property = designMeta.getProperties().get(assignment.getProperty().getPropertyName());
+                    xmlLines.add(
+                            DOUBLE_INDENT + "`" + property.getColumnName() + "` = #{" + assignment.getVarName() + "},");
                 }
                 // 删除最后一个语句中，最后的逗号
                 int last = xmlLines.size() - 1;
@@ -189,14 +190,14 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 xmlLines.add(concatLotNoComment(chainAnalysis));
                 String startTag = concatDeleteStartTag(chainAnalysis, generateParamRetval);
                 xmlLines.add(startTag);
-                if (CollectionUtils.isNotEmpty(chainAnalysis.getByPhrases())) {
+                if (CollectionUtils.isNotEmpty(chainAnalysis.getSearchConditions())) {
                     if (queryTransformerConfig.getEnableGenerateFormatterMarker()) {
                         xmlLines.add(SINGLE_INDENT + BaseConstant.FORMATTER_OFF_MARKER);
                     }
                 }
                 xmlLines.add(SINGLE_INDENT + "DELETE FROM `" + designMeta.getTableName() + "`");
                 xmlLines.addAll(concatWhereSection(designMeta, chainAnalysis, false));
-                if (CollectionUtils.isNotEmpty(chainAnalysis.getByPhrases())) {
+                if (CollectionUtils.isNotEmpty(chainAnalysis.getSearchConditions())) {
                     if (queryTransformerConfig.getEnableGenerateFormatterMarker()) {
                         xmlLines.add(SINGLE_INDENT + BaseConstant.FORMATTER_ON_MARKER);
                     }
@@ -229,9 +230,8 @@ public class MapperLayerServiceImpl implements MapperLayerService {
     }
 
 
-    private ClassOrInterfaceDeclaration findMapper(AstForest astForest, DesignMetaDto designMeta,
+    private ClassOrInterfaceDeclaration findMapper(AstForest astForest, String mapperQualifier,
             Map<String, ClassOrInterfaceDeclaration> methodAddedMappers) {
-        String mapperQualifier = designMeta.getMapperQualifier();
         // 尝试先从其他queryChain的处理结果中获取mapper
         if (methodAddedMappers.containsKey(mapperQualifier)) {
             return methodAddedMappers.get(mapperQualifier);
@@ -280,9 +280,9 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         if (needNotDeletedSql && designMeta.getNotDeletedSql() != null) {
             xmlLines.add(SINGLE_INDENT + "  AND " + designMeta.getNotDeletedSql());
         }
-        for (PhraseDto byPhrase : chainAnalysis.getByPhrases()) {
-            PropertyDto property = designMeta.getProperties().get(byPhrase.getSubjectPropertyName());
-            String varName = byPhrase.getVarName();
+        for (SearchConditionDto searchCond : chainAnalysis.getSearchConditions()) {
+            PropertyDto property = designMeta.getProperties().get(searchCond.getProperty().getPropertyName());
+            String varName = searchCond.getVarName();
             String dollarVar = "#{" + varName + "}";
 
             String ifTag = SINGLE_INDENT + "<if test=\"" + varName + " != null";
@@ -290,7 +290,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 ifTag += " and " + varName + " != ''";
             }
             ifTag += "\">";
-            switch (byPhrase.getPredicate()) {
+            switch (searchCond.getComparisonOperator()) {
                 case EQUALS:
                     if (chainAnalysis.getIsByForced()) {
                         xmlLines.add(SINGLE_INDENT_WITH_AND + "`" + property.getColumnName() + "` = " + dollarVar);

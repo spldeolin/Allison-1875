@@ -8,7 +8,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum ReturnClassifyEnum {
+public enum ReturnShapeEnum {
 
     one,
 

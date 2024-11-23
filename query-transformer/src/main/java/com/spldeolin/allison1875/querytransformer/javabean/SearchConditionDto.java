@@ -11,12 +11,12 @@ import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
 /**
- * @author Deolin 2024-11-18
+ * @author Deolin 2024-11-23
  */
 @Data
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class JoinConditionDto implements CompareableBinary {
+public class SearchConditionDto implements CompareableBinary {
 
     PropertyDto property;
 
@@ -26,7 +26,5 @@ public class JoinConditionDto implements CompareableBinary {
 
     @JsonSerialize(using = ToStringSerializer.class)
     Expression argument;
-
-    String comparedPropertyName;
 
 }

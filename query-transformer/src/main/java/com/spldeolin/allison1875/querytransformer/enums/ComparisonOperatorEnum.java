@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum PredicateEnum {
+public enum ComparisonOperatorEnum {
 
     EQUALS("eq"),
 
@@ -33,20 +33,17 @@ public enum PredicateEnum {
 
     LIKE("like"),
 
-    DESC("desc"),
-
-    ASC("asc"),
-
     ;
 
     private final String value;
 
     public static boolean isValid(String value) {
-        return Arrays.stream(PredicateEnum.values()).anyMatch(one -> one.getValue().equals(value));
+        return Arrays.stream(ComparisonOperatorEnum.values()).anyMatch(one -> one.getValue().equals(value));
     }
 
-    public static PredicateEnum of(String value) {
-        return Arrays.stream(PredicateEnum.values()).filter(one -> one.getValue().equals(value)).findAny().orElse(null);
+    public static ComparisonOperatorEnum of(String value) {
+        return Arrays.stream(ComparisonOperatorEnum.values()).filter(one -> one.getValue().equals(value)).findAny()
+                .orElse(null);
     }
 
 }

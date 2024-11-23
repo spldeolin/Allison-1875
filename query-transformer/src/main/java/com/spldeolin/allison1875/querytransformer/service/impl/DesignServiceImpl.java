@@ -28,7 +28,7 @@ import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.TokenWordConstant;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
-import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
@@ -134,8 +134,8 @@ public class DesignServiceImpl implements DesignService {
             // parent是VariableDeclarator的情况，例如：Entity a = Design.query("a").one();
             // 或是AssignExpr的情况，例如：a = Design.query("a").one();
             // 则将chain替换成转化出的mce（chain是mce类型）
-            if (Lists.newArrayList(ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                    .contains(chainAnalysis.getReturnClassify())) {
+            if (Lists.newArrayList(ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                    .contains(chainAnalysis.getReturnShape())) {
                 replacementStatements.add(StaticJavaParser.parseStatement(
                         generateReturnTypeRetval.getResultType() + " " + calcAssignVarName(chainAnalysis) + " = "
                                 + mceCode + ";"));
@@ -144,8 +144,8 @@ public class DesignServiceImpl implements DesignService {
                         ancestorStatementCode.replace(TokenRangeUtils.getRawCode(chainAnalysis.getChain()), mceCode)));
             }
         } else {
-            if (Lists.newArrayList(ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                    .contains(chainAnalysis.getReturnClassify())) {
+            if (Lists.newArrayList(ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                    .contains(chainAnalysis.getReturnShape())) {
                 throw new UnsupportedOperationException(
                         "以 each 或 multiEach 为返回值的chain表达式，目前只支持定义在赋值语句中或是单独作为一个表达式的情况，不支持其位于其他表达式中的情况");
             }
@@ -176,8 +176,8 @@ public class DesignServiceImpl implements DesignService {
         if (Lists.newArrayList(ChainMethodEnum.drop, ChainMethodEnum.update).contains(chainAnalysis.getChainMethod())) {
             return chainAnalysis.getMethodName() + "Count";
         }
-        if (Lists.newArrayList(ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                .contains(chainAnalysis.getReturnClassify())) {
+        if (Lists.newArrayList(ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                .contains(chainAnalysis.getReturnShape())) {
             return chainAnalysis.getMethodName() + "List";
         }
         return chainAnalysis.getMethodName();

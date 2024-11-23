@@ -31,18 +31,21 @@ import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.TokenWordConstant;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
-import com.spldeolin.allison1875.querytransformer.QueryTransformerConfig;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ComparisonOperatorEnum;
 import com.spldeolin.allison1875.querytransformer.enums.JoinTypeEnum;
-import com.spldeolin.allison1875.querytransformer.enums.PredicateEnum;
-import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
+import com.spldeolin.allison1875.querytransformer.enums.OrderSequenceEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
+import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDto;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinClauseDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinConditionDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinedPropertyDto;
-import com.spldeolin.allison1875.querytransformer.javabean.PhraseDto;
+import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
+import com.spldeolin.allison1875.querytransformer.javabean.SortPropertyDto;
 import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.QueryChainAnalyzerService;
 import com.spldeolin.allison1875.support.ByChainPredicate;
@@ -70,9 +73,6 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
     @Inject
     private CommonConfig commonConfig;
 
-    @Inject
-    private QueryTransformerConfig config;
-
     @Override
     public ChainAnalysisDto analyzeQueryChain(MethodCallExpr queryChain, DesignMetaDto designMeta, AstForest astForest)
             throws IllegalChainException {
@@ -93,34 +93,34 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
 
         String methodName = this.analyzeSpecifiedMethodName(chainMethod, queryChain, designMeta);
 
-        ReturnClassifyEnum returnClassify;
+        ReturnShapeEnum returnShape;
         String keyPropertyName = null;
         if (queryChain.getNameAsString().equals("one")) {
-            returnClassify = ReturnClassifyEnum.one;
+            returnShape = ReturnShapeEnum.one;
         } else if (queryChain.getNameAsString().equals("many")) {
             if (CollectionUtils.isEmpty(queryChain.getArguments())) {
-                returnClassify = ReturnClassifyEnum.many;
+                returnShape = ReturnShapeEnum.many;
             } else if (queryChain.getArgument(0).asFieldAccessExpr().getScope().toString().equals("Each")) {
-                returnClassify = ReturnClassifyEnum.each;
+                returnShape = ReturnShapeEnum.each;
                 keyPropertyName = queryChain.getArgument(0).asFieldAccessExpr().getNameAsString();
             } else if (queryChain.getArgument(0).asFieldAccessExpr().getScope().toString().equals("MultiEach")) {
-                returnClassify = ReturnClassifyEnum.multiEach;
+                returnShape = ReturnShapeEnum.multiEach;
                 keyPropertyName = queryChain.getArgument(0).asFieldAccessExpr().getNameAsString();
             } else {
                 throw new IllegalChainException("many() argument is none of each nor multiEach");
             }
         } else if (queryChain.getNameAsString().equals("count")) {
-            returnClassify = ReturnClassifyEnum.count;
+            returnShape = ReturnShapeEnum.count;
         } else {
-            returnClassify = null;
+            returnShape = null;
         }
-        log.info("chainMethod={} returnClassify={}", chainMethod, returnClassify);
+        log.info("chainMethod={} returnShape={}", chainMethod, returnShape);
 
-        Set<PhraseDto> queryPhrases = Sets.newLinkedHashSet();
-        Set<PhraseDto> byPhrases = Sets.newLinkedHashSet();
-        Set<PhraseDto> orderPhrases = Sets.newLinkedHashSet();
+        Set<PropertyDto> selectProperties = Sets.newLinkedHashSet();
+        Set<SearchConditionDto> searchConditions = Sets.newLinkedHashSet();
+        Set<SortPropertyDto> sortProperties = Sets.newLinkedHashSet();
         Set<JoinClauseDto> joins = Sets.newLinkedHashSet();
-        Set<PhraseDto> updatePhrases = Sets.newLinkedHashSet();
+        Set<AssignmentDto> assignments = Sets.newLinkedHashSet();
         Map<String/*joinedEntityDesignQualifier*/, List<JoinConditionDto>> joinConditions = Maps.newHashMap();
 
         // 防Cond中的字段名重复（分析where和update中使用）
@@ -153,7 +153,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
 
             // 对应SELECT子句中的col_name
             if (describe.startsWith(designQualifier + ".QueryChain")) {
-                queryPhrases.add(new PhraseDto().setSubjectPropertyName(fae.getNameAsString()));
+                selectProperties.add(designMeta.getProperties().get(fae.getNameAsString()));
                 antiVarNameDuplInRecord.add(fae.getNameAsString());
             }
 
@@ -161,28 +161,28 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
             if (describe.startsWith(ByChainPredicate.class.getName() + "<" + designQualifier + ".NextableByChainReturn")
                     && fae.getParentNode().isPresent()) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
-                PredicateEnum predicate = PredicateEnum.of(parent.getNameAsString());
-                PhraseDto phrase = new PhraseDto();
-                phrase.setSubjectPropertyName(fae.getNameAsString());
-                phrase.setPredicate(predicate);
+                ComparisonOperatorEnum predicate = ComparisonOperatorEnum.of(parent.getNameAsString());
+                SearchConditionDto searchCond = new SearchConditionDto();
+                searchCond.setProperty(designMeta.getProperties().get(fae.getNameAsString()));
+                searchCond.setComparisonOperator(predicate);
                 if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
                             antiVarNameDuplInCond);
                     antiVarNameDuplInCond.add(varName);
-                    phrase.setVarName(varName);
-                    phrase.setObjectExpr(parent.getArgument(0));
+                    searchCond.setVarName(varName);
+                    searchCond.setArgument(parent.getArgument(0));
                 }
-                byPhrases.add(phrase);
+                searchConditions.add(searchCond);
             }
 
             // 对应ORDER BY子句中的col_name和ASC / DESC
             if (describe.startsWith(OrderChainPredicate.class.getName())) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
-                PredicateEnum predicate = PredicateEnum.of(parent.getNameAsString());
-                PhraseDto phrase = new PhraseDto();
-                phrase.setSubjectPropertyName(fae.getNameAsString());
-                phrase.setPredicate(predicate);
-                orderPhrases.add(phrase);
+                OrderSequenceEnum predicate = OrderSequenceEnum.of(parent.getNameAsString());
+                SortPropertyDto phrase = new SortPropertyDto();
+                phrase.setPropertyName(fae.getNameAsString());
+                phrase.setOrderSequence(predicate);
+                sortProperties.add(phrase);
             }
 
             // 对应每个JOIN子句的ON子句的每个binary
@@ -190,10 +190,10 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                     OnChainLink.class.getName() + "<" + commonConfig.getDesignPackage() + ".JoinDesign.Join")
                     && fae.getParentNode().isPresent()) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
-                PredicateEnum predicate = PredicateEnum.of(parent.getNameAsString());
+                ComparisonOperatorEnum predicate = ComparisonOperatorEnum.of(parent.getNameAsString());
                 JoinConditionDto joinCondition = new JoinConditionDto();
-                joinCondition.setSubjectPropertyName(fae.getNameAsString());
-                joinCondition.setPredicate(predicate);
+                joinCondition.setProperty(designMeta.getProperties().get(fae.getNameAsString()));
+                joinCondition.setComparisonOperator(predicate);
                 if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     if (!parent.getArgument(0).calculateResolvedType().describe()
                             .startsWith(EntityKey.class.getName() + "<")) {
@@ -201,10 +201,10 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                                 antiVarNameDuplInCond);
                         antiVarNameDuplInCond.add(varName);
                         joinCondition.setVarName(varName);
-                        joinCondition.setObjectExpr(parent.getArgument(0));
+                        joinCondition.setArgument(parent.getArgument(0));
                     } else {
                         // 说明是MyEntityDesign.myProperty，无需anti-dupl，但需要在onPhrase记录propertyName4Comparing，应该不能用PhraseDTO了
-                        joinCondition.setPropertyName4Comparing(
+                        joinCondition.setComparedPropertyName(
                                 parent.getArgument(0).asFieldAccessExpr().getNameAsString());
                     }
                 }
@@ -249,13 +249,11 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         }
 
         // 如果终结方法是Each或者MultiEach，确保queryPhrases中必须包含each的key
-        List<String> queryPropertyNames = queryPhrases.stream().map(PhraseDto::getSubjectPropertyName)
-                .collect(Collectors.toList());
-        if (keyPropertyName != null && CollectionUtils.isNotEmpty(queryPropertyNames) && !queryPropertyNames.contains(
-                keyPropertyName)) {
+        if (keyPropertyName != null && CollectionUtils.isNotEmpty(selectProperties) && selectProperties.stream()
+                .map(PropertyDto::getPropertyName).collect(Collectors.toList()).contains(keyPropertyName)) {
             log.warn("Each or MultiEach Key [{}] is not declared in Query Phrases [{}], auto add in", keyPropertyName,
-                    queryPropertyNames);
-            queryPhrases.add(new PhraseDto().setSubjectPropertyName(keyPropertyName));
+                    selectProperties);
+            selectProperties.add(designMeta.getProperties().get(keyPropertyName));
         }
 
         // update set assignment
@@ -268,32 +266,32 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 continue;
             }
             if (describe.startsWith(designQualifier + ".NextableUpdateChain")) {
-                PhraseDto phrase = new PhraseDto();
-                phrase.setSubjectPropertyName(mce.getNameAsString());
+                AssignmentDto assignment = new AssignmentDto();
+                assignment.setProperty(designMeta.getProperties().get(mce.getNameAsString()));
                 String varName = antiDuplicationService.getNewElementIfExist(mce.getNameAsString(),
                         antiVarNameDuplInCond);
                 antiVarNameDuplInCond.add(varName);
-                phrase.setVarName(varName);
-                phrase.setObjectExpr(mce.getArgument(0));
-                updatePhrases.add(phrase);
+                assignment.setVarName(varName);
+                assignment.setArgument(mce.getArgument(0));
+                assignments.add(assignment);
             }
         }
-        log.info("queryPhrases={}", queryPhrases);
-        log.info("byPhrases={}", byPhrases);
-        log.info("orderPhrases={}", orderPhrases);
+        log.info("selectProperties={}", selectProperties);
+        log.info("searchConditions={}", searchConditions);
+        log.info("sortProperties={}", sortProperties);
         log.info("joinClauses={}", JsonUtils.toJsonPrettily(joins));
-        log.info("updatePhrases={}", updatePhrases);
+        log.info("assignments={}", assignments);
 
         ChainAnalysisDto result = new ChainAnalysisDto();
-        result.setDesignMeta(designMeta);
+        result.setEntityQualifier(designMeta.getEntityQualifier());
         result.setMethodName(methodName);
         result.setChainMethod(chainMethod);
-        result.setReturnClassify(returnClassify);
-        result.setQueryPhrases(queryPhrases);
-        result.setByPhrases(byPhrases);
-        result.setOrderPhrases(orderPhrases);
-        result.setJoins(joins);
-        result.setUpdatePhrases(updatePhrases);
+        result.setReturnShape(returnShape);
+        result.setSelectProperties(selectProperties);
+        result.setSearchConditions(searchConditions);
+        result.setSortProperties(sortProperties);
+        result.setJoinClauses(joins);
+        result.setAssignments(assignments);
         result.setChain(queryChain);
         result.setIsByForced(chainCode.contains("." + TokenWordConstant.BY_FORCED_METHOD_NAME + "()"));
         String hash = StringUtils.upperCase(HashingUtils.hashString(result.toString()));

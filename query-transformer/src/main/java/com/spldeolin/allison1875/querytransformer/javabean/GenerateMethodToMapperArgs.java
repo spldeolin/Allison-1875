@@ -6,7 +6,6 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.Type;
 import com.spldeolin.allison1875.common.ast.AstForest;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -22,7 +21,7 @@ public class GenerateMethodToMapperArgs {
 
     AstForest astForest;
 
-    DesignMetaDto designMeta;
+    String mapperQualifier;
 
     ChainAnalysisDto chainAnalysis;
 

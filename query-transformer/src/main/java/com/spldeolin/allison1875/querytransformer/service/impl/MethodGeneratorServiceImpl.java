@@ -1,7 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.service.impl;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.Parameter;
@@ -23,16 +22,17 @@ import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
-import com.spldeolin.allison1875.querytransformer.enums.PredicateEnum;
-import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ComparisonOperatorEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
+import com.spldeolin.allison1875.querytransformer.javabean.Binary;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.CompareableBinary;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.PhraseDto;
+import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
 import com.spldeolin.allison1875.querytransformer.service.MethodGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,17 +51,26 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
 
     @Override
     public GenerateParamRetval generateParam(ChainAnalysisDto chainAnalysis, AstForest astForest) {
-        Map<String, PropertyDto> properties = chainAnalysis.getDesignMeta().getProperties();
-
         List<Parameter> params = Lists.newArrayList();
         boolean isJavabean = false;
         FileFlush condFlush = null;
 
-        Set<PhraseDto> phrases = Sets.newLinkedHashSet(chainAnalysis.getUpdatePhrases());
-        phrases.addAll(chainAnalysis.getByPhrases());
-        log.info("phrases.size()={}", phrases.size());
-        if (phrases.stream().filter(p -> !Lists.newArrayList(PredicateEnum.IS_NULL, PredicateEnum.NOT_NULL)
-                .contains(p.getPredicate())).count() > 3) {
+        // 收集所有需要输入参数的binary，用于构建mapper方法的参数列表（所有assigments、需要argument的searchConditions、需要argument的joinConditions）
+        Set<Binary> binaries = Sets.newLinkedHashSet(chainAnalysis.getAssignments());
+        for (SearchConditionDto searchCond : chainAnalysis.getSearchConditions()) {
+            if (searchCond.getArgument() != null) {
+                binaries.add(searchCond);
+            }
+        }
+//        for (JoinClauseDto joinClause : chainAnalysis.getJoinClauses()) {
+//            for (JoinConditionDto joinCond : joinClause.getJoinConditions()) {
+//                if (joinCond != null) {
+//                    binaries.add(joinCond);
+//                }
+//            }
+//        }
+
+        if (binaries.size() > 3) {
             JavabeanArg javabeanArg = new JavabeanArg();
             javabeanArg.setAstForest(astForest);
             javabeanArg.setPackageName(commonConfig.getCondPackage());
@@ -72,16 +81,14 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             javabeanArg.setAuthor(commonConfig.getAuthor());
             javabeanArg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
             javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
-            for (PhraseDto phrase : phrases) {
-                if (Lists.newArrayList(PredicateEnum.IS_NULL, PredicateEnum.NOT_NULL).contains(phrase.getPredicate())) {
-                    continue;
-                }
-                String propertyName = phrase.getSubjectPropertyName();
-                String varName = phrase.getVarName();
-                JavaTypeNamingDto javaType = properties.get(propertyName).getJavaType();
+            for (Binary binary : binaries) {
+                String varName = binary.getVarName();
+                JavaTypeNamingDto javaType = binary.getProperty().getJavaType();
                 FieldArg fieldArg = new FieldArg();
-                fieldArg.setDescription(properties.get(propertyName).getDescription());
-                if (Lists.newArrayList(PredicateEnum.IN, PredicateEnum.NOT_IN).contains(phrase.getPredicate())) {
+                fieldArg.setDescription(binary.getProperty().getDescription());
+                if (binaries instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
+                                ComparisonOperatorEnum.NOT_IN)
+                        .contains(((CompareableBinary) binaries).getComparisonOperator())) {
                     fieldArg.setTypeQualifier("java.util.List<" + javaType.getQualifier() + ">");
                 } else {
                     fieldArg.setTypeQualifier(javaType.getQualifier());
@@ -97,19 +104,17 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             param.setName(MoreStringUtils.toLowerCamel(condGeneration.getJavabeanName()));
             params.add(param);
             isJavabean = true;
-        } else if (CollectionUtils.isNotEmpty(phrases)) {
-            for (PhraseDto phrase : phrases) {
-                if (Lists.newArrayList(PredicateEnum.IS_NULL, PredicateEnum.NOT_NULL).contains(phrase.getPredicate())) {
-                    continue;
-                }
-                String propertyName = phrase.getSubjectPropertyName();
-                String varName = phrase.getVarName();
-                JavaTypeNamingDto javaType = properties.get(propertyName).getJavaType();
+        } else if (CollectionUtils.isNotEmpty(binaries)) {
+            for (Binary binary : binaries) {
+                String varName = binary.getVarName();
+                JavaTypeNamingDto javaType = binary.getProperty().getJavaType();
                 Parameter param = new Parameter();
                 param.addAnnotation(StaticJavaParser.parseAnnotation(
                         String.format("@org.apache.ibatis.annotations.Param(\"%s\")", varName)));
 
-                if (Lists.newArrayList(PredicateEnum.IN, PredicateEnum.NOT_IN).contains(phrase.getPredicate())) {
+                if (binaries instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
+                                ComparisonOperatorEnum.NOT_IN)
+                        .contains(((CompareableBinary) binaries).getComparisonOperator())) {
                     param.setType("java.util.List<" + javaType.getQualifier() + ">");
                 } else {
                     param.setType(javaType.getQualifier());
@@ -130,7 +135,6 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
 
     @Override
     public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDto chainAnalysis, AstForest astForest) {
-        DesignMetaDto designMeta = chainAnalysis.getDesignMeta();
         boolean isAssigned = isAssigned(chainAnalysis);
         GenerateReturnTypeRetval result = new GenerateReturnTypeRetval();
 
@@ -139,30 +143,26 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             return result;
         }
 
-        if (chainAnalysis.getReturnClassify() == ReturnClassifyEnum.count) {
+        if (chainAnalysis.getReturnShape() == ReturnShapeEnum.count) {
             result.setResultType(PrimitiveType.intType());
             return result;
         }
 
         if (isAssigned) {
-            if (Lists.newArrayList(ReturnClassifyEnum.many, ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                    .contains(chainAnalysis.getReturnClassify())) {
+            if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                    .contains(chainAnalysis.getReturnShape())) {
                 result.setResultType(
-                        StaticJavaParser.parseType("java.util.List<" + designMeta.getEntityQualifier() + ">"));
-                result.setElementTypeQualifier(designMeta.getEntityQualifier());
+                        StaticJavaParser.parseType("java.util.List<" + chainAnalysis.getEntityQualifier() + ">"));
+                result.setElementTypeQualifier(chainAnalysis.getEntityQualifier());
             } else {
-                result.setResultType(StaticJavaParser.parseType(designMeta.getEntityQualifier()));
-                result.setElementTypeQualifier(designMeta.getEntityQualifier());
+                result.setResultType(StaticJavaParser.parseType(chainAnalysis.getEntityQualifier()));
+                result.setElementTypeQualifier(chainAnalysis.getEntityQualifier());
             }
             return result;
         }
 
-        Map<String, PropertyDto> properties = designMeta.getProperties();
-
-        Set<PhraseDto> phrases = chainAnalysis.getQueryPhrases();
-        log.info("queryPhrases.size()={}", chainAnalysis.getQueryPhrases().size());
-        if (phrases.size() > 1) {
-            // 指定了2个及以上属性，生成一个Javabean作为返回值类型
+        if (chainAnalysis.getSelectProperties().size() > 1) {
+            // selectPropertyName只会是1或者更多，只要超过1个，必然转化为Record或者Entity
             JavabeanArg javabeanArg = new JavabeanArg();
             javabeanArg.setAstForest(astForest);
             javabeanArg.setPackageName(commonConfig.getRecordPackage());
@@ -173,22 +173,20 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             javabeanArg.setAuthor(commonConfig.getAuthor());
             javabeanArg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
             javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
-            for (PhraseDto phrase : phrases) {
-                String propertyName = phrase.getSubjectPropertyName();
-                String varName = propertyName;
-                JavaTypeNamingDto javaType = properties.get(propertyName).getJavaType();
+            for (PropertyDto selectProp : chainAnalysis.getSelectProperties()) {
+                JavaTypeNamingDto javaType = selectProp.getJavaType();
                 FieldArg fieldArg = new FieldArg();
-                fieldArg.setDescription(properties.get(propertyName).getDescription());
+                fieldArg.setDescription(selectProp.getDescription());
                 fieldArg.setTypeQualifier(javaType.getQualifier());
-                fieldArg.setFieldName(varName);
+                fieldArg.setFieldName(selectProp.getPropertyName());
                 javabeanArg.getFieldArgs().add(fieldArg);
             }
             javabeanArg.setJavabeanExistenceResolution(FileExistenceResolutionEnum.RENAME);
             JavabeanGeneration recordGeneration = javabeanGeneratorService.generate(javabeanArg);
             result.setFlush(recordGeneration.getFileFlush());
             result.setElementTypeQualifier(recordGeneration.getJavabeanQualifier());
-            if (Lists.newArrayList(ReturnClassifyEnum.many, ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                    .contains(chainAnalysis.getReturnClassify())) {
+            if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                    .contains(chainAnalysis.getReturnShape())) {
                 result.setResultType(
                         StaticJavaParser.parseType("java.util.List<" + recordGeneration.getJavabeanQualifier() + ">"));
             } else {
@@ -196,13 +194,13 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             }
             return result;
 
-        } else if (phrases.size() == 1) {
+        } else if (chainAnalysis.getSelectProperties().size() == 1) {
             // 指定了1个属性，使用该属性类型作为返回值类型
-            String propertyName = Iterables.getOnlyElement(phrases).getSubjectPropertyName();
-            JavaTypeNamingDto javaType = properties.get(propertyName).getJavaType();
+            PropertyDto selectProp = Iterables.getOnlyElement(chainAnalysis.getSelectProperties());
+            JavaTypeNamingDto javaType = selectProp.getJavaType();
             result.setElementTypeQualifier(javaType.getQualifier());
-            if (Lists.newArrayList(ReturnClassifyEnum.many, ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                    .contains(chainAnalysis.getReturnClassify())) {
+            if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                    .contains(chainAnalysis.getReturnShape())) {
                 result.setResultType(StaticJavaParser.parseType("java.util.List<" + javaType.getQualifier() + ">"));
             } else {
                 result.setResultType(StaticJavaParser.parseType(javaType.getQualifier()));
@@ -211,13 +209,13 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
 
         } else {
             // 没有指定属性，使用Entity作为返回值类型
-            result.setElementTypeQualifier(designMeta.getEntityQualifier());
-            if (Lists.newArrayList(ReturnClassifyEnum.many, ReturnClassifyEnum.each, ReturnClassifyEnum.multiEach)
-                    .contains(chainAnalysis.getReturnClassify())) {
+            result.setElementTypeQualifier(chainAnalysis.getEntityQualifier());
+            if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
+                    .contains(chainAnalysis.getReturnShape())) {
                 result.setResultType(
-                        StaticJavaParser.parseType("java.util.List<" + designMeta.getEntityQualifier() + ">"));
+                        StaticJavaParser.parseType("java.util.List<" + chainAnalysis.getEntityQualifier() + ">"));
             } else {
-                result.setResultType(StaticJavaParser.parseType(designMeta.getEntityQualifier()));
+                result.setResultType(StaticJavaParser.parseType(chainAnalysis.getEntityQualifier()));
             }
             return result;
         }

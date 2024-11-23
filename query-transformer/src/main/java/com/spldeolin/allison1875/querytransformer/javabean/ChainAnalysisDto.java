@@ -4,9 +4,9 @@ import java.util.Set;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.google.common.collect.Sets;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
-import com.spldeolin.allison1875.querytransformer.enums.ReturnClassifyEnum;
+import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,7 +20,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChainAnalysisDto {
 
-    DesignMetaDto designMeta;
+    String entityQualifier;
 
     MethodCallExpr chain;
 
@@ -28,17 +28,17 @@ public class ChainAnalysisDto {
 
     ChainMethodEnum chainMethod;
 
-    ReturnClassifyEnum returnClassify;
+    ReturnShapeEnum returnShape;
 
-    Set<PhraseDto> queryPhrases = Sets.newLinkedHashSet();
+    Set<PropertyDto> selectProperties = Sets.newLinkedHashSet();
 
-    Set<PhraseDto> byPhrases = Sets.newLinkedHashSet();
+    Set<SearchConditionDto> searchConditions = Sets.newLinkedHashSet();
 
-    Set<PhraseDto> orderPhrases = Sets.newLinkedHashSet();
+    Set<SortPropertyDto> sortProperties = Sets.newLinkedHashSet();
 
-    Set<JoinClauseDto> joins = Sets.newLinkedHashSet();
+    Set<JoinClauseDto> joinClauses = Sets.newLinkedHashSet();
 
-    Set<PhraseDto> updatePhrases = Sets.newLinkedHashSet();
+    Set<AssignmentDto> assignments = Sets.newLinkedHashSet();
 
     BlockStmt directBlock;
 

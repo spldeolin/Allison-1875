@@ -148,7 +148,7 @@ public class QueryTransformer implements Allison1875MainService {
                     // generate Method to Mapper
                     GenerateMethodToMapperArgs gmtmArgs = new GenerateMethodToMapperArgs();
                     gmtmArgs.setAstForest(astForest);
-                    gmtmArgs.setDesignMeta(designMeta);
+                    gmtmArgs.setMapperQualifier(designMeta.getMapperQualifier());
                     gmtmArgs.setChainAnalysis(chainAnalysis);
                     gmtmArgs.setCloneParameters(generateParamRetval.getParameters().stream().map(Parameter::clone)
                             .collect(Collectors.toList()));
