@@ -9,8 +9,14 @@ package com.spldeolin.allison1875.support;
  */
 public interface OrderChainPredicate<E> {
 
+    /**
+     * <strong>ASC</strong>
+     */
     E asc();
 
+    /**
+     * <strong>DESC</strong>
+     */
     E desc();
 
 }

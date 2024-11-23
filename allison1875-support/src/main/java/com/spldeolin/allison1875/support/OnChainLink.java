@@ -10,76 +10,103 @@ import java.util.Collection;
 public interface OnChainLink<RETURN_TYPE, LITERAL_TYPE, ENTITY_KEY_TYPE extends EntityKey<?, LITERAL_TYPE>> {
 
     /**
-     * EQual
+     * <strong>=</strong>
      */
     RETURN_TYPE eq(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong>=</strong>
+     */
     RETURN_TYPE eq(LITERAL_TYPE value);
 
     /**
-     * Not Equal
+     * <strong>!=</strong>
      */
     RETURN_TYPE ne(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong>!=</strong>
+     */
     RETURN_TYPE ne(LITERAL_TYPE value);
 
     /**
-     * IN
+     * <strong>IN</strong>
      */
     RETURN_TYPE in(Collection<ENTITY_KEY_TYPE> values);
 
+    /**
+     * <strong>IN</strong>
+     */
     RETURN_TYPE in(Iterable<LITERAL_TYPE> values); // It should be enough
 
     /**
-     * Not IN
+     * <strong>NOT IN</strong>
      */
     RETURN_TYPE nin(Collection<ENTITY_KEY_TYPE> values);
 
+    /**
+     * <strong>NOT IN</strong>
+     */
     RETURN_TYPE nin(Iterable<LITERAL_TYPE> values);
 
     /**
-     * Greater Than
+     * <strong>></strong>
      */
     RETURN_TYPE gt(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong>></strong>
+     */
     RETURN_TYPE gt(LITERAL_TYPE value);
 
     /**
-     * Greater or Equals
+     * <strong>>=</strong>
      */
     RETURN_TYPE ge(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong>>=</strong>
+     */
     RETURN_TYPE ge(LITERAL_TYPE value);
 
     /**
-     * Lesser Than
+     * <strong><</strong>
      */
     RETURN_TYPE lt(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong><</strong>
+     */
     RETURN_TYPE lt(LITERAL_TYPE value);
 
     /**
-     * Lesser or Equal
+     * <strong><=</strong>
      */
     RETURN_TYPE le(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong><=</strong>
+     */
     RETURN_TYPE le(LITERAL_TYPE value);
 
     /**
-     * NOT NULL
+     * <strong>IS NOT NULL</strong>
      */
     RETURN_TYPE notnull();
 
     /**
-     * IS NULL
+     * <strong>IS NULL</strong>
      */
     RETURN_TYPE isnull();
 
     /**
-     * LIKE
+     * <strong>LIKE</strong>
      */
     RETURN_TYPE like(ENTITY_KEY_TYPE value);
 
+    /**
+     * <strong>LIKE</strong>
+     */
     RETURN_TYPE like(LITERAL_TYPE value);
 
 }

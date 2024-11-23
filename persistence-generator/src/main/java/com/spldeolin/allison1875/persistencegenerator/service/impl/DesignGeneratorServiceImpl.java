@@ -43,8 +43,8 @@ import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRet
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinDesignArgs;
 import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
 import com.spldeolin.allison1875.persistencegenerator.service.DesignGeneratorService;
-import com.spldeolin.allison1875.support.ByChainPredicate;
 import com.spldeolin.allison1875.support.EntityKey;
+import com.spldeolin.allison1875.support.OnChainLink;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -85,7 +85,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
                 log.info("Join Design absent, create it, path={}", designPath);
                 designCu.setStorage(designPath);
                 designCu.setPackageDeclaration(commonConfig.getDesignPackage());
-                designCu.addImport(ByChainPredicate.class.getName());
+                designCu.addImport(OnChainLink.class.getName());
                 designCu.addImport(EntityKey.class.getName());
                 designCu.addOrphanComment(new LineComment("@formatter:" + "off"));
                 ClassOrInterfaceDeclaration designCoid = new ClassOrInterfaceDeclaration();
@@ -132,8 +132,9 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
                 .setTypeParameters(typeParams).addImplementedType(args.getDesignQualifier().replace('.', '_'));
         for (PropertyDto property : tableStructureAnalysis.getProperties()) {
             joinEntityOnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                    String.format("public ByChainPredicate<MQCM, EntityKey<ME, %s>> %s;",
-                            property.getJavaType().getQualifier(), property.getPropertyName())));
+                    String.format("public OnChainLink<MQCM, %s, EntityKey<ME, %s>> %s;",
+                            property.getJavaType().getQualifier(), property.getJavaType().getQualifier(),
+                            property.getPropertyName())));
         }
         joinEntityOnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public Join%sOnOpened<MQCM, ME> open() { throw e; }", entityName)));
@@ -149,8 +150,9 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
                 .setTypeParameters(typeParams).addImplementedType(args.getDesignQualifier().replace('.', '_'));
         for (PropertyDto property : tableStructureAnalysis.getProperties()) {
             joinEntityOnOpenedCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                    String.format("public ByChainPredicate<Join%sOnOpenedClosable<MQCM, ME>, EntityKey<ME, %s>> %s;",
-                            entityName, property.getJavaType().getQualifier(), property.getPropertyName())));
+                    String.format("public OnChainLink<Join%sOnOpenedClosable<MQCM, ME>, %s, EntityKey<ME, %s>> %s;",
+                            entityName, property.getJavaType().getQualifier(), property.getJavaType().getQualifier(),
+                            property.getPropertyName())));
         }
         design.getMembers().stream().filter(BodyDeclaration::isClassOrInterfaceDeclaration)
                 .map(BodyDeclaration::asClassOrInterfaceDeclaration)
