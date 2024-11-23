@@ -1,6 +1,7 @@
 package com.spldeolin.allison1875.querytransformer.javabean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.github.javaparser.ast.expr.Expression;
 import com.spldeolin.allison1875.querytransformer.enums.PredicateEnum;
 import lombok.AccessLevel;
@@ -22,7 +23,7 @@ public class JoinConditionDto {
 
     PredicateEnum predicate;
 
-    @JsonIgnore
+    @JsonSerialize(using = ToStringSerializer.class)
     Expression objectExpr;
 
     String propertyName4Comparing;

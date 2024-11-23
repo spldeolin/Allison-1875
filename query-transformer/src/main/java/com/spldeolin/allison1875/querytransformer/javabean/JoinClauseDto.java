@@ -1,6 +1,8 @@
 package com.spldeolin.allison1875.querytransformer.javabean;
 
 import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.querytransformer.enums.JoinTypeEnum;
 import lombok.AccessLevel;
@@ -18,6 +20,7 @@ public class JoinClauseDto {
 
     JoinTypeEnum joinType;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     DesignMetaDto joinedDesignMeta;
 
     List<JoinedPropertyDto> joinedProperties;

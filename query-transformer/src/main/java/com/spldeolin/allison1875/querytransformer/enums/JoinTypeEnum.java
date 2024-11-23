@@ -29,7 +29,7 @@ public enum JoinTypeEnum {
                 return rightJoin;
             case "inner":
                 return innerJoin;
-            case "outerJ":
+            case "outer":
                 return outerJoin;
             default:
                 throw new IllegalChainException("Unknown join type: " + value);

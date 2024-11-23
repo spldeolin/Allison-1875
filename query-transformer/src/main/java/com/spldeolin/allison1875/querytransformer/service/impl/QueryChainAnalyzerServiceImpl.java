@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import com.github.javaparser.ast.Node.TreeTraversal;
 import com.github.javaparser.ast.NodeList;
@@ -26,6 +27,7 @@ import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
+import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.TokenWordConstant;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
@@ -45,6 +47,7 @@ import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.QueryChainAnalyzerService;
 import com.spldeolin.allison1875.support.ByChainPredicate;
 import com.spldeolin.allison1875.support.EntityKey;
+import com.spldeolin.allison1875.support.OnChainLink;
 import com.spldeolin.allison1875.support.OrderChainPredicate;
 import lombok.extern.slf4j.Slf4j;
 
@@ -184,7 +187,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
 
             // 对应每个JOIN子句的ON子句的每个binary
             if (describe.startsWith(
-                    ByChainPredicate.class.getName() + "<" + commonConfig.getDesignPackage() + ".JoinDesign.Join")
+                    OnChainLink.class.getName() + "<" + commonConfig.getDesignPackage() + ".JoinDesign.Join")
                     && fae.getParentNode().isPresent()) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
                 PredicateEnum predicate = PredicateEnum.of(parent.getNameAsString());
@@ -226,16 +229,16 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
 
             // 对应SELECT子句中的col_name（join表的col）
             List<JoinedPropertyDto> joinedProperties = Lists.newArrayList();
-            Arrays.stream(StringUtils.substringAfter(joinedEntityWithProperty, ".").split("\\.")).distinct()
-                    .forEach(joinedPropertyName -> {
-                        String varName = antiDuplicationService.getNewElementIfExist(joinedPropertyName,
-                                antiVarNameDuplInRecord);
-                        antiVarNameDuplInCond.add(varName);
-                        JoinedPropertyDto joinedProperty = new JoinedPropertyDto();
-                        joinedProperty.setPropertyName(joinedPropertyName);
-                        joinedProperty.setVarName(varName);
-                        joinedProperties.add(joinedProperty);
-                    });
+            Stream<String> joinedPropertyNames = this.extractPropertyNames(joinedEntityWithProperty, joinedEntityMeta);
+            joinedPropertyNames.forEach(joinedPropertyName -> {
+                String varName = StringUtils.uncapitalize(entityName) + StringUtils.capitalize(joinedPropertyName);
+                varName = antiDuplicationService.getNewElementIfExist(varName, antiVarNameDuplInRecord);
+                antiVarNameDuplInRecord.add(varName);
+                JoinedPropertyDto joinedProperty = new JoinedPropertyDto();
+                joinedProperty.setPropertyName(joinedPropertyName);
+                joinedProperty.setVarName(varName);
+                joinedProperties.add(joinedProperty);
+            });
 
             JoinClauseDto join = new JoinClauseDto();
             join.setJoinType(JoinTypeEnum.of(matcher.group(1)));
@@ -278,7 +281,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         log.info("queryPhrases={}", queryPhrases);
         log.info("byPhrases={}", byPhrases);
         log.info("orderPhrases={}", orderPhrases);
-        log.info("joinPhrases={}", joins);
+        log.info("joinClauses={}", JsonUtils.toJsonPrettily(joins));
         log.info("updatePhrases={}", updatePhrases);
 
         ChainAnalysisDto result = new ChainAnalysisDto();
@@ -296,6 +299,17 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         String hash = StringUtils.upperCase(HashingUtils.hashString(result.toString()));
         result.setLotNo(String.format("QT%s-%s", Allison1875.SHORT_VERSION, hash));
         return result;
+    }
+
+    private Stream<String> extractPropertyNames(String joinedEntityWithProperty, DesignMetaDto joinedEntityMeta) {
+        String joinedPropertiesText = StringUtils.substringAfter(joinedEntityWithProperty, ".");
+        Stream<String> joinedPropertyNames;
+        if (!joinedPropertiesText.isEmpty()) {
+            joinedPropertyNames = Arrays.stream(joinedPropertiesText.split("\\.")).distinct();
+        } else {
+            joinedPropertyNames = Lists.newArrayList(joinedEntityMeta.getProperties().keySet()).stream();
+        }
+        return joinedPropertyNames;
     }
 
     private String getJoinedDesignQualifier(ClassOrInterfaceDeclaration joinDesign, String entityName) {

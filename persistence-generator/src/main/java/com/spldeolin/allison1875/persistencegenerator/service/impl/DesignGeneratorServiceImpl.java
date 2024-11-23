@@ -2,8 +2,8 @@ package com.spldeolin.allison1875.persistencegenerator.service.impl;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import com.github.javaparser.StaticJavaParser;
@@ -162,7 +162,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration joinEntityOnOpenedClosableCoid = new ClassOrInterfaceDeclaration();
         joinEntityOnOpenedClosableCoid.setPublic(true).setStatic(true).setName("Join" + entityName + "OnOpenedClosable")
-                .setTypeParameters(typeParams).addExtendedType("Join" + entityName + "OnOpened")
+                .setTypeParameters(typeParams).addExtendedType("Join" + entityName + "OnOpened<MQCM, ME>")
                 .addImplementedType(args.getDesignQualifier().replace('.', '_'));
         joinEntityOnOpenedClosableCoid.addMember(
                 StaticJavaParser.parseBodyDeclaration("public MQCM close() { throw e; }"));
@@ -205,7 +205,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
                 commonConfig.getDesignPackage(), designName + ".java");
 
         List<PropertyDto> properties = tableStructureAnalysis.getProperties();
-        Map<String, PropertyDto> propertiesByName = Maps.newHashMap();
+        LinkedHashMap<String, PropertyDto> propertiesByName = Maps.newLinkedHashMap();
 
         CompilationUnit cu = new CompilationUnit();
         cu.setStorage(designPath);

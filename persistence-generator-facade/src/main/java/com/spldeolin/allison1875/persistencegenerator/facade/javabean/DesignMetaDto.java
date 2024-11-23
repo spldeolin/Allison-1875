@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.persistencegenerator.facade.javabean;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -29,7 +29,7 @@ public class DesignMetaDto {
 
     List<String> mapperPaths;
 
-    Map<String, PropertyDto> properties;
+    LinkedHashMap<String, PropertyDto> properties;
 
     String tableName;
 
