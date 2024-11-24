@@ -11,15 +11,17 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum JoinTypeEnum {
 
-    leftJoin,
+    leftJoin("LEFT JOIN"),
 
-    rightJoin,
+    rightJoin("RIGHT JOIN"),
 
-    innerJoin,
+    innerJoin("INNER JOIN"),
 
-    outerJoin,
+    outerJoin("OUTER JOIN"),
 
     ;
+
+    private final String sql;
 
     public static JoinTypeEnum of(String value) {
         switch (value) {

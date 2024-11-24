@@ -40,6 +40,21 @@ public class ChainAnalysisDto {
 
     Set<AssignmentDto> assignments = Sets.newLinkedHashSet();
 
+    /**
+     * argument作为实际参数输入的binary，用于构建mapper方法的参数列表，由以下元素组成：
+     * - 所有assigments
+     * - 需要argument的searchConditions
+     * - 需要非EntityKey的argument的joinConditions
+     */
+    Set<Binary> binariesAsArgs;
+
+    /**
+     * propertyName作为返回类型字段输出的property与其varName，用于构建mapper方法的返回值，由以下元素组成：
+     * - 所有selectProperties
+     * - 所有joinClause的所有joinedProperty
+     */
+    Set<VariableProperty> propertiesAsResult;
+
     BlockStmt directBlock;
 
     Boolean isAssigned;

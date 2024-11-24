@@ -7,106 +7,91 @@ import java.util.Collection;
  *
  * @author Deolin 2024-11-18
  */
-public interface OnChainLink<RETURN_TYPE, LITERAL_TYPE, ENTITY_KEY_TYPE extends EntityKey<?, LITERAL_TYPE>> {
+public interface OnChainLink<RETURN, LITERAL, ENTITY_KEY extends EntityKey<?, LITERAL>> {
 
     /**
      * <strong>=</strong>
      */
-    RETURN_TYPE eq(ENTITY_KEY_TYPE value);
+    RETURN eq(ENTITY_KEY value);
+
+    /**
+     * <strong>!=</strong>
+     */
+    RETURN ne(ENTITY_KEY value);
+
+    /**
+     * <strong>></strong>
+     */
+    RETURN gt(ENTITY_KEY value);
+
+    /**
+     * <strong>>=</strong>
+     */
+    RETURN ge(ENTITY_KEY value);
+
+    /**
+     * <strong><</strong>
+     */
+    RETURN lt(ENTITY_KEY value);
+
+    /**
+     * <strong><=</strong>
+     */
+    RETURN le(ENTITY_KEY value);
 
     /**
      * <strong>=</strong>
      */
-    RETURN_TYPE eq(LITERAL_TYPE value);
+    RETURN eq(LITERAL value);
 
     /**
      * <strong>!=</strong>
      */
-    RETURN_TYPE ne(ENTITY_KEY_TYPE value);
-
-    /**
-     * <strong>!=</strong>
-     */
-    RETURN_TYPE ne(LITERAL_TYPE value);
+    RETURN ne(LITERAL value);
 
     /**
      * <strong>IN</strong>
      */
-    RETURN_TYPE in(Collection<ENTITY_KEY_TYPE> values);
-
-    /**
-     * <strong>IN</strong>
-     */
-    RETURN_TYPE in(Iterable<LITERAL_TYPE> values); // It should be enough
+    RETURN in(Collection<LITERAL> values);
 
     /**
      * <strong>NOT IN</strong>
      */
-    RETURN_TYPE nin(Collection<ENTITY_KEY_TYPE> values);
-
-    /**
-     * <strong>NOT IN</strong>
-     */
-    RETURN_TYPE nin(Iterable<LITERAL_TYPE> values);
+    RETURN nin(Collection<LITERAL> values);
 
     /**
      * <strong>></strong>
      */
-    RETURN_TYPE gt(ENTITY_KEY_TYPE value);
-
-    /**
-     * <strong>></strong>
-     */
-    RETURN_TYPE gt(LITERAL_TYPE value);
+    RETURN gt(LITERAL value);
 
     /**
      * <strong>>=</strong>
      */
-    RETURN_TYPE ge(ENTITY_KEY_TYPE value);
-
-    /**
-     * <strong>>=</strong>
-     */
-    RETURN_TYPE ge(LITERAL_TYPE value);
+    RETURN ge(LITERAL value);
 
     /**
      * <strong><</strong>
      */
-    RETURN_TYPE lt(ENTITY_KEY_TYPE value);
-
-    /**
-     * <strong><</strong>
-     */
-    RETURN_TYPE lt(LITERAL_TYPE value);
+    RETURN lt(LITERAL value);
 
     /**
      * <strong><=</strong>
      */
-    RETURN_TYPE le(ENTITY_KEY_TYPE value);
-
-    /**
-     * <strong><=</strong>
-     */
-    RETURN_TYPE le(LITERAL_TYPE value);
+    RETURN le(LITERAL value);
 
     /**
      * <strong>IS NOT NULL</strong>
      */
-    RETURN_TYPE notnull();
+    RETURN notnull();
 
     /**
      * <strong>IS NULL</strong>
      */
-    RETURN_TYPE isnull();
+    RETURN isnull();
 
     /**
      * <strong>LIKE</strong>
      */
-    RETURN_TYPE like(ENTITY_KEY_TYPE value);
-
-    /**
-     * <strong>LIKE</strong>
-     */
-    RETURN_TYPE like(LITERAL_TYPE value);
+    RETURN like(LITERAL value);
 
 }

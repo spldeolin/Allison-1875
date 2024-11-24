@@ -40,12 +40,14 @@ import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDto;
+import com.spldeolin.allison1875.querytransformer.javabean.Binary;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinClauseDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinConditionDto;
 import com.spldeolin.allison1875.querytransformer.javabean.JoinedPropertyDto;
 import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
 import com.spldeolin.allison1875.querytransformer.javabean.SortPropertyDto;
+import com.spldeolin.allison1875.querytransformer.javabean.VariableProperty;
 import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.QueryChainAnalyzerService;
 import com.spldeolin.allison1875.support.ByChainPredicate;
@@ -119,9 +121,9 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         Set<PropertyDto> selectProperties = Sets.newLinkedHashSet();
         Set<SearchConditionDto> searchConditions = Sets.newLinkedHashSet();
         Set<SortPropertyDto> sortProperties = Sets.newLinkedHashSet();
-        Set<JoinClauseDto> joins = Sets.newLinkedHashSet();
+        Set<JoinClauseDto> joinClauses = Sets.newLinkedHashSet();
         Set<AssignmentDto> assignments = Sets.newLinkedHashSet();
-        Map<String/*joinedEntityDesignQualifier*/, List<JoinConditionDto>> joinConditions = Maps.newHashMap();
+        Map<String/*joinedEntityDesignQualifier*/, Set<JoinConditionDto>> joinConditions = Maps.newHashMap();
 
         // 防Cond中的字段名重复（分析where和update中使用）
         List<String> antiVarNameDuplInCond = Lists.newArrayList();
@@ -164,6 +166,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 ComparisonOperatorEnum predicate = ComparisonOperatorEnum.of(parent.getNameAsString());
                 SearchConditionDto searchCond = new SearchConditionDto();
                 searchCond.setProperty(designMeta.getProperties().get(fae.getNameAsString()));
+                searchCond.setVarName(fae.getNameAsString());
                 searchCond.setComparisonOperator(predicate);
                 if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
@@ -191,29 +194,30 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                     && fae.getParentNode().isPresent()) {
                 MethodCallExpr parent = (MethodCallExpr) fae.getParentNode().get();
                 ComparisonOperatorEnum predicate = ComparisonOperatorEnum.of(parent.getNameAsString());
-                JoinConditionDto joinCondition = new JoinConditionDto();
-                joinCondition.setProperty(designMeta.getProperties().get(fae.getNameAsString()));
-                joinCondition.setComparisonOperator(predicate);
+                JoinConditionDto joinCond = new JoinConditionDto();
+                // 这里以joinedDesignQualifier作为联系，便不再获取JoinedDesignMeta了，没有后者也就无法获取到PropertyDto，所以只能先行setPropertyName
+                joinCond.setProperty(new PropertyDto().setPropertyName(fae.getNameAsString()));
+                joinCond.setVarName(fae.getNameAsString());
+                joinCond.setComparisonOperator(predicate);
                 if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     if (!parent.getArgument(0).calculateResolvedType().describe()
                             .startsWith(EntityKey.class.getName() + "<")) {
                         String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
                                 antiVarNameDuplInCond);
                         antiVarNameDuplInCond.add(varName);
-                        joinCondition.setVarName(varName);
-                        joinCondition.setArgument(parent.getArgument(0));
+                        joinCond.setVarName(varName);
+                        joinCond.setArgument(parent.getArgument(0));
                     } else {
                         // 说明是MyEntityDesign.myProperty，无需anti-dupl，但需要在onPhrase记录propertyName4Comparing，应该不能用PhraseDTO了
-                        joinCondition.setComparedPropertyName(
-                                parent.getArgument(0).asFieldAccessExpr().getNameAsString());
+                        joinCond.setComparedProperty(new PropertyDto().setPropertyName(
+                                parent.getArgument(0).asFieldAccessExpr().getNameAsString()));
                     }
                 }
                 String designMarkerQualifier = fae.resolve().asField().declaringType().asClass().getAllInterfaces()
                         .get(0).describe();
-                String joinedEntityDesignQualifier = MoreStringUtils.splitAndGetLastPart(designMarkerQualifier, ".")
+                String joinedDesignQualifier = MoreStringUtils.splitAndGetLastPart(designMarkerQualifier, ".")
                         .replace('_', '.');
-                joinConditions.computeIfAbsent(joinedEntityDesignQualifier, v -> Lists.newArrayList())
-                        .add(joinCondition);
+                joinConditions.computeIfAbsent(joinedDesignQualifier, v -> Sets.newLinkedHashSet()).add(joinCond);
             }
         }
 
@@ -223,29 +227,39 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
             // 对应JOIN子句的tbl_name
             String joinedEntityWithProperty = matcher.group(2);
             String entityName = joinedEntityWithProperty.split("\\.")[0];
-            ClassOrInterfaceDeclaration joinedEntityDesign = designService.detectDesignOrJoinDesign(astForest,
+            ClassOrInterfaceDeclaration joinedDesign = designService.detectDesignOrJoinDesign(astForest,
                     this.getJoinedDesignQualifier(joinDesign, entityName));
-            DesignMetaDto joinedEntityMeta = designService.findDesignMeta(joinedEntityDesign);
+            DesignMetaDto joinedDesignMeta = designService.findDesignMeta(joinedDesign);
 
             // 对应SELECT子句中的col_name（join表的col）
-            List<JoinedPropertyDto> joinedProperties = Lists.newArrayList();
-            Stream<String> joinedPropertyNames = this.extractPropertyNames(joinedEntityWithProperty, joinedEntityMeta);
+            Set<JoinedPropertyDto> joinedProperties = Sets.newLinkedHashSet();
+            Stream<String> joinedPropertyNames = this.extractPropertyNames(joinedEntityWithProperty, joinedDesignMeta);
             joinedPropertyNames.forEach(joinedPropertyName -> {
                 String varName = StringUtils.uncapitalize(entityName) + StringUtils.capitalize(joinedPropertyName);
                 varName = antiDuplicationService.getNewElementIfExist(varName, antiVarNameDuplInRecord);
                 antiVarNameDuplInRecord.add(varName);
                 JoinedPropertyDto joinedProperty = new JoinedPropertyDto();
-                joinedProperty.setPropertyName(joinedPropertyName);
+                joinedProperty.setProperty(joinedDesignMeta.getProperties().get(joinedPropertyName));
                 joinedProperty.setVarName(varName);
                 joinedProperties.add(joinedProperty);
             });
 
-            JoinClauseDto join = new JoinClauseDto();
-            join.setJoinType(JoinTypeEnum.of(matcher.group(1)));
-            join.setJoinedDesignMeta(joinedEntityMeta);
-            join.setJoinedProperties(joinedProperties);
-            join.setJoinConditions(joinConditions.get(joinedEntityMeta.getDesignQualifier()));
-            joins.add(join);
+            // 对应每个JOIN子句的ON子句的每个binary
+            Set<JoinConditionDto> joinConds = joinConditions.get(joinedDesignMeta.getDesignQualifier());
+            for (JoinConditionDto joinCond : joinConds) {
+                joinCond.setProperty(joinedDesignMeta.getProperties().get(joinCond.getProperty().getPropertyName()));
+                if (joinCond.getComparedProperty() != null) {
+                    joinCond.setComparedProperty(
+                            designMeta.getProperties().get(joinCond.getComparedProperty().getPropertyName()));
+                }
+            }
+
+            JoinClauseDto joinClause = new JoinClauseDto();
+            joinClause.setJoinType(JoinTypeEnum.of(matcher.group(1)));
+            joinClause.setJoinedDesignMeta(joinedDesignMeta);
+            joinClause.setJoinedProperties(joinedProperties);
+            joinClause.setJoinConditions(joinConds);
+            joinClauses.add(joinClause);
         }
 
         // 如果终结方法是Each或者MultiEach，确保queryPhrases中必须包含each的key
@@ -276,11 +290,48 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 assignments.add(assignment);
             }
         }
-        log.info("selectProperties={}", selectProperties);
-        log.info("searchConditions={}", searchConditions);
-        log.info("sortProperties={}", sortProperties);
-        log.info("joinClauses={}", JsonUtils.toJsonPrettily(joins));
-        log.info("assignments={}", assignments);
+
+        // mapper方法的参数字段
+        Set<Binary> binaries = Sets.newLinkedHashSet(assignments);
+        for (SearchConditionDto searchCond : searchConditions) {
+            if (searchCond.getArgument() != null) {
+                binaries.add(searchCond);
+            }
+        }
+        for (JoinClauseDto joinClause : joinClauses) {
+            for (JoinConditionDto joinCond : joinClause.getJoinConditions()) {
+                if (joinCond.getArgument() != null) {
+                    binaries.add(joinCond);
+                }
+            }
+        }
+
+        // mapper方法的返回值字段
+        Set<VariableProperty> returnProps = Sets.newLinkedHashSet();
+        for (PropertyDto selectProp : selectProperties) {
+            returnProps.add(new VariableProperty() {
+                @Override
+                public PropertyDto getProperty() {
+                    return selectProp;
+                }
+
+                @Override
+                public String getVarName() {
+                    return selectProp.getPropertyName();
+                }
+            });
+        }
+        for (JoinClauseDto joinClause : joinClauses) {
+            returnProps.addAll(joinClause.getJoinedProperties());
+        }
+
+        log.info("selectProperties={}", JsonUtils.toJsonPrettily(selectProperties));
+        log.info("searchConditions={}", JsonUtils.toJsonPrettily(searchConditions));
+        log.info("sortProperties={}", JsonUtils.toJsonPrettily(sortProperties));
+        log.info("joinClauses={}", JsonUtils.toJsonPrettily(joinClauses));
+        log.info("assignments={}", JsonUtils.toJsonPrettily(assignments));
+        log.info("binaries={}", JsonUtils.toJsonPrettily(binaries));
+        log.info("returnProps={}", JsonUtils.toJsonPrettily(returnProps));
 
         ChainAnalysisDto result = new ChainAnalysisDto();
         result.setEntityQualifier(designMeta.getEntityQualifier());
@@ -290,8 +341,10 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         result.setSelectProperties(selectProperties);
         result.setSearchConditions(searchConditions);
         result.setSortProperties(sortProperties);
-        result.setJoinClauses(joins);
+        result.setJoinClauses(joinClauses);
         result.setAssignments(assignments);
+        result.setBinariesAsArgs(binaries);
+        result.setPropertiesAsResult(returnProps);
         result.setChain(queryChain);
         result.setIsByForced(chainCode.contains("." + TokenWordConstant.BY_FORCED_METHOD_NAME + "()"));
         String hash = StringUtils.upperCase(HashingUtils.hashString(result.toString()));

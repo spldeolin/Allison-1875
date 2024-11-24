@@ -2,7 +2,6 @@ package com.spldeolin.allison1875.querytransformer.service.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import com.github.javaparser.StaticJavaParser;
@@ -10,19 +9,16 @@ import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.exception.ParentAbsentException;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
-import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDto;
 import com.spldeolin.allison1875.querytransformer.javabean.Binary;
 import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
 import com.spldeolin.allison1875.querytransformer.service.TransformMethodCallService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,9 +37,8 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
             String condQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
             result += MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(condQualifier, "."));
         } else {
-            Set<Binary> binaries = Sets.newLinkedHashSet(chainAnalysis.getAssignments());
-            binaries.addAll(chainAnalysis.getSearchConditions());
-            result += binaries.stream().filter(b -> b.getArgument() != null).map(p -> p.getArgument().toString())
+            result += chainAnalysis.getBinariesAsArgs().stream().filter(b -> b.getArgument() != null)
+                    .map(p -> p.getArgument().toString())
                     .collect(Collectors.joining(", "));
         }
         result += ")";
@@ -61,17 +56,10 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
         List<Statement> result = Lists.newArrayList();
         result.add(StaticJavaParser.parseStatement(
                 "final " + javabeanTypeQualifier + " " + javabeanVarName + " = new " + javabeanTypeQualifier + "();"));
-        for (AssignmentDto assigment : chainAnalysis.getAssignments()) {
+        for (Binary binariesAsArg : chainAnalysis.getBinariesAsArgs()) {
             result.add(StaticJavaParser.parseStatement(
-                    javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(assigment.getVarName()) + "("
-                            + assigment.getArgument() + ");"));
-        }
-        for (SearchConditionDto searchCond : chainAnalysis.getSearchConditions()) {
-            if (searchCond.getArgument() != null) {
-                result.add(StaticJavaParser.parseStatement(
-                        javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(searchCond.getVarName()) + "("
-                                + searchCond.getArgument() + ");"));
-            }
+                    javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(binariesAsArg.getVarName()) + "("
+                            + binariesAsArg.getArgument() + ");"));
         }
         return result;
     }

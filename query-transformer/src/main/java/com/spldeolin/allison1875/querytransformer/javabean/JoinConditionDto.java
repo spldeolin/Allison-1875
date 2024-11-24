@@ -27,6 +27,6 @@ public class JoinConditionDto implements CompareableBinary {
     @JsonSerialize(using = ToStringSerializer.class)
     Expression argument;
 
-    String comparedPropertyName;
+    PropertyDto comparedProperty;
 
 }

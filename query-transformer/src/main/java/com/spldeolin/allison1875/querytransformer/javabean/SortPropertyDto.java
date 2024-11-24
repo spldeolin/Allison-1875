@@ -1,5 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.javabean;
 
+import java.util.Objects;
 import com.spldeolin.allison1875.querytransformer.enums.OrderSequenceEnum;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -17,5 +18,22 @@ public class SortPropertyDto {
     String propertyName;
 
     OrderSequenceEnum orderSequence;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SortPropertyDto that = (SortPropertyDto) o;
+        return Objects.equals(propertyName, that.propertyName) && orderSequence == that.orderSequence;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(propertyName, orderSequence);
+    }
 
 }

@@ -8,7 +8,6 @@ import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ast.AstForest;
@@ -23,7 +22,6 @@ import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
 import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ComparisonOperatorEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
@@ -32,7 +30,7 @@ import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
 import com.spldeolin.allison1875.querytransformer.javabean.CompareableBinary;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
+import com.spldeolin.allison1875.querytransformer.javabean.VariableProperty;
 import com.spldeolin.allison1875.querytransformer.service.MethodGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,21 +53,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         boolean isJavabean = false;
         FileFlush condFlush = null;
 
-        // 收集所有需要输入参数的binary，用于构建mapper方法的参数列表（所有assigments、需要argument的searchConditions、需要argument的joinConditions）
-        Set<Binary> binaries = Sets.newLinkedHashSet(chainAnalysis.getAssignments());
-        for (SearchConditionDto searchCond : chainAnalysis.getSearchConditions()) {
-            if (searchCond.getArgument() != null) {
-                binaries.add(searchCond);
-            }
-        }
-//        for (JoinClauseDto joinClause : chainAnalysis.getJoinClauses()) {
-//            for (JoinConditionDto joinCond : joinClause.getJoinConditions()) {
-//                if (joinCond != null) {
-//                    binaries.add(joinCond);
-//                }
-//            }
-//        }
-
+        Set<Binary> binaries = chainAnalysis.getBinariesAsArgs();
         if (binaries.size() > 3) {
             JavabeanArg javabeanArg = new JavabeanArg();
             javabeanArg.setAstForest(astForest);
@@ -86,9 +70,8 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
                 JavaTypeNamingDto javaType = binary.getProperty().getJavaType();
                 FieldArg fieldArg = new FieldArg();
                 fieldArg.setDescription(binary.getProperty().getDescription());
-                if (binaries instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
-                                ComparisonOperatorEnum.NOT_IN)
-                        .contains(((CompareableBinary) binaries).getComparisonOperator())) {
+                if (binary instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
+                        ComparisonOperatorEnum.NOT_IN).contains(((CompareableBinary) binary).getComparisonOperator())) {
                     fieldArg.setTypeQualifier("java.util.List<" + javaType.getQualifier() + ">");
                 } else {
                     fieldArg.setTypeQualifier(javaType.getQualifier());
@@ -112,9 +95,8 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
                 param.addAnnotation(StaticJavaParser.parseAnnotation(
                         String.format("@org.apache.ibatis.annotations.Param(\"%s\")", varName)));
 
-                if (binaries instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
-                                ComparisonOperatorEnum.NOT_IN)
-                        .contains(((CompareableBinary) binaries).getComparisonOperator())) {
+                if (binary instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
+                        ComparisonOperatorEnum.NOT_IN).contains(((CompareableBinary) binary).getComparisonOperator())) {
                     param.setType("java.util.List<" + javaType.getQualifier() + ">");
                 } else {
                     param.setType(javaType.getQualifier());
@@ -161,8 +143,8 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             return result;
         }
 
-        if (chainAnalysis.getSelectProperties().size() > 1) {
-            // selectPropertyName只会是1或者更多，只要超过1个，必然转化为Record或者Entity
+        Set<VariableProperty> returnProps = chainAnalysis.getPropertiesAsResult();
+        if (returnProps.size() > 1) {
             JavabeanArg javabeanArg = new JavabeanArg();
             javabeanArg.setAstForest(astForest);
             javabeanArg.setPackageName(commonConfig.getRecordPackage());
@@ -173,12 +155,12 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             javabeanArg.setAuthor(commonConfig.getAuthor());
             javabeanArg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
             javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
-            for (PropertyDto selectProp : chainAnalysis.getSelectProperties()) {
-                JavaTypeNamingDto javaType = selectProp.getJavaType();
+            for (VariableProperty returnProp : returnProps) {
+                JavaTypeNamingDto javaType = returnProp.getProperty().getJavaType();
                 FieldArg fieldArg = new FieldArg();
-                fieldArg.setDescription(selectProp.getDescription());
+                fieldArg.setDescription(returnProp.getProperty().getDescription());
                 fieldArg.setTypeQualifier(javaType.getQualifier());
-                fieldArg.setFieldName(selectProp.getPropertyName());
+                fieldArg.setFieldName(returnProp.getVarName());
                 javabeanArg.getFieldArgs().add(fieldArg);
             }
             javabeanArg.setJavabeanExistenceResolution(FileExistenceResolutionEnum.RENAME);
@@ -194,10 +176,10 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             }
             return result;
 
-        } else if (chainAnalysis.getSelectProperties().size() == 1) {
+        } else if (returnProps.size() == 1) {
             // 指定了1个属性，使用该属性类型作为返回值类型
-            PropertyDto selectProp = Iterables.getOnlyElement(chainAnalysis.getSelectProperties());
-            JavaTypeNamingDto javaType = selectProp.getJavaType();
+            VariableProperty returnProp = Iterables.getOnlyElement(returnProps);
+            JavaTypeNamingDto javaType = returnProp.getProperty().getJavaType();
             result.setElementTypeQualifier(javaType.getQualifier());
             if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
                     .contains(chainAnalysis.getReturnShape())) {

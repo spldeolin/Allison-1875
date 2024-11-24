@@ -1,5 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.javabean;
 
+import java.util.Objects;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.github.javaparser.ast.expr.Expression;
@@ -26,5 +27,23 @@ public class SearchConditionDto implements CompareableBinary {
 
     @JsonSerialize(using = ToStringSerializer.class)
     Expression argument;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        SearchConditionDto that = (SearchConditionDto) o;
+        return Objects.equals(property, that.property) && Objects.equals(varName, that.varName)
+                && comparisonOperator == that.comparisonOperator && Objects.equals(argument, that.argument);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(property, varName, comparisonOperator, argument);
+    }
 
 }
