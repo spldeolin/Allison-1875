@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.javabean.FieldArg;
@@ -41,9 +41,9 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
     private AnnotationExprService annotationExprService;
 
     @Override
-    public JavabeanGeneration generateEntity(TableStructureAnalysisDto persistence, AstForest astForest) {
+    public JavabeanGeneration generateEntity(TableStructureAnalysisDto persistence) {
         JavabeanArg arg = new JavabeanArg();
-        arg.setAstForest(astForest);
+        arg.setAstForest(AstForestContext.get());
         arg.setPackageName(commonConfig.getEntityPackage());
         arg.setClassName(persistence.getEntityName());
         arg.setDescription(concatEntityDescription(persistence));

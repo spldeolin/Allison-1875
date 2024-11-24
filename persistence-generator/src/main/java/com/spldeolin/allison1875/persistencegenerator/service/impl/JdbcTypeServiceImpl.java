@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
 import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDto;
 import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
@@ -17,7 +16,7 @@ import com.spldeolin.allison1875.persistencegenerator.service.JdbcTypeService;
 public class JdbcTypeServiceImpl implements JdbcTypeService {
 
     @Override
-    public JavaTypeNamingDto jdbcType2javaType(InformationSchemaDto columnMeta, AstForest astForest,
+    public JavaTypeNamingDto jdbcType2javaType(InformationSchemaDto columnMeta,
             TableStructureAnalysisDto tableStructureAnalysis) {
         String columnType = columnMeta.getColumnType();
         String dataType = columnMeta.getDataType();

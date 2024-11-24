@@ -18,7 +18,6 @@ import com.google.common.io.Resources;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
@@ -49,7 +48,7 @@ public class TableStructureAnalyzerServiceImpl implements TableStructureAnalyzer
     private CommentService commentService;
 
     @Override
-    public List<TableStructureAnalysisDto> analyzeTableStructure(AstForest astForest) {
+    public List<TableStructureAnalysisDto> analyzeTableStructure() {
         // 查询information_schema.COLUMNS、information_schema.TABLES表
         List<InformationSchemaDto> infoSchemas = this.queryInformationSchema();
         String deleteFlag = getDeleteFlagName();
@@ -74,8 +73,7 @@ public class TableStructureAnalyzerServiceImpl implements TableStructureAnalyzer
             PropertyDto property = new PropertyDto();
             property.setColumnName(columnName);
             property.setPropertyName(MoreStringUtils.toLowerCamel(columnName));
-            JavaTypeNamingDto javaType = jdbcTypeService.jdbcType2javaType(infoSchema, astForest,
-                    tableStructureAnalysis);
+            JavaTypeNamingDto javaType = jdbcTypeService.jdbcType2javaType(infoSchema, tableStructureAnalysis);
             if (javaType == null) {
                 log.warn("出现了预想外的类型 columnName={} dataType={} columnType={}", infoSchema.getColumnName(),
                         infoSchema.getDataType(), infoSchema.getColumnType());

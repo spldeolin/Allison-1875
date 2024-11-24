@@ -24,6 +24,7 @@ import com.github.javaparser.utils.StringEscapeUtils;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
@@ -78,9 +79,9 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         CompilationUnit cu = args.getJoinDesignCu();
         if (cu == null) {
             String designName = "JoinDesign";
-            cu = args.getAstForest().findCu(commonConfig.getDesignPackage() + "." + designName).orElseGet(() -> {
+            cu = AstForestContext.get().findCu(commonConfig.getDesignPackage() + "." + designName).orElseGet(() -> {
                 CompilationUnit designCu = new CompilationUnit();
-                Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(args.getAstForest().getSourceRoot(),
+                Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
                         commonConfig.getDesignPackage(), designName + ".java");
                 log.info("Join Design absent, create it, path={}", designPath);
                 designCu.setStorage(designPath);
@@ -201,7 +202,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         }
 
         String designName = concatDesignName(tableStructureAnalysis);
-        Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(args.getAstForest().getSourceRoot(),
+        Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
                 commonConfig.getDesignPackage(), designName + ".java");
 
         List<PropertyDto> properties = tableStructureAnalysis.getProperties();

@@ -8,7 +8,7 @@ import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeEnumConstantsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.EnumService;
 import com.spldeolin.allison1875.docanalyzer.util.LoadClassUtils;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EnumServiceImpl implements EnumService {
 
     @Override
-    public List<AnalyzeEnumConstantsRetval> analyzeEnumConstants(VariableDeclarator fieldVar, AstForest astForest) {
+    public List<AnalyzeEnumConstantsRetval> analyzeEnumConstants(VariableDeclarator fieldVar) {
         ResolvedType resolvedType;
         try {
             resolvedType = fieldVar.getType().resolve();
@@ -31,13 +31,13 @@ public class EnumServiceImpl implements EnumService {
             return Lists.newArrayList();
         }
 
-        return analyzeEnumConstants(resolvedType, astForest);
+        return analyzeEnumConstants(resolvedType);
     }
 
-    private List<AnalyzeEnumConstantsRetval> analyzeEnumConstants(ResolvedType resolvedType, AstForest astForest) {
+    private List<AnalyzeEnumConstantsRetval> analyzeEnumConstants(ResolvedType resolvedType) {
         if (resolvedType.isArray()) {
             ResolvedArrayType arrayType = resolvedType.asArrayType();
-            return this.analyzeEnumConstants(arrayType.getComponentType(), astForest);
+            return this.analyzeEnumConstants(arrayType.getComponentType());
         }
 
         if (!resolvedType.isReferenceType()) {
@@ -54,7 +54,7 @@ public class EnumServiceImpl implements EnumService {
                 .anyMatch(ancestor -> ancestor.getId().equals("java.util.Collection"))
                 && referenceType.getTypeParametersMap().size() == 1) {
             ResolvedType typeParameterOfCollection = referenceType.getTypeParametersMap().get(0).b;
-            return this.analyzeEnumConstants(typeParameterOfCollection, astForest);
+            return this.analyzeEnumConstants(typeParameterOfCollection);
         }
 
         if (!referenceTypeDeclaration.isEnum()) {
@@ -64,7 +64,7 @@ public class EnumServiceImpl implements EnumService {
         Class<?> enumClass;
         try {
             enumClass = LoadClassUtils.loadClass(referenceTypeDeclaration.getQualifiedName(),
-                    astForest.getClassLoader());
+                    AstForestContext.get().getClassLoader());
         } catch (ClassNotFoundException e) {
             log.warn("class '{}' not found", referenceTypeDeclaration.getQualifiedName(), e);
             return Lists.newArrayList();

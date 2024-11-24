@@ -8,7 +8,6 @@ import com.github.pagehelper.PageSerializable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeFieldVarsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.impl.FieldServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 public class FieldServiceImpl2 extends FieldServiceImpl {
 
     @Override
-    protected Table<String, String, AnalyzeFieldVarsRetval> getAnalyzeFieldVarsRetvalFromThirdParty(
-            AstForest astForest) {
-        Table<String, String, AnalyzeFieldVarsRetval> result = super.getAnalyzeFieldVarsRetvalFromThirdParty(astForest);
+    protected Table<String, String, AnalyzeFieldVarsRetval> getAnalyzeFieldVarsRetvalFromThirdParty() {
+        Table<String, String, AnalyzeFieldVarsRetval> result = super.getAnalyzeFieldVarsRetvalFromThirdParty();
         result.put(PageSerializable.class.getName(), "total", new AnalyzeFieldVarsRetval("总记录数"));
         result.put(PageSerializable.class.getName(), "list", new AnalyzeFieldVarsRetval("结果集"));
         result.put(PageInfo.class.getName(), "pageNum", new AnalyzeFieldVarsRetval("当前页"));

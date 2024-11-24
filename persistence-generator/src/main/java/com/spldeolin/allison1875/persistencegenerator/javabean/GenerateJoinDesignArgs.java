@@ -1,7 +1,6 @@
 package com.spldeolin.allison1875.persistencegenerator.javabean;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -19,8 +18,6 @@ public class GenerateJoinDesignArgs {
     TableStructureAnalysisDto tableStructureAnalysis;
 
     JavabeanGeneration entityGeneration;
-
-    AstForest astForest;
 
     CompilationUnit joinDesignCu;
 

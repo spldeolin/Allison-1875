@@ -15,7 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
@@ -44,11 +44,11 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
     private DocAnalyzerConfig config;
 
     @Override
-    public List<MvcHandlerDto> detectMvcHandler(AstForest astForest) {
+    public List<MvcHandlerDto> detectMvcHandler() {
         List<MvcHandlerDto> result = Lists.newArrayList();
 
-        for (CompilationUnit cu : astForest) {
-            if (!CompilationUnitUtils.getCuAbsolutePath(cu).startsWith(astForest.getSourceRoot())) {
+        for (CompilationUnit cu : AstForestContext.get()) {
+            if (!CompilationUnitUtils.getCuAbsolutePath(cu).startsWith(AstForestContext.get().getSourceRoot())) {
                 // 非宿主controller
                 continue;
             }
@@ -60,7 +60,7 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
                 // 反射controller，如果失败那么这个controller就没有继续处理的必要了
                 Class<?> mvcControllerReflection;
                 try {
-                    mvcControllerReflection = tryReflectController(coid, astForest);
+                    mvcControllerReflection = tryReflectController(coid);
                 } catch (ClassNotFoundException e) {
                     continue;
                 }
@@ -133,12 +133,12 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
                 coid);
     }
 
-    private Class<?> tryReflectController(ClassOrInterfaceDeclaration controller, AstForest astForest)
+    private Class<?> tryReflectController(ClassOrInterfaceDeclaration controller)
             throws ClassNotFoundException {
         String qualifier = controller.getFullyQualifiedName()
                 .orElseThrow(() -> new QualifierAbsentException(controller));
         try {
-            return LoadClassUtils.loadClass(qualifier, astForest.getClassLoader());
+            return LoadClassUtils.loadClass(qualifier, AstForestContext.get().getClassLoader());
         } catch (ClassNotFoundException e) {
             log.error("cannot load class [{}]", qualifier, e);
             throw e;

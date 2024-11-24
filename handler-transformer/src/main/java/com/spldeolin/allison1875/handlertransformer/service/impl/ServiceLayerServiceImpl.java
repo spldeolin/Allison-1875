@@ -15,6 +15,7 @@ import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
@@ -121,7 +122,7 @@ public class ServiceLayerServiceImpl implements ServiceLayerService {
         String serviceName =
                 MoreStringUtils.toUpperCamel(args.getInitDecAnalysisDto().getMvcHandlerMethodName()) + "Service";
 
-        Path sourceRoot = args.getAstForest().getSourceRoot();
+        Path sourceRoot = AstForestContext.get().getSourceRoot();
         CompilationUnit serviceCu = new CompilationUnit();
         serviceCu.setPackageDeclaration(commonConfig.getServicePackage());
         importExprService.copyImports(args.getControllerCu(), serviceCu);

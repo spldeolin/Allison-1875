@@ -56,7 +56,7 @@ public class StarTransformer implements Allison1875MainService {
                     // analyze chain
                     ChainAnalysisDto analysis;
                     try {
-                        analysis = starChainService.analyzeStarChain(starChain, astForest);
+                        analysis = starChainService.analyzeStarChain(starChain);
                         log.info("Star Chain analyzed, analysis={}", analysis);
                     } catch (IllegalChainException e) {
                         log.error("fail to analyze Star Chain, starChain={}", starChain, e);
@@ -66,7 +66,7 @@ public class StarTransformer implements Allison1875MainService {
                     // generate WholeDto
                     JavabeanGeneration wholeDtoGeneration;
                     try {
-                        wholeDtoGeneration = wholeDtoService.generateWholeDto(astForest, analysis);
+                        wholeDtoGeneration = wholeDtoService.generateWholeDto(analysis);
                         log.info("Whole DTO generated, name={} path={}", wholeDtoGeneration.getJavabeanName(),
                                 wholeDtoGeneration.getPath());
                     } catch (Exception e) {

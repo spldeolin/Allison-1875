@@ -98,7 +98,7 @@ public class QueryTransformer implements Allison1875MainService {
                     // 找到所属Design中记录的实体Meta信息
                     DesignMetaDto designMeta;
                     try {
-                        designMeta = designService.findDesignMeta(astForest, queryChain);
+                        designMeta = designService.findDesignMeta(queryChain);
                         log.info("Design Meta found, designMeta={}", designMeta);
                     } catch (IllegalDesignException e) {
                         log.error("fail to find Design Meta, queryChain={}", queryChain, e);
@@ -110,7 +110,7 @@ public class QueryTransformer implements Allison1875MainService {
                     // 分析出chain所描述的信息
                     ChainAnalysisDto chainAnalysis;
                     try {
-                        chainAnalysis = queryChainAnalyzerService.analyzeQueryChain(queryChain, designMeta, astForest);
+                        chainAnalysis = queryChainAnalyzerService.analyzeQueryChain(queryChain, designMeta);
                         log.info("Query Chain analyzed, chainAnalysis={}", chainAnalysis);
                     } catch (IllegalChainException e) {
                         log.error("fail to analyze Query Chain, queryChain={}", queryChain, e);
@@ -121,7 +121,7 @@ public class QueryTransformer implements Allison1875MainService {
                     // generate Parameter
                     GenerateParamRetval generateParamRetval;
                     try {
-                        generateParamRetval = methodGeneratorService.generateParam(chainAnalysis, astForest);
+                        generateParamRetval = methodGeneratorService.generateParam(chainAnalysis);
                         log.info("Param generated, retval={}", generateParamRetval);
                     } catch (Exception e) {
                         log.error("fail to generate param chainAnalysis={}", chainAnalysis, e);
@@ -135,7 +135,7 @@ public class QueryTransformer implements Allison1875MainService {
                     // generate Result Type
                     GenerateReturnTypeRetval generateReturnTypeRetval;
                     try {
-                        generateReturnTypeRetval = methodGeneratorService.generateReturnType(chainAnalysis, astForest);
+                        generateReturnTypeRetval = methodGeneratorService.generateReturnType(chainAnalysis);
                         log.info("Result generated, generation={}", generateReturnTypeRetval);
                     } catch (Exception e) {
                         log.error("fail to generate result chainAnalysis={}", chainAnalysis, e);
@@ -147,7 +147,6 @@ public class QueryTransformer implements Allison1875MainService {
 
                     // generate Method to Mapper
                     GenerateMethodToMapperArgs gmtmArgs = new GenerateMethodToMapperArgs();
-                    gmtmArgs.setAstForest(astForest);
                     gmtmArgs.setMapperQualifier(designMeta.getMapperQualifier());
                     gmtmArgs.setChainAnalysis(chainAnalysis);
                     gmtmArgs.setCloneParameters(generateParamRetval.getParameters().stream().map(Parameter::clone)
@@ -158,7 +157,6 @@ public class QueryTransformer implements Allison1875MainService {
 
                     // generate Method into mapper.xml
                     GenerateMethodToMapperXmlArgs gmtmxArgs = new GenerateMethodToMapperXmlArgs();
-                    gmtmxArgs.setAstForest(astForest);
                     gmtmxArgs.setDesignMeta(designMeta);
                     gmtmxArgs.setChainAnalysis(chainAnalysis);
                     gmtmxArgs.setGenerateParamRetval(generateParamRetval);

@@ -24,7 +24,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.exception.CuAbsentException;
@@ -60,12 +60,12 @@ public class MapperCoidServiceImpl implements MapperCoidService {
 
     @Override
     public DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDto persistence,
-            JavabeanGeneration javabeanGeneration, AstForest astForest) {
+            JavabeanGeneration javabeanGeneration) {
 
         // find
         List<MethodDeclaration> customMethods = Lists.newArrayList();
         String mapperQualifier = commonConfig.getMapperPackage() + "." + persistence.getMapperName();
-        Optional<CompilationUnit> opt = astForest.findCu(mapperQualifier);
+        Optional<CompilationUnit> opt = AstForestContext.get().findCu(mapperQualifier);
         ClassOrInterfaceDeclaration mapper;
         if (opt.isPresent()) {
             Optional<TypeDeclaration<?>> primaryType = opt.get().getPrimaryType();
@@ -91,7 +91,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             // create
             log.info("Mapper文件不存在，创建它。 [{}]", mapperQualifier);
             CompilationUnit cu = new CompilationUnit();
-            cu.setStorage(CodeGenerationUtils.fileInPackageAbsolutePath(astForest.getSourceRoot(),
+            cu.setStorage(CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
                     commonConfig.getMapperPackage(), persistence.getMapperName() + ".java"));
             cu.setPackageDeclaration(commonConfig.getMapperPackage());
             mapper = new ClassOrInterfaceDeclaration();

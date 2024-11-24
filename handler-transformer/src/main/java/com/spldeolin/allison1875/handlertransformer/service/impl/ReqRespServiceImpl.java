@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
@@ -93,7 +93,7 @@ public class ReqRespServiceImpl implements ReqRespService {
     }
 
     @Override
-    public GenerateDtoJavabeansRetval generateDtoJavabeans(AstForest astForest, InitDecAnalysisDto initDecAnalysis,
+    public GenerateDtoJavabeansRetval generateDtoJavabeans(InitDecAnalysisDto initDecAnalysis,
             List<ClassOrInterfaceDeclaration> dtos) {
         GenerateDtoJavabeansRetval result = new GenerateDtoJavabeansRetval();
 
@@ -115,7 +115,7 @@ public class ReqRespServiceImpl implements ReqRespService {
             }
 
             JavabeanArg arg = new JavabeanArg();
-            arg.setAstForest(astForest);
+            arg.setAstForest(AstForestContext.get());
             arg.setPackageName(packageName);
             arg.setClassName(javabeanName);
             arg.setDescription(concatDtoDescription(initDecAnalysis));

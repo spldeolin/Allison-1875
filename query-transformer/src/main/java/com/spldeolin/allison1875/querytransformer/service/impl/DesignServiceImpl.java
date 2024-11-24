@@ -19,7 +19,7 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.StringEscapeUtils;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.exception.ParentAbsentException;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
@@ -50,8 +50,8 @@ public class DesignServiceImpl implements DesignService {
     private TransformMethodCallService transformMethodCallService;
 
     @Override
-    public ClassOrInterfaceDeclaration detectDesignOrJoinDesign(AstForest astForest, String qualifier) {
-        Optional<CompilationUnit> opt = astForest.findCu(qualifier);
+    public ClassOrInterfaceDeclaration detectDesignOrJoinDesign(String qualifier) {
+        Optional<CompilationUnit> opt = AstForestContext.get().findCu(qualifier);
         if (!opt.isPresent()) {
             throw new IllegalDesignException("cannot found Design [" + qualifier + "]");
         }
@@ -80,9 +80,9 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
-    public DesignMetaDto findDesignMeta(AstForest astForest, MethodCallExpr designChain) {
+    public DesignMetaDto findDesignMeta(MethodCallExpr designChain) {
         String designQualifier = designChain.findAll(NameExpr.class).get(0).calculateResolvedType().describe();
-        ClassOrInterfaceDeclaration design = this.detectDesignOrJoinDesign(astForest, designQualifier);
+        ClassOrInterfaceDeclaration design = this.detectDesignOrJoinDesign(designQualifier);
         return findDesignMeta(design);
     }
 

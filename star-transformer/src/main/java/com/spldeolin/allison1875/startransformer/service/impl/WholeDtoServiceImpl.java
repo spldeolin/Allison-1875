@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.atteo.evo.inflector.English;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.enums.FileExistenceResolutionEnum;
@@ -35,9 +35,9 @@ public class WholeDtoServiceImpl implements WholeDtoService {
     private JavabeanGeneratorService javabeanGeneratorService;
 
     @Override
-    public JavabeanGeneration generateWholeDto(AstForest astForest, ChainAnalysisDto analysis) {
+    public JavabeanGeneration generateWholeDto(ChainAnalysisDto analysis) {
         JavabeanArg javabeanArg = new JavabeanArg();
-        javabeanArg.setAstForest(astForest);
+        javabeanArg.setAstForest(AstForestContext.get());
         javabeanArg.setPackageName(commonConfig.getWholeDtoPackage());
         javabeanArg.setClassName(analysis.getWholeDtoName());
         if (commonConfig.getEnableLotNoAnnounce()) {

@@ -5,7 +5,6 @@ import java.util.Map;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.Type;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,8 +17,6 @@ import lombok.experimental.FieldDefaults;
 @Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GenerateMethodToMapperArgs {
-
-    AstForest astForest;
 
     String mapperQualifier;
 

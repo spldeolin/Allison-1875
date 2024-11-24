@@ -10,7 +10,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
@@ -48,7 +48,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     private JavabeanGeneratorService javabeanGeneratorService;
 
     @Override
-    public GenerateParamRetval generateParam(ChainAnalysisDto chainAnalysis, AstForest astForest) {
+    public GenerateParamRetval generateParam(ChainAnalysisDto chainAnalysis) {
         List<Parameter> params = Lists.newArrayList();
         boolean isJavabean = false;
         FileFlush condFlush = null;
@@ -56,7 +56,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         Set<Binary> binaries = chainAnalysis.getBinariesAsArgs();
         if (binaries.size() > 3) {
             JavabeanArg javabeanArg = new JavabeanArg();
-            javabeanArg.setAstForest(astForest);
+            javabeanArg.setAstForest(AstForestContext.get());
             javabeanArg.setPackageName(commonConfig.getCondPackage());
             if (commonConfig.getEnableLotNoAnnounce()) {
                 javabeanArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
@@ -116,7 +116,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     }
 
     @Override
-    public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDto chainAnalysis, AstForest astForest) {
+    public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDto chainAnalysis) {
         boolean isAssigned = isAssigned(chainAnalysis);
         GenerateReturnTypeRetval result = new GenerateReturnTypeRetval();
 
@@ -146,7 +146,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         Set<VariableProperty> returnProps = chainAnalysis.getPropertiesAsResult();
         if (returnProps.size() > 1) {
             JavabeanArg javabeanArg = new JavabeanArg();
-            javabeanArg.setAstForest(astForest);
+            javabeanArg.setAstForest(AstForestContext.get());
             javabeanArg.setPackageName(commonConfig.getRecordPackage());
             if (commonConfig.getEnableLotNoAnnounce()) {
                 javabeanArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());

@@ -14,6 +14,7 @@ import com.google.inject.Module;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Module;
 import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.interceptor.ValidInterceptor;
 import com.spldeolin.allison1875.common.javabean.InvalidDto;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
@@ -75,6 +76,7 @@ public class Allison1875 {
         Injector injector = Guice.createInjector(guiceModules);
 
         // process main service
+        AstForestContext.set(astForest);
         injector.getInstance(allison1875Module.declareMainService()).process(astForest);
     }
 

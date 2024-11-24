@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
@@ -76,7 +75,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
     private CommonConfig commonConfig;
 
     @Override
-    public ChainAnalysisDto analyzeQueryChain(MethodCallExpr queryChain, DesignMetaDto designMeta, AstForest astForest)
+    public ChainAnalysisDto analyzeQueryChain(MethodCallExpr queryChain, DesignMetaDto designMeta)
             throws IllegalChainException {
         String chainCode = queryChain.toString();
         String betweenCode = chainCode.substring(chainCode.indexOf(".") + 1, chainCode.lastIndexOf("."));
@@ -130,7 +129,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         // 防Record中的字段名重复（分析select col和joined col中使用）
         List<String> antiVarNameDuplInRecord = Lists.newArrayList();
 
-        ClassOrInterfaceDeclaration joinDesign = designService.detectDesignOrJoinDesign(astForest,
+        ClassOrInterfaceDeclaration joinDesign = designService.detectDesignOrJoinDesign(
                 commonConfig.getDesignPackage() + ".JoinDesign");
         List<String> propertyNameFromJoinDesign = joinDesign.getMembers().stream()
                 .filter(BodyDeclaration::isClassOrInterfaceDeclaration)
@@ -227,7 +226,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
             // 对应JOIN子句的tbl_name
             String joinedEntityWithProperty = matcher.group(2);
             String entityName = joinedEntityWithProperty.split("\\.")[0];
-            ClassOrInterfaceDeclaration joinedDesign = designService.detectDesignOrJoinDesign(astForest,
+            ClassOrInterfaceDeclaration joinedDesign = designService.detectDesignOrJoinDesign(
                     this.getJoinedDesignQualifier(joinDesign, entityName));
             DesignMetaDto joinedDesignMeta = designService.findDesignMeta(joinedDesign);
 

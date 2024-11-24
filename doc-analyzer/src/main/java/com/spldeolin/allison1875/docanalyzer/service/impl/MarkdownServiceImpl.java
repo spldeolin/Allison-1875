@@ -21,7 +21,7 @@ import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
@@ -47,14 +47,14 @@ public class MarkdownServiceImpl implements MarkdownService {
     private DocAnalyzerConfig config;
 
     @Override
-    public void flushToMarkdown(List<EndpointDto> endpoints, AstForest astForest) {
+    public void flushToMarkdown(List<EndpointDto> endpoints) {
         Multimap<String/*cat*/, EndpointDto> endpointMap = ArrayListMultimap.create();
         endpoints.forEach(e -> endpointMap.put(e.getCat(), e));
 
         for (String cat : endpointMap.keySet()) {
             StringBuilder content = new StringBuilder();
             for (EndpointDto endpoint : endpointMap.get(cat)) {
-                content.append(this.generateEndpointDoc(endpoint, astForest));
+                content.append(this.generateEndpointDoc(endpoint));
             }
 
             File dir = config.getMarkdownDir();
@@ -71,7 +71,7 @@ public class MarkdownServiceImpl implements MarkdownService {
         }
     }
 
-    protected String generateEndpointDoc(EndpointDto endpoint, AstForest astForest) {
+    protected String generateEndpointDoc(EndpointDto endpoint) {
         StringBuilder result = new StringBuilder(64);
         String title = Iterables.getFirst(endpoint.getDescriptionLines(), null);
         if (StringUtils.isEmpty(title)) {
@@ -106,12 +106,12 @@ public class MarkdownServiceImpl implements MarkdownService {
         return result.toString();
     }
 
-    private String generateRespSample(EndpointDto endpoint, AstForest astForest) {
+    private String generateRespSample(EndpointDto endpoint) {
         if (config.getEnableResponseBodySample() && endpoint.getResponseBodyDescribe() != null) {
             return "";
         }
         StringBuilder result = new StringBuilder();
-        String fakeRespJson = fakeJsonByDescribe(endpoint.getResponseBodyDescribe(), astForest);
+        String fakeRespJson = fakeJsonByDescribe(endpoint.getResponseBodyDescribe());
         if (fakeRespJson != null) {
             result.append("### Response Body的示例\n");
             result.append("```json\n");
@@ -121,12 +121,12 @@ public class MarkdownServiceImpl implements MarkdownService {
         return result.toString();
     }
 
-    private String generateCurl(EndpointDto endpoint, AstForest astForest) {
+    private String generateCurl(EndpointDto endpoint) {
         if (config.getEnableCurl() && endpoint.getRequestBodyDescribe() != null) {
             return "";
         }
         StringBuilder result = new StringBuilder(64);
-        String fakeReqJson = fakeJsonByDescribe(endpoint.getRequestBodyDescribe(), astForest);
+        String fakeReqJson = fakeJsonByDescribe(endpoint.getRequestBodyDescribe());
         if (fakeReqJson != null) {
             result.append("### cURL\n");
             result.append("```shell\n");
@@ -139,9 +139,9 @@ public class MarkdownServiceImpl implements MarkdownService {
         return result.toString();
     }
 
-    private String fakeJsonByDescribe(String describe, AstForest astForest) {
+    private String fakeJsonByDescribe(String describe) {
         try {
-            Object fakeDto = er.nextObject(LoadClassUtils.loadClass(describe, astForest.getClassLoader()));
+            Object fakeDto = er.nextObject(LoadClassUtils.loadClass(describe, AstForestContext.get().getClassLoader()));
             return JsonUtils.toJsonPrettily(fakeDto);
         } catch (Exception e) {
             log.error("fail to fake json, describe={}", describe, e);

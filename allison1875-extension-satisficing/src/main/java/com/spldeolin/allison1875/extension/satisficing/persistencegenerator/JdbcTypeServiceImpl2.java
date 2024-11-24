@@ -18,7 +18,7 @@ import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
@@ -56,9 +56,9 @@ public class JdbcTypeServiceImpl2 extends JdbcTypeServiceImpl {
     }
 
     @Override
-    public JavaTypeNamingDto jdbcType2javaType(InformationSchemaDto columnMeta, AstForest astForest,
+    public JavaTypeNamingDto jdbcType2javaType(InformationSchemaDto columnMeta,
             TableStructureAnalysisDto tableStructureAnalysis) {
-        JavaTypeNamingDto javaTypeNamingDto = super.jdbcType2javaType(columnMeta, astForest, tableStructureAnalysis);
+        JavaTypeNamingDto javaTypeNamingDto = super.jdbcType2javaType(columnMeta, tableStructureAnalysis);
 
         String dataType = columnMeta.getDataType();
         if ("date".equals(dataType)) {
@@ -119,8 +119,8 @@ public class JdbcTypeServiceImpl2 extends JdbcTypeServiceImpl {
             ed.addMember(StaticJavaParser.parseBodyDeclaration(
                     "@Override public String toString() { return asJavabean().toString(); }").asMethodDeclaration());
             cu.addType(ed);
-            Path enumPath = CodeGenerationUtils.fileInPackageAbsolutePath(astForest.getSourceRoot(), enumPackage,
-                    enumName + ".java");
+            Path enumPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
+                    enumPackage, enumName + ".java");
             cu.setStorage(enumPath);
             importExprService.extractQualifiedTypeToImport(cu);
             cu.addImport("java.util.Arrays");

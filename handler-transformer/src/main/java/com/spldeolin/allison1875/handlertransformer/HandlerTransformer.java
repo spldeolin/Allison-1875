@@ -98,7 +98,7 @@ public class HandlerTransformer implements Allison1875MainService {
 
                     // 生成Javabean
                     GenerateDtoJavabeansRetval generateDtoJavabeansRetval = reqRespService.generateDtoJavabeans(
-                            astForest, initDecAnalysis, dtoCoids);
+                            initDecAnalysis, dtoCoids);
                     flushes.addAll(generateDtoJavabeansRetval.getFlushes());
 
                     // 生成Service方法
@@ -110,7 +110,6 @@ public class HandlerTransformer implements Allison1875MainService {
                     GenerateServiceAndImplArgs gsaiArgs = new GenerateServiceAndImplArgs();
                     gsaiArgs.setControllerCu(cu);
                     gsaiArgs.setInitDecAnalysisDto(initDecAnalysis);
-                    gsaiArgs.setAstForest(astForest);
                     GenerateServiceAndImplRetval generateServiceAndImplRetval =
                             serviceLayerService.generateServiceAndImpl(
                             gsaiArgs);
@@ -120,7 +119,6 @@ public class HandlerTransformer implements Allison1875MainService {
                     args.setControllerCu(cu);
                     args.setInitDecAnalysisDto(initDecAnalysis);
                     args.setServiceMethod(serviceMethod);
-                    args.setAstForest(astForest);
                     args.setGenerateServiceAndImplRetval(generateServiceAndImplRetval);
                     AddMethodToServiceRetval addMethodToServiceRetval = serviceLayerService.addMethodToService(args);
                     if (addMethodToServiceRetval == null) {

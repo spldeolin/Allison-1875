@@ -1,7 +1,6 @@
 package com.spldeolin.allison1875.persistencegenerator.service;
 
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
@@ -16,7 +15,7 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.MapperCoidSer
 public interface MapperCoidService {
 
     DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDto persistence,
-            JavabeanGeneration javabeanGeneration, AstForest astForest);
+            JavabeanGeneration javabeanGeneration);
 
     String generateInsertMethodToMapper(GenerateMethodToMapperArgs args);
 

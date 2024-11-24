@@ -73,8 +73,7 @@ public class DocAnalyzer implements Allison1875MainService {
     @Override
     public void process(AstForest astForest) {
         // 分析所有fieldVars
-        Table<String, String, AnalyzeFieldVarsRetval> analyzeFieldVarsRetvals = fieldService.analyzeFieldVars(
-                astForest.cloneWithResetting());
+        Table<String, String, AnalyzeFieldVarsRetval> analyzeFieldVarsRetvals = fieldService.analyzeFieldVars();
 
         // 基于注释和枚举项分析结果，构建jsg
         JsonSchemaGenerator jsg4req = jsgBuilderService.buildJsg(analyzeFieldVarsRetvals, true);
@@ -84,7 +83,7 @@ public class DocAnalyzer implements Allison1875MainService {
         List<EndpointDto> endpoints = Lists.newArrayList();
 
         // 遍历controller、遍历handler
-        List<MvcHandlerDto> mvcHandlers = mvcHandlerDetectorService.detectMvcHandler(astForest);
+        List<MvcHandlerDto> mvcHandlers = mvcHandlerDetectorService.detectMvcHandler();
         if (CollectionUtils.isEmpty(mvcHandlers)) {
             log.info("no MVC Handlers detected");
             return;
@@ -138,7 +137,7 @@ public class DocAnalyzer implements Allison1875MainService {
         // 保存到本地Markdwon
         if (config.getFlushTo().equals(FlushToEnum.LOCAL_MARKDOWN)) {
             try {
-                markdownService.flushToMarkdown(endpoints, astForest);
+                markdownService.flushToMarkdown(endpoints);
             } catch (Exception e) {
                 log.error("fail to flush to Markdown", e);
             }

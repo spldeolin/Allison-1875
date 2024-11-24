@@ -68,9 +68,7 @@ public class PersistenceGenerator implements Allison1875MainService {
     @Override
     public void process(AstForest astForest) {
         // 分析表结构
-        List<TableStructureAnalysisDto> tableStructureAnalysisList =
-                tableStructureAnalyzerService.analyzeTableStructure(
-                astForest);
+        List<TableStructureAnalysisDto> tableStructureAnalysisList = tableStructureAnalyzerService.analyzeTableStructure();
         if (CollectionUtils.isEmpty(tableStructureAnalysisList)) {
             log.warn("no tables detected in Schema [{}] at Connection [{}].", config.getSchema(), config.getJdbcUrl());
             return;
@@ -82,15 +80,14 @@ public class PersistenceGenerator implements Allison1875MainService {
             flushes.addAll(tableStructureAnalysis.getFlushes());
 
             // 生成Entity
-            JavabeanGeneration entityGeneration = entityGeneratorService.generateEntity(tableStructureAnalysis,
-                    astForest);
+            JavabeanGeneration entityGeneration = entityGeneratorService.generateEntity(tableStructureAnalysis);
             flushes.add(entityGeneration.getFileFlush());
 
             // 寻找或创建Mapper
             DetectOrGenerateMapperRetval detectOrGenerateMapperRetval;
             try {
                 detectOrGenerateMapperRetval = mapperCoidService.detectOrGenerateMapper(tableStructureAnalysis,
-                        entityGeneration, astForest);
+                        entityGeneration);
             } catch (Exception e) {
                 log.error("寻找或创建Mapper时发生异常 tableStructureAnalysis={}", tableStructureAnalysis, e);
                 continue;
@@ -102,7 +99,6 @@ public class PersistenceGenerator implements Allison1875MainService {
             gdArgs.setTableStructureAnalysis(tableStructureAnalysis);
             gdArgs.setEntityGeneration(entityGeneration);
             gdArgs.setMapper(mapper);
-            gdArgs.setAstForest(astForest);
             GenerateDesignRetval gdRetval = designGeneratorService.generateDesign(gdArgs);
             if (gdRetval.getDesignFile() != null) {
                 flushes.add(gdRetval.getDesignFile());
@@ -112,7 +108,6 @@ public class PersistenceGenerator implements Allison1875MainService {
             GenerateJoinDesignArgs gjdArgs = new GenerateJoinDesignArgs();
             gjdArgs.setTableStructureAnalysis(tableStructureAnalysis);
             gjdArgs.setEntityGeneration(entityGeneration);
-            gjdArgs.setAstForest(astForest);
             gjdArgs.setJoinDesignCu(joinDesignCu.getValue());
             gjdArgs.setDesignQualifier(gdRetval.getDesignQualifer());
             designGeneratorService.generateJoinDesign(gjdArgs).ifPresent(joinDesignCu::setValue);

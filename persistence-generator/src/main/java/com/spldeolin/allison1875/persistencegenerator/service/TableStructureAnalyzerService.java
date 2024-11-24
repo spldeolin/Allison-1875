@@ -2,7 +2,6 @@ package com.spldeolin.allison1875.persistencegenerator.service;
 
 import java.util.List;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.TableStructureAnalyzerServiceImpl;
 
@@ -12,6 +11,6 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.TableStructur
 @ImplementedBy(TableStructureAnalyzerServiceImpl.class)
 public interface TableStructureAnalyzerService {
 
-    List<TableStructureAnalysisDto> analyzeTableStructure(AstForest astForest);
+    List<TableStructureAnalysisDto> analyzeTableStructure();
 
 }

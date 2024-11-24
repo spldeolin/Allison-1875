@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
@@ -76,7 +76,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
 
     @Override
     public Optional<FileFlush> generateMethodToMapper(GenerateMethodToMapperArgs args) {
-        ClassOrInterfaceDeclaration mapper = this.findMapper(args.getAstForest(), args.getMapperQualifier(),
+        ClassOrInterfaceDeclaration mapper = this.findMapper(args.getMapperQualifier(),
                 args.getMethodAddedMappers());
         if (mapper == null) {
             return Optional.empty();
@@ -352,13 +352,13 @@ public class MapperLayerServiceImpl implements MapperLayerService {
     }
 
 
-    private ClassOrInterfaceDeclaration findMapper(AstForest astForest, String mapperQualifier,
+    private ClassOrInterfaceDeclaration findMapper(String mapperQualifier,
             Map<String, ClassOrInterfaceDeclaration> methodAddedMappers) {
         // 尝试先从其他queryChain的处理结果中获取mapper
         if (methodAddedMappers.containsKey(mapperQualifier)) {
             return methodAddedMappers.get(mapperQualifier);
         }
-        Optional<CompilationUnit> cu = astForest.findCu(mapperQualifier);
+        Optional<CompilationUnit> cu = AstForestContext.get().findCu(mapperQualifier);
         if (!cu.isPresent()) {
             return null;
         }

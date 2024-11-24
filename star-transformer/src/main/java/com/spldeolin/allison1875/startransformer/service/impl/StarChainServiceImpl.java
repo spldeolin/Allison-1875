@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
@@ -73,14 +73,12 @@ public class StarChainServiceImpl implements StarChainService {
 
 
     @Override
-    public ChainAnalysisDto analyzeStarChain(MethodCallExpr starChain, AstForest astForest)
-            throws IllegalChainException {
-        return this.analyzeRecursively(starChain, astForest, Lists.newArrayList(), Lists.newArrayList(),
-                Lists.newArrayList());
+    public ChainAnalysisDto analyzeStarChain(MethodCallExpr starChain) throws IllegalChainException {
+        return this.analyzeRecursively(starChain, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
     }
 
-    private ChainAnalysisDto analyzeRecursively(MethodCallExpr mce, AstForest astForest, List<PhraseDto> phrases,
-            List<String> keys, List<String> mkeys) throws IllegalChainException {
+    private ChainAnalysisDto analyzeRecursively(MethodCallExpr mce, List<PhraseDto> phrases, List<String> keys,
+            List<String> mkeys) throws IllegalChainException {
         if (ChainMethodEnum.oo.toString().equals(mce.getNameAsString())) {
             PhraseDto phrase = new PhraseDto();
             phrase.setIsOneToOne(true);
@@ -112,7 +110,7 @@ public class StarChainServiceImpl implements StarChainService {
             phrase.setKeys(Lists.newArrayList(keys));
             phrase.setMkeys(Lists.newArrayList(mkeys));
             if (CollectionUtils.isNotEmpty(phrase.getKeys()) || CollectionUtils.isNotEmpty(phrase.getMkeys())) {
-                astForest.findCu(phrase.getDtEntityQualifier()).ifPresent(cu -> {
+                AstForestContext.get().findCu(phrase.getDtEntityQualifier()).ifPresent(cu -> {
                     for (VariableDeclarator vd : cu.findAll(VariableDeclarator.class)) {
                         phrase.getEntityFieldTypesEachFieldName()
                                 .put(vd.getNameAsString(), vd.getType().resolve().describe());
@@ -146,7 +144,7 @@ public class StarChainServiceImpl implements StarChainService {
             return analysis;
         }
         if (mce.getScope().filter(Expression::isMethodCallExpr).isPresent()) {
-            return this.analyzeRecursively(mce.getScope().get().asMethodCallExpr(), astForest, phrases, keys, mkeys);
+            return this.analyzeRecursively(mce.getScope().get().asMethodCallExpr(), phrases, keys, mkeys);
         }
         throw new IllegalChainException("impossible unless bug.");
     }

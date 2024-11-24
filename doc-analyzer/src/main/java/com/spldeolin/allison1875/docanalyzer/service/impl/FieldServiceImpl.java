@@ -14,7 +14,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ast.AstForest;
+import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
@@ -39,9 +39,9 @@ public class FieldServiceImpl implements FieldService {
     private EnumService enumService;
 
     @Override
-    public Table<String, String, AnalyzeFieldVarsRetval> analyzeFieldVars(AstForest astForest) {
+    public Table<String, String, AnalyzeFieldVarsRetval> analyzeFieldVars() {
         // 枚举项和jpdvs的分析范围
-        Set<File> analyzsisJavaFiles = this.buildAnalysisScope(astForest);
+        Set<File> analyzsisJavaFiles = this.buildAnalysisScope();
 
         Table<String, String, AnalyzeFieldVarsRetval> result = HashBasedTable.create();
         for (File javaFile : analyzsisJavaFiles) {
@@ -57,8 +57,7 @@ public class FieldServiceImpl implements FieldService {
                         AnalyzeFieldVarsRetval dto = new AnalyzeFieldVarsRetval();
                         String fieldVarName = fieldVar.getNameAsString();
                         dto.getCommentLines().addAll(fieldCommentLines);
-                        dto.getAnalyzeEnumConstantsRetvals()
-                                .addAll(enumService.analyzeEnumConstants(fieldVar, astForest));
+                        dto.getAnalyzeEnumConstantsRetvals().addAll(enumService.analyzeEnumConstants(fieldVar));
                         dto.getMoreDocLines().addAll(this.analyzeMoreAndGenerateDoc(field, fieldVar));
                         result.put(coidQualifier, fieldVarName, dto);
                     }
@@ -66,14 +65,15 @@ public class FieldServiceImpl implements FieldService {
             }
         }
 
-        result.putAll(this.getAnalyzeFieldVarsRetvalFromThirdParty(astForest));
+        result.putAll(this.getAnalyzeFieldVarsRetvalFromThirdParty());
 
         return result;
     }
 
-    protected Set<File> buildAnalysisScope(AstForest astForest) {
+    protected Set<File> buildAnalysisScope() {
         Set<File> result = Sets.newLinkedHashSet();
-        FileUtils.iterateFiles(astForest.getSourceRoot().toFile(), BaseConstant.JAVA_EXTENSIONS, true)
+        FileUtils.iterateFiles(AstForestContext.get().cloneWithResetting().getSourceRoot().toFile(),
+                        BaseConstant.JAVA_EXTENSIONS, true)
                 .forEachRemaining(result::add);
         // dependent projects
         for (File dependencyProjectDir : config.getDependencyProjectDirs()) {
@@ -90,8 +90,7 @@ public class FieldServiceImpl implements FieldService {
         return JavadocUtils.getCommentAsLines(field);
     }
 
-    protected Table<String, String, AnalyzeFieldVarsRetval> getAnalyzeFieldVarsRetvalFromThirdParty(
-            AstForest astForest) {
+    protected Table<String, String, AnalyzeFieldVarsRetval> getAnalyzeFieldVarsRetvalFromThirdParty() {
         return HashBasedTable.create();
     }
 
