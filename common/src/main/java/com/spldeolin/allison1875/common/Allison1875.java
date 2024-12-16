@@ -77,7 +77,12 @@ public class Allison1875 {
 
         // process main service
         AstForestContext.set(astForest);
-        injector.getInstance(allison1875Module.declareMainService()).process(astForest);
+        try {
+            injector.getInstance(allison1875Module.declareMainService()).process(astForest);
+        } catch (Exception e) {
+            log.error("main process failed", e);
+            throw new Allison1875Exception(e);
+        }
     }
 
 }
