@@ -16,7 +16,7 @@ import com.spldeolin.allison1875.common.ancestor.Allison1875Module;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.interceptor.ValidInterceptor;
-import com.spldeolin.allison1875.common.javabean.InvalidDto;
+import com.spldeolin.allison1875.common.javabean.InvalidDTO;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +63,7 @@ public class Allison1875 {
 
     public static void letsGo(Allison1875Module allison1875Module, AstForest astForest) {
         // valid config
-        List<InvalidDto> invalids = allison1875Module.validConfigs();
+        List<InvalidDTO> invalids = allison1875Module.validConfigs();
         if (CollectionUtils.isNotEmpty(invalids)) {
             throw new Allison1875Exception(
                     "Allison 1875 fail to work cause invalid config\ninvalids=" + JsonUtils.toJsonPrettily(invalids));

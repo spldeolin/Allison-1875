@@ -35,12 +35,12 @@ public class MemberAdderServiceImplTest {
         System.out.println(coid);
 
         System.out.println("同名同类型");
-        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.javabean.InvalidDto", "b", coid);
+        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.javabean.InvalidDTO", "b", coid);
         System.out.println(retval);
         System.out.println(coid);
 
         System.out.println("同名不同类型");
-        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.javabean.InvalidDto", "c", coid);
+        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.javabean.InvalidDTO", "c", coid);
         System.out.println(retval);
         System.out.println(coid);
 

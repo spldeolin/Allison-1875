@@ -1,6 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.javabean;
 
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -14,9 +14,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReplaceDesignArgs {
 
-    DesignMetaDto designMeta;
+    DesignMetaDTO designMeta;
 
-    ChainAnalysisDto chainAnalysis;
+    ChainAnalysisDTO chainAnalysis;
 
     GenerateParamRetval generateParamRetval;
 

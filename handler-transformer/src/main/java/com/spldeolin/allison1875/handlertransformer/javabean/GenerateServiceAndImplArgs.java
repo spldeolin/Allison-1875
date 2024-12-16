@@ -14,6 +14,6 @@ public class GenerateServiceAndImplArgs {
 
     CompilationUnit controllerCu;
 
-    InitDecAnalysisDto initDecAnalysisDto;
+    InitDecAnalysisDTO initDecAnalysisDTO;
 
 }

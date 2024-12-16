@@ -23,11 +23,11 @@ import com.spldeolin.allison1875.common.service.MvcHandlerGeneratorService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceArgs;
 import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDtoJavabeansRetval;
+import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDTOJavabeansRetval;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplArgs;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
-import com.spldeolin.allison1875.handlertransformer.service.DtoService;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.service.DTOService;
 import com.spldeolin.allison1875.handlertransformer.service.InitDecAnalyzerService;
 import com.spldeolin.allison1875.handlertransformer.service.InitDecDetectorService;
 import com.spldeolin.allison1875.handlertransformer.service.MvcControllerService;
@@ -52,7 +52,7 @@ public class HandlerTransformer implements Allison1875MainService {
     private ReqRespService reqRespService;
 
     @Inject
-    private DtoService dtoService;
+    private DTOService dtoService;
 
     @Inject
     private InitDecAnalyzerService initDecAnalyzerService;
@@ -82,7 +82,7 @@ public class HandlerTransformer implements Allison1875MainService {
             for (ClassOrInterfaceDeclaration mvcController : mvcControllerService.detectMvcControllers(cu)) {
                 for (InitializerDeclaration initDec : initDecDetectorService.detectInitDecs(mvcController)) {
                     BlockStmt initBody = initDec.getBody().clone();
-                    InitDecAnalysisDto initDecAnalysis = initDecAnalyzerService.analyzeInitDec(cu, mvcController,
+                    InitDecAnalysisDTO initDecAnalysis = initDecAnalyzerService.analyzeInitDec(cu, mvcController,
                             initDec);
                     if (initDecAnalysis == null) {
                         continue;
@@ -94,22 +94,22 @@ public class HandlerTransformer implements Allison1875MainService {
                     reqRespService.validInitBody(initBody, initDecAnalysis);
 
                     // 自底向上收集（广度优先遍历收集 + 反转）
-                    List<ClassOrInterfaceDeclaration> dtoCoids = dtoService.detectDtosBottomTop(initBody);
+                    List<ClassOrInterfaceDeclaration> dtoCoids = dtoService.detectDTOBottomTop(initBody);
 
                     // 生成Javabean
-                    GenerateDtoJavabeansRetval generateDtoJavabeansRetval = reqRespService.generateDtoJavabeans(
+                    GenerateDTOJavabeansRetval generateDTOJavabeansRetval = reqRespService.generateDTOJavabeans(
                             initDecAnalysis, dtoCoids);
-                    flushes.addAll(generateDtoJavabeansRetval.getFlushes());
+                    flushes.addAll(generateDTOJavabeansRetval.getFlushes());
 
                     // 生成Service方法
                     MethodDeclaration serviceMethod = serviceLayerService.generateServiceMethod(initDecAnalysis,
-                            generateDtoJavabeansRetval.getReqBodyDtoType(), generateDtoJavabeansRetval.getReqParams(),
-                            generateDtoJavabeansRetval.getRespBodyDtoType());
+                            generateDTOJavabeansRetval.getReqBodyDTOType(), generateDTOJavabeansRetval.getReqParams(),
+                            generateDTOJavabeansRetval.getRespBodyDTOType());
 
                     // 生成Service / ServiceImpl
                     GenerateServiceAndImplArgs gsaiArgs = new GenerateServiceAndImplArgs();
                     gsaiArgs.setControllerCu(cu);
-                    gsaiArgs.setInitDecAnalysisDto(initDecAnalysis);
+                    gsaiArgs.setInitDecAnalysisDTO(initDecAnalysis);
                     GenerateServiceAndImplRetval generateServiceAndImplRetval =
                             serviceLayerService.generateServiceAndImpl(
                             gsaiArgs);
@@ -117,7 +117,7 @@ public class HandlerTransformer implements Allison1875MainService {
                     // service方法加入到Service层
                     AddMethodToServiceArgs args = new AddMethodToServiceArgs();
                     args.setControllerCu(cu);
-                    args.setInitDecAnalysisDto(initDecAnalysis);
+                    args.setInitDecAnalysisDTO(initDecAnalysis);
                     args.setServiceMethod(serviceMethod);
                     args.setGenerateServiceAndImplRetval(generateServiceAndImplRetval);
                     AddMethodToServiceRetval addMethodToServiceRetval = serviceLayerService.addMethodToService(args);
@@ -140,13 +140,13 @@ public class HandlerTransformer implements Allison1875MainService {
                                 + initDecAnalysis.getLotNo();
                     }
                     gmhArgs.setDescription(description);
-                    gmhArgs.setReqBodyDtoType(generateDtoJavabeansRetval.getReqBodyDtoType());
-                    gmhArgs.setRespBodyDtoType(generateDtoJavabeansRetval.getRespBodyDtoType());
+                    gmhArgs.setReqBodyDTOType(generateDTOJavabeansRetval.getReqBodyDTOType());
+                    gmhArgs.setRespBodyDTOType(generateDTOJavabeansRetval.getRespBodyDTOType());
                     gmhArgs.setInjectedServiceVarName(addInjectFieldRetval.getFieldVarName());
                     gmhArgs.setServiceMethodName(addMethodToServiceRetval.getMethodName());
                     gmhArgs.setMvcController(mvcController);
-                    gmhArgs.setIsHttpGet(generateDtoJavabeansRetval.getIsHttpGet());
-                    gmhArgs.setReqParams(generateDtoJavabeansRetval.getReqParams());
+                    gmhArgs.setIsHttpGet(generateDTOJavabeansRetval.getIsHttpGet());
+                    gmhArgs.setReqParams(generateDTOJavabeansRetval.getReqParams());
                     GenerateMvcHandlerRetval generateMvcHandlerRetval = mvcHandlerGeneratorService.generateMvcHandler(
                             gmhArgs);
 

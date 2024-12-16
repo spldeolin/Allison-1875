@@ -63,10 +63,10 @@ public abstract class Allison1875Mojo extends AbstractMojo {
         commonConfig = MoreObjects.firstNonNull(commonConfig, new CommonConfig());
         String basePackage = commonConfig.getBasePackage();
         commonConfig.setBasePackage(MoreObjects.firstNonNull(basePackage, project.getGroupId()));
-        commonConfig.setReqDtoPackage(
-                MoreObjects.firstNonNull(commonConfig.getReqDtoPackage(), basePackage + ".javabean.req"));
-        commonConfig.setRespDtoPackage(
-                MoreObjects.firstNonNull(commonConfig.getRespDtoPackage(), basePackage + ".javabean.resp"));
+        commonConfig.setReqDTOPackage(
+                MoreObjects.firstNonNull(commonConfig.getReqDTOPackage(), basePackage + ".javabean.req"));
+        commonConfig.setRespDTOPackage(
+                MoreObjects.firstNonNull(commonConfig.getRespDTOPackage(), basePackage + ".javabean.resp"));
         commonConfig.setServicePackage(
                 MoreObjects.firstNonNull(commonConfig.getServicePackage(), basePackage + ".service"));
         commonConfig.setServiceImplPackage(
@@ -81,8 +81,8 @@ public abstract class Allison1875Mojo extends AbstractMojo {
                 MoreObjects.firstNonNull(commonConfig.getCondPackage(), basePackage + ".javabean.cond"));
         commonConfig.setRecordPackage(
                 MoreObjects.firstNonNull(commonConfig.getRecordPackage(), basePackage + ".javabean.record"));
-        commonConfig.setWholeDtoPackage(
-                MoreObjects.firstNonNull(commonConfig.getWholeDtoPackage(), basePackage + ".javabean"));
+        commonConfig.setWholeDTOPackage(
+                MoreObjects.firstNonNull(commonConfig.getWholeDTOPackage(), basePackage + ".javabean"));
         commonConfig.setMapperXmlDirs(
                 commonConfig.getMapperXmlDirs().stream().map(this::getCanonicalFileRelativeToBasedir)
                         .collect(Collectors.toList()));

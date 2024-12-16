@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.docanalyzer.service;
 
 import java.util.List;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDTO;
 import com.spldeolin.allison1875.docanalyzer.service.impl.YApiServiceImpl;
 
 /**
@@ -13,6 +13,6 @@ import com.spldeolin.allison1875.docanalyzer.service.impl.YApiServiceImpl;
 @ImplementedBy(YApiServiceImpl.class)
 public interface YApiService {
 
-    void flushToYApi(List<EndpointDto> endpoints);
+    void flushToYApi(List<EndpointDTO> endpoints);
 
 }

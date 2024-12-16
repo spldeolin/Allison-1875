@@ -26,9 +26,9 @@ import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.JdbcTypeServiceImpl;
 import com.spldeolin.satisficing.api.EnumAncestor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,29 +56,29 @@ public class JdbcTypeServiceImpl2 extends JdbcTypeServiceImpl {
     }
 
     @Override
-    public JavaTypeNamingDto jdbcType2javaType(InformationSchemaDto columnMeta,
-            TableStructureAnalysisDto tableStructureAnalysis) {
-        JavaTypeNamingDto javaTypeNamingDto = super.jdbcType2javaType(columnMeta, tableStructureAnalysis);
+    public JavaTypeNamingDTO jdbcType2javaType(InformationSchemaDTO columnMeta,
+            TableStructureAnalysisDTO tableStructureAnalysis) {
+        JavaTypeNamingDTO javaTypeNamingDTO = super.jdbcType2javaType(columnMeta, tableStructureAnalysis);
 
         String dataType = columnMeta.getDataType();
         if ("date".equals(dataType)) {
-            return new JavaTypeNamingDto().setClass(LocalDate.class);
+            return new JavaTypeNamingDTO().setClass(LocalDate.class);
         }
         if ("time".equals(dataType)) {
-            return new JavaTypeNamingDto().setClass(LocalTime.class);
+            return new JavaTypeNamingDTO().setClass(LocalTime.class);
         }
         if ("datetime".equals(dataType)) {
-            return new JavaTypeNamingDto().setClass(LocalDateTime.class);
+            return new JavaTypeNamingDTO().setClass(LocalDateTime.class);
         }
         if ("timestamp".equals(dataType)) {
-            return new JavaTypeNamingDto().setClass(LocalDateTime.class);
+            return new JavaTypeNamingDTO().setClass(LocalDateTime.class);
         }
 
         String description = columnMeta.getColumnComment();
 
         Pattern enumPattern = Pattern.compile("E\\((.+?)\\)");
         Matcher enumMatcher = enumPattern.matcher(description);
-        if (enumMatcher.find() && javaTypeNamingDto.getQualifier().equals(String.class.getName())) {
+        if (enumMatcher.find() && javaTypeNamingDTO.getQualifier().equals(String.class.getName())) {
             String enumName = MoreStringUtils.toUpperCamel(columnMeta.getTableName()) + MoreStringUtils.toUpperCamel(
                     columnMeta.getColumnName()) + "Enum";
 
@@ -126,7 +126,7 @@ public class JdbcTypeServiceImpl2 extends JdbcTypeServiceImpl {
             cu.addImport("java.util.Arrays");
             tableStructureAnalysis.getFlushes().add(FileFlush.build(cu));
 
-            return new JavaTypeNamingDto().setSimpleName(ed.getNameAsString())
+            return new JavaTypeNamingDTO().setSimpleName(ed.getNameAsString())
                     .setQualifier(enumPackage + "." + ed.getNameAsString());
         }
 
@@ -134,14 +134,14 @@ public class JdbcTypeServiceImpl2 extends JdbcTypeServiceImpl {
         Matcher typeMatcher = typePattern.matcher(description);
         if (typeMatcher.find()) {
             String qualifier = typeMatcher.group(1);
-            return new JavaTypeNamingDto().setSimpleName(qualifier.substring(qualifier.lastIndexOf('.') + 1))
+            return new JavaTypeNamingDTO().setSimpleName(qualifier.substring(qualifier.lastIndexOf('.') + 1))
                     .setQualifier(qualifier);
         }
 
-        return javaTypeNamingDto;
+        return javaTypeNamingDTO;
     }
 
-    private String concatEntityDescription(TableStructureAnalysisDto tableStructureAnalysis) {
+    private String concatEntityDescription(TableStructureAnalysisDTO tableStructureAnalysis) {
         String result = "";
         if (commonConfig.getEnableNoModifyAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE + BaseConstant.NO_MODIFY_ANNOUNCE;

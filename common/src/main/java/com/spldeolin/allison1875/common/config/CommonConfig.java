@@ -29,13 +29,13 @@ public class CommonConfig extends Allison1875Config {
      * 控制层@RequestBody类型所在包的包名
      */
     @NotEmpty
-    String reqDtoPackage;
+    String reqDTOPackage;
 
     /**
      * 控制层@ResponseBody业务数据部分类型所在包的包名
      */
     @NotEmpty
-    String respDtoPackage;
+    String respDTOPackage;
 
     /**
      * 业务层Service接口所在包的包名
@@ -80,10 +80,10 @@ public class CommonConfig extends Allison1875Config {
     String recordPackage;
 
     /**
-     * WholeDto类所在包的包名
+     * WholeDTO类所在包的包名
      */
     @NotEmpty
-    String wholeDtoPackage;
+    String wholeDTOPackage;
 
     /**
      * mapper.xml所在目录（相对于basedir的相对路径 或 绝对路径 皆可）

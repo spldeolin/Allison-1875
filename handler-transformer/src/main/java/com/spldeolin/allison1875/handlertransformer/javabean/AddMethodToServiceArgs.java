@@ -15,7 +15,7 @@ public class AddMethodToServiceArgs {
 
     CompilationUnit controllerCu;
 
-    InitDecAnalysisDto initDecAnalysisDto;
+    InitDecAnalysisDTO initDecAnalysisDTO;
 
     MethodDeclaration serviceMethod;
 

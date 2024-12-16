@@ -30,7 +30,7 @@ import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceA
 import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceRetval;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplArgs;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.ServiceLayerService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,26 +57,26 @@ public class ServiceLayerServiceImpl implements ServiceLayerService {
     private ImportExprService importExprService;
 
     @Override
-    public MethodDeclaration generateServiceMethod(InitDecAnalysisDto initDecAnalysisDto, String reqBodyDtoType,
-            List<VariableDeclarator> reqParams, String respBodyDtoType) {
+    public MethodDeclaration generateServiceMethod(InitDecAnalysisDTO initDecAnalysisDTO, String reqBodyDTOType,
+            List<VariableDeclarator> reqParams, String respBodyDTOType) {
         MethodDeclaration method = new MethodDeclaration();
         method.addAnnotation(annotationExprService.javaOverride());
         method.setPublic(true);
-        if (respBodyDtoType != null) {
-            method.setType(respBodyDtoType);
+        if (respBodyDTOType != null) {
+            method.setType(respBodyDTOType);
         } else {
             method.setType(new VoidType());
         }
-        method.setName(initDecAnalysisDto.getMvcHandlerMethodName());
-        if (reqBodyDtoType != null) {
-            method.addParameter(reqBodyDtoType, "req");
+        method.setName(initDecAnalysisDTO.getMvcHandlerMethodName());
+        if (reqBodyDTOType != null) {
+            method.addParameter(reqBodyDTOType, "req");
         }
         for (VariableDeclarator vd : reqParams) {
             method.addParameter(new Parameter(vd.getType(), vd.getName()));
         }
 
         BlockStmt body = new BlockStmt();
-        if (respBodyDtoType != null) {
+        if (respBodyDTOType != null) {
             body.addStatement(StaticJavaParser.parseStatement("return null;"));
         }
         method.setBody(body);
@@ -120,14 +120,14 @@ public class ServiceLayerServiceImpl implements ServiceLayerService {
     @Override
     public GenerateServiceAndImplRetval generateServiceAndImpl(GenerateServiceAndImplArgs args) {
         String serviceName =
-                MoreStringUtils.toUpperCamel(args.getInitDecAnalysisDto().getMvcHandlerMethodName()) + "Service";
+                MoreStringUtils.toUpperCamel(args.getInitDecAnalysisDTO().getMvcHandlerMethodName()) + "Service";
 
         Path sourceRoot = AstForestContext.get().getSourceRoot();
         CompilationUnit serviceCu = new CompilationUnit();
         serviceCu.setPackageDeclaration(commonConfig.getServicePackage());
         importExprService.copyImports(args.getControllerCu(), serviceCu);
         ClassOrInterfaceDeclaration service = new ClassOrInterfaceDeclaration();
-        String comment = concatServiceDescription(args.getInitDecAnalysisDto());
+        String comment = concatServiceDescription(args.getInitDecAnalysisDTO());
         JavadocUtils.setJavadoc(service, comment, commonConfig.getAuthor());
         service.setPublic(true).setStatic(false).setInterface(true).setName(serviceName);
         Path absolutePath = CodeGenerationUtils.fileInPackageAbsolutePath(sourceRoot, commonConfig.getServicePackage(),
@@ -173,7 +173,7 @@ public class ServiceLayerServiceImpl implements ServiceLayerService {
         return result;
     }
 
-    private String concatServiceDescription(InitDecAnalysisDto initDecAnalysis) {
+    private String concatServiceDescription(InitDecAnalysisDTO initDecAnalysis) {
         String result = "";
         if (commonConfig.getEnableLotNoAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE + BaseConstant.LOT_NO_ANNOUNCE_PREFIXION

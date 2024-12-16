@@ -16,8 +16,8 @@ import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.EntityGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +41,7 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
     private AnnotationExprService annotationExprService;
 
     @Override
-    public JavabeanGeneration generateEntity(TableStructureAnalysisDto persistence) {
+    public JavabeanGeneration generateEntity(TableStructureAnalysisDTO persistence) {
         JavabeanArg arg = new JavabeanArg();
         arg.setAstForest(AstForestContext.get());
         arg.setPackageName(commonConfig.getEntityPackage());
@@ -58,7 +58,7 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
                 javabean.getAnnotations().removeIf(anno -> anno.getNameAsString().equals("Accessors"));
             }
         });
-        for (PropertyDto property : persistence.getProperties()) {
+        for (PropertyDTO property : persistence.getProperties()) {
             if (getSuperEntityFieldNames().contains(property.getColumnName())) {
                 continue;
             }
@@ -80,7 +80,7 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
                 .collect(Collectors.toList());
     }
 
-    private String concatEntityDescription(TableStructureAnalysisDto persistence) {
+    private String concatEntityDescription(TableStructureAnalysisDTO persistence) {
         String result = persistence.getDescrption() + BaseConstant.JAVA_DOC_NEW_LINE + persistence.getTableName();
         if (commonConfig.getEnableNoModifyAnnounce() || commonConfig.getEnableLotNoAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE;
@@ -94,7 +94,7 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
         return result;
     }
 
-    private String cancatPropertyDescription(PropertyDto property) {
+    private String cancatPropertyDescription(PropertyDTO property) {
         String result = property.getDescription();
         result += BaseConstant.JAVA_DOC_NEW_LINE + property.getColumnName();
         if (property.getLength() != null && property.getLength() != 0) {

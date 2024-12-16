@@ -21,8 +21,8 @@ import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcControllerDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.MvcControllerDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDTO;
 import com.spldeolin.allison1875.docanalyzer.service.MvcHandlerDetectorService;
 import com.spldeolin.allison1875.docanalyzer.util.LoadClassUtils;
 import com.spldeolin.allison1875.docanalyzer.util.MethodQualifierUtils;
@@ -44,8 +44,8 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
     private DocAnalyzerConfig config;
 
     @Override
-    public List<MvcHandlerDto> detectMvcHandler() {
-        List<MvcHandlerDto> result = Lists.newArrayList();
+    public List<MvcHandlerDTO> detectMvcHandler() {
+        List<MvcHandlerDTO> result = Lists.newArrayList();
 
         for (CompilationUnit cu : AstForestContext.get()) {
             if (!CompilationUnitUtils.getCuAbsolutePath(cu).startsWith(AstForestContext.get().getSourceRoot())) {
@@ -70,7 +70,7 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
 
                 LinkedHashMap<String/*shortestQualifiedSignature*/, MethodDeclaration> mds = this.listMethods(coid);
 
-                List<MvcHandlerDto> mvcHandlers = Lists.newArrayList();
+                List<MvcHandlerDTO> mvcHandlers = Lists.newArrayList();
                 for (Method methodReflection : mvcControllerReflection.getDeclaredMethods()) {
                     if (isNotMvcHandler(methodReflection)) {
                         continue;
@@ -91,11 +91,11 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
                         continue;
                     }
 
-                    MvcControllerDto mvcController = new MvcControllerDto();
+                    MvcControllerDTO mvcController = new MvcControllerDTO();
                     mvcController.setCat(mvcControllerCat);
                     mvcController.setCoid(coid);
                     mvcController.setReflection(mvcControllerReflection);
-                    MvcHandlerDto mvcHandler = new MvcHandlerDto();
+                    MvcHandlerDTO mvcHandler = new MvcHandlerDTO();
                     mvcHandler.setMvcController(mvcController);
                     mvcHandler.setCat(mvcControllerCat);
                     mvcHandler.setMd(mvcHandlerMd);

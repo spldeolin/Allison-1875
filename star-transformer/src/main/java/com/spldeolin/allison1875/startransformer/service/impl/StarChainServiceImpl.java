@@ -20,8 +20,8 @@ import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.startransformer.StarTransformerConfig;
 import com.spldeolin.allison1875.startransformer.enums.ChainMethodEnum;
 import com.spldeolin.allison1875.startransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDto;
-import com.spldeolin.allison1875.startransformer.javabean.PhraseDto;
+import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDTO;
+import com.spldeolin.allison1875.startransformer.javabean.PhraseDTO;
 import com.spldeolin.allison1875.startransformer.service.StarChainService;
 import com.spldeolin.allison1875.startransformer.util.NamingUtils;
 import com.spldeolin.allison1875.support.StarSchema;
@@ -73,14 +73,14 @@ public class StarChainServiceImpl implements StarChainService {
 
 
     @Override
-    public ChainAnalysisDto analyzeStarChain(MethodCallExpr starChain) throws IllegalChainException {
+    public ChainAnalysisDTO analyzeStarChain(MethodCallExpr starChain) throws IllegalChainException {
         return this.analyzeRecursively(starChain, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
     }
 
-    private ChainAnalysisDto analyzeRecursively(MethodCallExpr mce, List<PhraseDto> phrases, List<String> keys,
+    private ChainAnalysisDTO analyzeRecursively(MethodCallExpr mce, List<PhraseDTO> phrases, List<String> keys,
             List<String> mkeys) throws IllegalChainException {
         if (ChainMethodEnum.oo.toString().equals(mce.getNameAsString())) {
-            PhraseDto phrase = new PhraseDto();
+            PhraseDTO phrase = new PhraseDTO();
             phrase.setIsOneToOne(true);
             FieldAccessExpr fae = mce.getArgument(0).asFieldAccessExpr();
             phrase.setDtEntityQualifier(
@@ -96,7 +96,7 @@ public class StarChainServiceImpl implements StarChainService {
             phrases.add(phrase);
         }
         if (ChainMethodEnum.om.toString().equals(mce.getNameAsString())) {
-            PhraseDto phrase = new PhraseDto();
+            PhraseDTO phrase = new PhraseDTO();
             phrase.setIsOneToOne(false);
             FieldAccessExpr fae = mce.getArgument(0).asFieldAccessExpr();
             phrase.setDtEntityQualifier(
@@ -129,7 +129,7 @@ public class StarChainServiceImpl implements StarChainService {
         }
         if (ChainMethodEnum.cft.toString().equals(mce.getNameAsString())) {
             FieldAccessExpr fae = mce.getArgument(0).asFieldAccessExpr();
-            ChainAnalysisDto analysis = new ChainAnalysisDto();
+            ChainAnalysisDTO analysis = new ChainAnalysisDTO();
             analysis.setCftEntityQualifier(
                     fae.resolve().getType().asReferenceType().getGenericParameterByName("E").get().describe());
             analysis.setCftEntityName(NamingUtils.qualifierToTypeName(analysis.getCftEntityQualifier()));
@@ -137,8 +137,8 @@ public class StarChainServiceImpl implements StarChainService {
             analysis.setCftDesignQualifier(fae.getScope().calculateResolvedType().describe());
             analysis.setCftSecondArgument(mce.getArgument(1));
             analysis.setPhrases(phrases);
-            String wholeDtoName = this.buildWholeDtoName(analysis.getCftEntityName());
-            analysis.setWholeDtoName(wholeDtoName);
+            String wholeDTOName = this.buildWholeDTOName(analysis.getCftEntityName());
+            analysis.setWholeDTOName(wholeDTOName);
             String hash = StringUtils.upperCase(HashingUtils.hashString(analysis.toString()));
             analysis.setLotNo(String.format("ST%s-%s", Allison1875.SHORT_VERSION, hash));
             return analysis;
@@ -149,11 +149,11 @@ public class StarChainServiceImpl implements StarChainService {
         throw new IllegalChainException("impossible unless bug.");
     }
 
-    private String buildWholeDtoName(String entityName) {
+    private String buildWholeDTOName(String entityName) {
         if (entityName.endsWith("Entity")) {
-            return MoreStringUtils.replaceLast(entityName, "Entity", config.getWholeDtoNamePostfix());
+            return MoreStringUtils.replaceLast(entityName, "Entity", config.getWholeDTONamePostfix());
         } else {
-            return entityName + config.getWholeDtoNamePostfix();
+            return entityName + config.getWholeDTONamePostfix();
         }
     }
 

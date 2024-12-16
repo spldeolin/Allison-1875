@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.extension.satisficing.persistencegenerator;
 
 import java.util.regex.Pattern;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDto;
+import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.CommentServiceImpl;
 
 /**
@@ -12,7 +12,7 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.CommentServic
 public class CommentServiceImpl2 extends CommentServiceImpl {
 
     @Override
-    public String analyzeColumnComment(InformationSchemaDto infoSchema) {
+    public String analyzeColumnComment(InformationSchemaDTO infoSchema) {
         String comment = super.analyzeColumnComment(infoSchema);
 
         comment = Pattern.compile("T\\((.+?)\\)").matcher(comment).replaceFirst("").trim();

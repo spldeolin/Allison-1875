@@ -8,7 +8,7 @@ import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceA
 import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceRetval;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplArgs;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.impl.ServiceLayerServiceImpl;
 
 /**
@@ -17,8 +17,8 @@ import com.spldeolin.allison1875.handlertransformer.service.impl.ServiceLayerSer
 @ImplementedBy(ServiceLayerServiceImpl.class)
 public interface ServiceLayerService {
 
-    MethodDeclaration generateServiceMethod(InitDecAnalysisDto initDecAnalysisDto, String reqBodyDtoType,
-            List<VariableDeclarator> reqParams, String respBodyDtoType);
+    MethodDeclaration generateServiceMethod(InitDecAnalysisDTO initDecAnalysisDTO, String reqBodyDTOType,
+            List<VariableDeclarator> reqParams, String respBodyDTOType);
 
     AddMethodToServiceRetval addMethodToService(AddMethodToServiceArgs args);
 

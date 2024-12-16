@@ -34,11 +34,11 @@ import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.MapperCoidService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -59,7 +59,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     private AntiDuplicationService antiDuplicationService;
 
     @Override
-    public DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDto persistence,
+    public DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDTO persistence,
             JavabeanGeneration javabeanGeneration) {
 
         // find
@@ -111,7 +111,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         return result;
     }
 
-    private String concatMapperDescription(TableStructureAnalysisDto persistence) {
+    private String concatMapperDescription(TableStructureAnalysisDTO persistence) {
         String result = persistence.getDescrption() + BaseConstant.JAVA_DOC_NEW_LINE + persistence.getTableName();
         if (commonConfig.getEnableLotNoAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE;
@@ -124,7 +124,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateBatchInsertEvenNullMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("batchInsertEvenNull", args.getMapper());
         MethodDeclaration insert = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                 "批量插入，为null的属性会被作为null插入");
         insert.setJavadocComment(comment);
         insert.setType(PrimitiveType.intType());
@@ -141,7 +141,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateBatchInsertMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("batchInsert", args.getMapper());
         MethodDeclaration insert = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "批量插入");
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "批量插入");
         insert.setJavadocComment(comment);
         insert.setType(PrimitiveType.intType());
         insert.setName(methodName);
@@ -157,7 +157,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateBatchUpdateEvenNullMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("batchUpdateEvenNull", args.getMapper());
         MethodDeclaration update = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                 "批量根据ID更新数据，为null对应的字段会被更新为null");
         update.setJavadocComment(comment);
         update.setType(PrimitiveType.intType());
@@ -174,7 +174,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateBatchUpdateMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("batchUpdate", args.getMapper());
         MethodDeclaration update = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "批量根据ID更新数据");
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "批量根据ID更新数据");
         update.setJavadocComment(comment);
         update.setType(PrimitiveType.intType());
         update.setName(methodName);
@@ -192,7 +192,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
                 "deleteBy" + MoreStringUtils.toUpperCamel(args.getKey().getPropertyName()), args.getMapper());
         MethodDeclaration method = new MethodDeclaration();
         String varName = MoreStringUtils.toLowerCamel(args.getKey().getPropertyName());
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                 "根据「" + args.getKey().getDescription() + "」删除");
         method.setJavadocComment(comment);
         method.setType(PrimitiveType.intType());
@@ -209,7 +209,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateInsertOrUpdateMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("insertOrUpdate", args.getMapper());
         MethodDeclaration insert = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                 "尝试插入，若指定了id并存在，则更新，即INSERT ON DUPLICATE KEY UPDATE");
         insert.setJavadocComment(comment);
         insert.setType(PrimitiveType.intType());
@@ -224,7 +224,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateInsertMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("insert", args.getMapper());
         MethodDeclaration insert = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "插入");
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "插入");
         insert.setJavadocComment(comment);
         insert.setType(PrimitiveType.intType());
         insert.setName(methodName);
@@ -237,10 +237,10 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     @Override
     public String generateListAllMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = null;
-        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDto().getIdProperties())) {
+        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDTO().getIdProperties())) {
             methodName = antiDuplicationService.getNewMethodNameIfExist("listAll", args.getMapper());
             MethodDeclaration listAll = new MethodDeclaration();
-            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "获取全部");
+            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "获取全部");
             listAll.setType(
                     StaticJavaParser.parseType("List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
             listAll.setName(methodName);
@@ -255,7 +255,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     public String generateQueryByEntityMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("queryByEntity", args.getMapper());
         MethodDeclaration queryByEntity = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "根据实体内的属性查询");
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "根据实体内的属性查询");
         queryByEntity.setType(parseType("java.util.List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
         queryByEntity.setName(methodName);
         queryByEntity.addParameter(args.getEntityGeneration().getJavabeanQualifier(), "entity");
@@ -268,20 +268,20 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     @Override
     public String generateQueryByIdMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = null;
-        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDto().getIdProperties())) {
+        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDTO().getIdProperties())) {
             methodName = antiDuplicationService.getNewMethodNameIfExist("queryById", args.getMapper());
             MethodDeclaration queryById = new MethodDeclaration();
-            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "根据ID查询");
+            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "根据ID查询");
             queryById.setType(new ClassOrInterfaceType().setName(args.getEntityGeneration().getJavabeanQualifier()));
             queryById.setName(methodName);
 
-            if (args.getTableStructureAnalysisDto().getIdProperties().size() == 1) {
-                PropertyDto onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDto().getIdProperties());
+            if (args.getTableStructureAnalysisDTO().getIdProperties().size() == 1) {
+                PropertyDTO onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDTO().getIdProperties());
                 String varName = MoreStringUtils.toLowerCamel(onlyPk.getPropertyName());
                 Parameter parameter = parseParameter(onlyPk.getJavaType().getSimpleName() + " " + varName);
                 queryById.addParameter(parameter);
             } else {
-                for (PropertyDto pk : args.getTableStructureAnalysisDto().getIdProperties()) {
+                for (PropertyDTO pk : args.getTableStructureAnalysisDTO().getIdProperties()) {
                     String varName = MoreStringUtils.toLowerCamel(pk.getPropertyName());
                     Parameter parameter = parseParameter(
                             "@org.apache.ibatis.annotations.Param(\"" + varName + "\")" + pk.getJavaType()
@@ -299,12 +299,12 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     @Override
     public String generateQueryByIdsEachIdMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = null;
-        if (args.getTableStructureAnalysisDto().getIdProperties().size() == 1) {
+        if (args.getTableStructureAnalysisDTO().getIdProperties().size() == 1) {
             methodName = antiDuplicationService.getNewMethodNameIfExist("queryByIdsEachId", args.getMapper());
             MethodDeclaration queryByIdsEachId = new MethodDeclaration();
-            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                     "根据多个ID查询，并以ID作为key映射到Map");
-            PropertyDto onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDto().getIdProperties());
+            PropertyDTO onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDTO().getIdProperties());
             String varName = MoreStringUtils.toLowerCamel(onlyPk.getPropertyName());
             String pkTypeName = onlyPk.getJavaType().getSimpleName();
             queryByIdsEachId.addAnnotation(
@@ -325,11 +325,11 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     @Override
     public String generateQueryByIdsMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = null;
-        if (args.getTableStructureAnalysisDto().getIdProperties().size() == 1) {
+        if (args.getTableStructureAnalysisDTO().getIdProperties().size() == 1) {
             methodName = antiDuplicationService.getNewMethodNameIfExist("queryByIds", args.getMapper());
             MethodDeclaration queryByIds = new MethodDeclaration();
-            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(), "根据多个ID查询");
-            PropertyDto onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDto().getIdProperties());
+            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "根据多个ID查询");
+            PropertyDTO onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDTO().getIdProperties());
             queryByIds.setType(parseType("java.util.List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
             queryByIds.setName(methodName);
             String varsName = English.plural(MoreStringUtils.toLowerCamel(onlyPk.getPropertyName()));
@@ -350,7 +350,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
                 "queryBy" + MoreStringUtils.toUpperCamel(generateMethodToMapper.getKey().getPropertyName()),
                 generateMethodToMapper.getMapper());
         MethodDeclaration method = new MethodDeclaration();
-        String comment = concatMapperMethodComment(generateMethodToMapper.getTableStructureAnalysisDto(),
+        String comment = concatMapperMethodComment(generateMethodToMapper.getTableStructureAnalysisDTO(),
                 "根据「" + generateMethodToMapper.getKey().getDescription() + "」查询");
         method.setType(parseType(
                 "java.util.List<" + generateMethodToMapper.getEntityGeneration().getJavabeanQualifier() + ">"));
@@ -366,12 +366,12 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     }
 
     @Override
-    public QueryByKeysDto generateQueryByKeysMethodToMapper(GenerateMethodToMapperArgs args) {
+    public QueryByKeysDTO generateQueryByKeysMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = antiDuplicationService.getNewMethodNameIfExist(
                 "queryBy" + English.plural(MoreStringUtils.toUpperCamel(args.getKey().getPropertyName())),
                 args.getMapper());
         MethodDeclaration method = new MethodDeclaration();
-        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+        String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                 "根据多个「" + args.getKey().getDescription() + "」查询");
         method.setType(parseType("java.util.List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
         method.setName(methodName);
@@ -383,16 +383,16 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         method.setBody(null);
         method.setJavadocComment(comment);
         args.getMapper().getMembers().addLast(method);
-        return new QueryByKeysDto().setKey(args.getKey()).setMethodName(methodName).setVarsName(varsName);
+        return new QueryByKeysDTO().setKey(args.getKey()).setMethodName(methodName).setVarsName(varsName);
     }
 
     @Override
     public String generateUpdateByIdEvenNullMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = null;
-        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDto().getIdProperties())) {
+        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDTO().getIdProperties())) {
             methodName = antiDuplicationService.getNewMethodNameIfExist("updateByIdEvenNull", args.getMapper());
             MethodDeclaration updateByIdEvenNull = new MethodDeclaration();
-            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                     "根据ID更新数据，为null属性对应的字段会被更新为null");
             updateByIdEvenNull.setJavadocComment(comment);
             updateByIdEvenNull.setType(PrimitiveType.intType());
@@ -407,10 +407,10 @@ public class MapperCoidServiceImpl implements MapperCoidService {
     @Override
     public String generateUpdateByIdMethodToMapper(GenerateMethodToMapperArgs args) {
         String methodName = null;
-        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDto().getIdProperties())) {
+        if (CollectionUtils.isNotEmpty(args.getTableStructureAnalysisDTO().getIdProperties())) {
             methodName = antiDuplicationService.getNewMethodNameIfExist("updateById", args.getMapper());
             MethodDeclaration updateById = new MethodDeclaration();
-            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDto(),
+            String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                     "根据ID更新数据，忽略值为null的属性");
             updateById.setJavadocComment(comment);
             updateById.setType(PrimitiveType.intType());
@@ -422,7 +422,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         return methodName;
     }
 
-    private String concatMapperMethodComment(TableStructureAnalysisDto persistence, String methodDescription) {
+    private String concatMapperMethodComment(TableStructureAnalysisDTO persistence, String methodDescription) {
         String result = methodDescription;
         if (commonConfig.getEnableNoModifyAnnounce() || commonConfig.getEnableLotNoAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE;

@@ -43,7 +43,7 @@ import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.docanalyzer.enums.ValidatorTypeEnum;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeFieldVarsRetval;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeValidRetval;
-import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDTO;
 import com.spldeolin.allison1875.docanalyzer.service.JsgBuilderService;
 
 /**
@@ -72,13 +72,13 @@ public class JsgBuilderServiceImpl implements JsgBuilderService {
 
             @Override
             public boolean hasIgnoreMarker(AnnotatedMember m) {
-                // 当开发者指定了Access.READ_ONLY时，如果是reqDto，则算作ignore
+                // 当开发者指定了Access.READ_ONLY时，如果是reqDTO，则算作ignore
                 Access propertyAccess = super.findPropertyAccess(m);
                 if (forReqOrResp && propertyAccess == Access.READ_ONLY) {
                     return true;
                 }
 
-                // 当开发者指定了Access.WRITE_ONLY时候，如果是respDto，则算作ignore
+                // 当开发者指定了Access.WRITE_ONLY时候，如果是respDTO，则算作ignore
                 if (!forReqOrResp && propertyAccess == Access.WRITE_ONLY) {
                     return true;
                 }
@@ -104,7 +104,7 @@ public class JsgBuilderServiceImpl implements JsgBuilderService {
                 String className = field.getDeclaringClass().getName().replace('$', '.');
                 String fieldNameMight = field.getName();
 
-                JsonPropertyDescriptionValueDto jpdv = new JsonPropertyDescriptionValueDto();
+                JsonPropertyDescriptionValueDTO jpdv = new JsonPropertyDescriptionValueDTO();
 
                 // jpdv 注释
                 AnalyzeFieldVarsRetval afvRetval = afvRetvals.get(className, fieldNameMight);

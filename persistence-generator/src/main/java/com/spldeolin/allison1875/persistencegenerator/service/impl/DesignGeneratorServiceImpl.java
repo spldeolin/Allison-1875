@@ -36,16 +36,17 @@ import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.constant.TokenWordConstant;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant;
+import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant.ChainInitialMethod;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinDesignArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinChainArgs;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.DesignGeneratorService;
-import com.spldeolin.allison1875.support.EntityKey;
-import com.spldeolin.allison1875.support.OnChainLink;
+import com.spldeolin.allison1875.support.OnChainComparison;
+import com.spldeolin.allison1875.support.PropertyName;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -65,8 +66,8 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
     private ImportExprService importExprService;
 
     @Override
-    public Optional<CompilationUnit> generateJoinDesign(GenerateJoinDesignArgs args) {
-        TableStructureAnalysisDto tableStructureAnalysis = args.getTableStructureAnalysis();
+    public Optional<CompilationUnit> generateJoinChain(GenerateJoinChainArgs args) {
+        TableStructureAnalysisDTO tableStructureAnalysis = args.getTableStructureAnalysis();
         JavabeanGeneration entityGeneration = args.getEntityGeneration();
         String entityName = entityGeneration.getJavabeanName();
 
@@ -76,36 +77,35 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         NodeList<TypeParameter> typeParams = new NodeList<>(new TypeParameter("MQCM"), new TypeParameter("ME"));
 
-        CompilationUnit cu = args.getJoinDesignCu();
+        CompilationUnit cu = args.getJoinChainCu();
         if (cu == null) {
-            String designName = "JoinDesign";
-            cu = AstForestContext.get().findCu(commonConfig.getDesignPackage() + "." + designName).orElseGet(() -> {
+            cu = AstForestContext.get().findCu(commonConfig.getDesignPackage() + ".JoinChain").orElseGet(() -> {
                 CompilationUnit designCu = new CompilationUnit();
                 Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
-                        commonConfig.getDesignPackage(), designName + ".java");
+                        commonConfig.getDesignPackage(), "JoinChain.java");
                 log.info("Join Design absent, create it, path={}", designPath);
                 designCu.setStorage(designPath);
                 designCu.setPackageDeclaration(commonConfig.getDesignPackage());
-                designCu.addImport(OnChainLink.class.getName());
-                designCu.addImport(EntityKey.class.getName());
+                designCu.addImport(OnChainComparison.class.getName());
+                designCu.addImport(PropertyName.class.getName());
                 designCu.addOrphanComment(new LineComment("@formatter:" + "off"));
                 ClassOrInterfaceDeclaration designCoid = new ClassOrInterfaceDeclaration();
                 JavadocComment javadoc = new JavadocComment(
-                        concatJoinDesignDescription(args.getTableStructureAnalysis()));
+                        concatJoinChainDescription(args.getTableStructureAnalysis()));
                 designCoid.setJavadocComment(javadoc);
                 designCoid.addAnnotation(StaticJavaParser.parseAnnotation("@SuppressWarnings(\"all\")"));
-                designCoid.setPublic(true).setInterface(false).setName(designName).setTypeParameters(typeParams);
+                designCoid.setPublic(true).setInterface(false).setName("JoinChain").setTypeParameters(typeParams);
                 designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                         "private final static UnsupportedOperationException e = new UnsupportedOperationException"
                                 + "();"));
-                designCoid.addMember(StaticJavaParser.parseBodyDeclaration("private " + designName + "() {}"));
+                designCoid.addMember(StaticJavaParser.parseBodyDeclaration("private JoinChain() {}"));
                 designCu.addType(designCoid);
                 designCu.addOrphanComment(new LineComment(""));
                 return designCu;
             });
         }
         TypeDeclaration<?> design = cu.getPrimaryType()
-                .orElseThrow(() -> new PrimaryTypeAbsentException("JoinDesign PrimaryType absent"));
+                .orElseThrow(() -> new PrimaryTypeAbsentException("JoinChain PrimaryType absent"));
 
         FieldDeclaration joinedEntityField = StaticJavaParser.parseBodyDeclaration(
                 String.format("public Join%s<MQCM, ME> %s = %s.ett;", entityName, entityName,
@@ -115,7 +115,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration joinEntityCoid = new ClassOrInterfaceDeclaration();
         joinEntityCoid.setPublic(true).setStatic(true).setName("Join" + entityName).setTypeParameters(typeParams);
-        for (PropertyDto property : tableStructureAnalysis.getProperties()) {
+        for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
             joinEntityCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                     String.format("public Join%s<MQCM, ME> %s;", entityName, property.getPropertyName())));
         }
@@ -131,9 +131,9 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         ClassOrInterfaceDeclaration joinEntityOnCoid = new ClassOrInterfaceDeclaration();
         joinEntityOnCoid.setPublic(true).setStatic(true).setName("Join" + entityName + "On")
                 .setTypeParameters(typeParams).addImplementedType(args.getDesignQualifier().replace('.', '_'));
-        for (PropertyDto property : tableStructureAnalysis.getProperties()) {
+        for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
             joinEntityOnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                    String.format("public OnChainLink<MQCM, %s, EntityKey<ME, %s>> %s;",
+                    String.format("public OnChainComparison<MQCM, %s, PropertyName<ME, %s>> %s;",
                             property.getJavaType().getQualifier(), property.getJavaType().getQualifier(),
                             property.getPropertyName())));
         }
@@ -149,11 +149,11 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         ClassOrInterfaceDeclaration joinEntityOnOpenedCoid = new ClassOrInterfaceDeclaration();
         joinEntityOnOpenedCoid.setPublic(true).setStatic(true).setName("Join" + entityName + "OnOpened")
                 .setTypeParameters(typeParams).addImplementedType(args.getDesignQualifier().replace('.', '_'));
-        for (PropertyDto property : tableStructureAnalysis.getProperties()) {
-            joinEntityOnOpenedCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                    String.format("public OnChainLink<Join%sOnOpenedClosable<MQCM, ME>, %s, EntityKey<ME, %s>> %s;",
-                            entityName, property.getJavaType().getQualifier(), property.getJavaType().getQualifier(),
-                            property.getPropertyName())));
+        for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
+            joinEntityOnOpenedCoid.addMember(StaticJavaParser.parseBodyDeclaration(String.format(
+                    "public OnChainComparison<Join%sOnOpenedClosable<MQCM, ME>, %s, PropertyName<ME, %s>> %s;",
+                    entityName, property.getJavaType().getQualifier(), property.getJavaType().getQualifier(),
+                    property.getPropertyName())));
         }
         design.getMembers().stream().filter(BodyDeclaration::isClassOrInterfaceDeclaration)
                 .map(BodyDeclaration::asClassOrInterfaceDeclaration)
@@ -194,7 +194,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
     @Override
     public GenerateDesignRetval generateDesign(GenerateDesignArgs args) {
-        TableStructureAnalysisDto tableStructureAnalysis = args.getTableStructureAnalysis();
+        TableStructureAnalysisDTO tableStructureAnalysis = args.getTableStructureAnalysis();
         JavabeanGeneration entityGeneration = args.getEntityGeneration();
 
         if (!config.getEnableGenerateDesign()) {
@@ -205,13 +205,13 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
                 commonConfig.getDesignPackage(), designName + ".java");
 
-        List<PropertyDto> properties = tableStructureAnalysis.getProperties();
-        LinkedHashMap<String, PropertyDto> propertiesByName = Maps.newLinkedHashMap();
+        List<PropertyDTO> properties = tableStructureAnalysis.getProperties();
+        LinkedHashMap<String, PropertyDTO> propertiesByName = Maps.newLinkedHashMap();
 
         CompilationUnit cu = new CompilationUnit();
         cu.setStorage(designPath);
         cu.setPackageDeclaration(commonConfig.getDesignPackage());
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             propertiesByName.put(property.getPropertyName(), property);
         }
         cu.addOrphanComment(new LineComment("@formatter:" + "off"));
@@ -223,23 +223,27 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 "private final static UnsupportedOperationException e = new UnsupportedOperationException();"));
         designCoid.addMember(StaticJavaParser.parseBodyDeclaration("private " + designName + "() {}"));
-        designCoid.addMember(
-                StaticJavaParser.parseBodyDeclaration("public static QueryChain query(String methodName) {throw e;}"));
-        designCoid.addMember(StaticJavaParser.parseBodyDeclaration("public static QueryChain query() {throw e;}"));
         designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                "public static UpdateChain update(String methodName) {throw e;}"));
-        designCoid.addMember(StaticJavaParser.parseBodyDeclaration("public static UpdateChain update() {throw e;}"));
-        designCoid.addMember(
-                StaticJavaParser.parseBodyDeclaration("public static DropChain drop(String methodName) {throw e;}"));
-        designCoid.addMember(StaticJavaParser.parseBodyDeclaration("public static DropChain drop() {throw e;}"));
+                "public static QueryChain " + ChainInitialMethod.SELECT.getCode() + "(String methodName) {throw e;}"));
+        designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                "public static QueryChain " + ChainInitialMethod.SELECT.getCode() + "() {throw e;}"));
+        designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                "public static UpdateChain " + ChainInitialMethod.UPDATE.getCode() + "(String methodName) {throw e;}"));
+        designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                "public static UpdateChain " + ChainInitialMethod.UPDATE.getCode() + "() {throw e;}"));
+        designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                "public static DropChain " + ChainInitialMethod.DELETE.getCode() + "(String methodName) {throw e;}"));
+        designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                "public static DropChain " + ChainInitialMethod.DELETE.getCode() + "() {throw e;}"));
 
         ClassOrInterfaceDeclaration queryChainMethodsCoid = new ClassOrInterfaceDeclaration();
         queryChainMethodsCoid.setPublic(true).setStatic(true).setName("QueryChainMethods");
-        queryChainMethodsCoid.addMember(
-                StaticJavaParser.parseBodyDeclaration("public ByChainReturn<NextableByChainReturn> by() { throw e; }"));
+        queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                "public ByChainReturn<NextableByChainReturn> " + KeywordConstant.WHERE_METHOD_NAME
+                        + "() { throw e; }"));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public ByChainReturn<NextableByChainReturn> %s() { throw e; }",
-                        TokenWordConstant.BY_FORCED_METHOD_NAME)));
+                        KeywordConstant.WHERE_EVEN_NULL_METHOD_NAME)));
         queryChainMethodsCoid.addMember(
                 StaticJavaParser.parseBodyDeclaration("public OrderChain order() { throw e; }"));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
@@ -254,16 +258,16 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
                 String.format("public %s one() { throw e; }", entityGeneration.getJavabeanName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration("public int count() { throw e; }"));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("public JoinDesign<QueryChainMethods, %s> leftJoin() { throw e; }",
+                String.format("public JoinChain<QueryChainMethods, %s> leftJoin() { throw e; }",
                         entityGeneration.getJavabeanName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("public JoinDesign<QueryChainMethods, %s> rightJoin() { throw e; }",
+                String.format("public JoinChain<QueryChainMethods, %s> rightJoin() { throw e; }",
                         entityGeneration.getJavabeanName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("public JoinDesign<QueryChainMethods, %s> innerJoin() { throw e; }",
+                String.format("public JoinChain<QueryChainMethods, %s> innerJoin() { throw e; }",
                         entityGeneration.getJavabeanName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("public JoinDesign<QueryChainMethods, %s> outerJoin() { throw e; }",
+                String.format("public JoinChain<QueryChainMethods, %s> outerJoin() { throw e; }",
                         entityGeneration.getJavabeanName())));
         designCoid.addMember(queryChainMethodsCoid);
 
@@ -271,7 +275,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         queryChainCoid.setPublic(true).setStatic(true).setInterface(false).setName("QueryChain")
                 .addExtendedType("QueryChainMethods");
         queryChainCoid.addMember(StaticJavaParser.parseBodyDeclaration("private QueryChain () {}"));
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             FieldDeclaration field = StaticJavaParser.parseBodyDeclaration(
                     "public QueryChain " + property.getPropertyName() + ";").asFieldDeclaration();
             field.setJavadocComment(property.getDescription());
@@ -281,7 +285,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration updateChainCoid = new ClassOrInterfaceDeclaration();
         updateChainCoid.setPublic(true).setInterface(true).setName("UpdateChain");
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             updateChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                             "NextableUpdateChain " + property.getPropertyName() + "(" + property.getJavaType().getQualifier()
                                     + " " + property.getPropertyName() + ");").asMethodDeclaration()
@@ -293,26 +297,29 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         nextableUpdateChainCoid.setPublic(true).setInterface(true).setName("NextableUpdateChain")
                 .addExtendedType("UpdateChain");
         nextableUpdateChainCoid.addMember(StaticJavaParser.parseBodyDeclaration("int over();"));
-        nextableUpdateChainCoid.addMember(
-                StaticJavaParser.parseBodyDeclaration("ByChainReturn<NextableByChainVoid> by();"));
         nextableUpdateChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("ByChainReturn<NextableByChainVoid> %s();", TokenWordConstant.BY_FORCED_METHOD_NAME)));
+                "ByChainReturn<NextableByChainVoid> " + KeywordConstant.WHERE_METHOD_NAME + "();"));
+        nextableUpdateChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                String.format("ByChainReturn<NextableByChainVoid> %s();",
+                        KeywordConstant.WHERE_EVEN_NULL_METHOD_NAME)));
         designCoid.addMember(nextableUpdateChainCoid);
 
         ClassOrInterfaceDeclaration dropChainCoid = new ClassOrInterfaceDeclaration();
         dropChainCoid.setPublic(true).setInterface(true).setName("DropChain");
         dropChainCoid.addMember(StaticJavaParser.parseBodyDeclaration("int over();"));
-        dropChainCoid.addMember(StaticJavaParser.parseBodyDeclaration("ByChainReturn<NextableByChainVoid> by();"));
         dropChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("ByChainReturn<NextableByChainVoid> %s();", TokenWordConstant.BY_FORCED_METHOD_NAME)));
+                "ByChainReturn<NextableByChainVoid> " + KeywordConstant.WHERE_METHOD_NAME + "();"));
+        dropChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
+                String.format("ByChainReturn<NextableByChainVoid> %s();",
+                        KeywordConstant.WHERE_EVEN_NULL_METHOD_NAME)));
         designCoid.addMember(dropChainCoid);
 
         ClassOrInterfaceDeclaration byChainReturnCode = new ClassOrInterfaceDeclaration();
         byChainReturnCode.setPublic(true).setStatic(true).setInterface(false).setName("ByChainReturn")
                 .addTypeParameter("NEXT");
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             byChainReturnCode.addMember(StaticJavaParser.parseBodyDeclaration(
-                            "public com.spldeolin.allison1875.support.ByChainPredicate<NEXT, " + property.getJavaType()
+                            "public com.spldeolin.allison1875.support.WhereChainComparison<NEXT, " + property.getJavaType()
                                     .getSimpleName() + "> " + property.getPropertyName() + ";").asFieldDeclaration()
                     .setJavadocComment(property.getDescription()));
         }
@@ -320,10 +327,10 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration nextableByChainReturnCoid = new ClassOrInterfaceDeclaration();
         nextableByChainReturnCoid.setPublic(true).setStatic(true).setInterface(false).setName("NextableByChainReturn");
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                            "public ByChainPredicate<NextableByChainReturn, " + property.getJavaType().getSimpleName() + "> "
-                                    + property.getPropertyName() + ";").asFieldDeclaration()
+                            "public WhereChainComparison<NextableByChainReturn, " + property.getJavaType().getSimpleName()
+                                    + "> " + property.getPropertyName() + ";").asFieldDeclaration()
                     .setJavadocComment(property.getDescription()));
         }
         nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
@@ -343,9 +350,9 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration nextableByChainVoidCoid = new ClassOrInterfaceDeclaration();
         nextableByChainVoidCoid.setPublic(true).setStatic(true).setInterface(false).setName("NextableByChainVoid");
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             nextableByChainVoidCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                            "public ByChainPredicate<NextableByChainVoid, " + property.getJavaType().getSimpleName() + "> "
+                            "public WhereChainComparison<NextableByChainVoid, " + property.getJavaType().getSimpleName() + "> "
                                     + property.getPropertyName() + ";").asFieldDeclaration()
                     .setJavadocComment(property.getDescription()));
         }
@@ -354,9 +361,9 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration orderChainCoid = new ClassOrInterfaceDeclaration();
         orderChainCoid.setPublic(true).setStatic(true).setInterface(false).setName("OrderChain");
-        for (PropertyDto property : properties) {
+        for (PropertyDTO property : properties) {
             orderChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                            "public com.spldeolin.allison1875.support.OrderChainPredicate<NextableOrderChain> "
+                            "public com.spldeolin.allison1875.support.OrderByChainSequence<NextableOrderChain> "
                                     + property.getPropertyName() + ";").asFieldDeclaration()
                     .setJavadocComment(property.getDescription()));
         }
@@ -380,7 +387,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration eachCoid = new ClassOrInterfaceDeclaration();
         eachCoid.setPublic(true).setStatic(false).setInterface(true).setName("Each").addTypeParameter("P");
-        for (PropertyDto property : tableStructureAnalysis.getProperties()) {
+        for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
             eachCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                     String.format("Each<%s> %s = (Each<%s>) new Object();", property.getJavaType().getSimpleName(),
                             property.getPropertyName(), property.getJavaType().getSimpleName())));
@@ -389,7 +396,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         ClassOrInterfaceDeclaration multiEachCoid = new ClassOrInterfaceDeclaration();
         multiEachCoid.setPublic(true).setStatic(false).setInterface(true).setName("MultiEach").addTypeParameter("P");
-        for (PropertyDto property : tableStructureAnalysis.getProperties()) {
+        for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
             multiEachCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                     String.format("MultiEach<%s> %s = (MultiEach<%s>) new Object();",
                             property.getJavaType().getSimpleName(), property.getPropertyName(),
@@ -397,13 +404,13 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         }
         designCoid.addMember(multiEachCoid);
 
-        for (PropertyDto property : tableStructureAnalysis.getProperties()) {
+        for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
             designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                    "public static com.spldeolin.allison1875.support.EntityKey<" + entityGeneration.getJavabeanName()
+                    "public static com.spldeolin.allison1875.support.PropertyName<" + entityGeneration.getJavabeanName()
                             + "," + property.getJavaType().getSimpleName() + "> " + property.getPropertyName() + ";"));
         }
 
-        DesignMetaDto meta = new DesignMetaDto();
+        DesignMetaDTO meta = new DesignMetaDTO();
         meta.setDesignQualifier(commonConfig.getDesignPackage() + "." + designName);
         meta.setDesignName(designName);
         meta.setEntityQualifier(entityGeneration.getJavabeanQualifier());
@@ -420,7 +427,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         meta.setProperties(propertiesByName);
         meta.setTableName(tableStructureAnalysis.getTableName());
         String metaJson = JsonUtils.toJson(meta);
-        designCoid.addFieldWithInitializer("String", TokenWordConstant.META_FIELD_NAME,
+        designCoid.addFieldWithInitializer("String", KeywordConstant.META_FIELD_NAME,
                 StaticJavaParser.parseExpression("\"" + StringEscapeUtils.escapeJava(metaJson) + "\""));
         cu.addType(designCoid);
 
@@ -433,11 +440,11 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
     }
 
     @Override
-    public String concatDesignName(TableStructureAnalysisDto persistence) {
+    public String concatDesignName(TableStructureAnalysisDTO persistence) {
         return MoreStringUtils.toUpperCamel(persistence.getTableName()) + "Design";
     }
 
-    private String concatJoinDesignDescription(TableStructureAnalysisDto persistence) {
+    private String concatJoinChainDescription(TableStructureAnalysisDTO persistence) {
         String result = "";
         if (commonConfig.getEnableNoModifyAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE + BaseConstant.NO_MODIFY_ANNOUNCE;

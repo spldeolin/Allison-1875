@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReplaceMapperXmlMethodsArgs {
 
-    TableStructureAnalysisDto tableStructureAnalysisDto;
+    TableStructureAnalysisDTO tableStructureAnalysisDTO;
 
     ClassOrInterfaceDeclaration mapper;
 

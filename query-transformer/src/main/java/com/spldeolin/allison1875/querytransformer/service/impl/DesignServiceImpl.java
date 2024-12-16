@@ -25,13 +25,12 @@ import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.JsonUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.constant.TokenWordConstant;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
-import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
+import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.ReplaceDesignArgs;
@@ -50,7 +49,7 @@ public class DesignServiceImpl implements DesignService {
     private TransformMethodCallService transformMethodCallService;
 
     @Override
-    public ClassOrInterfaceDeclaration detectDesignOrJoinDesign(String qualifier) {
+    public ClassOrInterfaceDeclaration findCoidWithChecksum(String qualifier) {
         Optional<CompilationUnit> opt = AstForestContext.get().findCu(qualifier);
         if (!opt.isPresent()) {
             throw new IllegalDesignException("cannot found Design [" + qualifier + "]");
@@ -80,15 +79,15 @@ public class DesignServiceImpl implements DesignService {
     }
 
     @Override
-    public DesignMetaDto findDesignMeta(MethodCallExpr designChain) {
+    public DesignMetaDTO findDesignMeta(MethodCallExpr designChain) {
         String designQualifier = designChain.findAll(NameExpr.class).get(0).calculateResolvedType().describe();
-        ClassOrInterfaceDeclaration design = this.detectDesignOrJoinDesign(designQualifier);
+        ClassOrInterfaceDeclaration design = this.findCoidWithChecksum(designQualifier);
         return findDesignMeta(design);
     }
 
     @Override
-    public DesignMetaDto findDesignMeta(ClassOrInterfaceDeclaration design) {
-        FieldDeclaration queryMetaField = design.getFieldByName(TokenWordConstant.META_FIELD_NAME).orElseThrow(
+    public DesignMetaDTO findDesignMeta(ClassOrInterfaceDeclaration design) {
+        FieldDeclaration queryMetaField = design.getFieldByName(KeywordConstant.META_FIELD_NAME).orElseThrow(
                 () -> new IllegalChainException(
                         "Meta Field is not exist in Design [" + design.getNameAsString() + "]"));
         if (CollectionUtils.isEmpty(queryMetaField.getVariables())) {
@@ -98,13 +97,13 @@ public class DesignServiceImpl implements DesignService {
                 () -> new IllegalDesignException(
                         "Initializer is not exist in Meta Field, metaField=" + queryMetaField));
         String metaJson = StringEscapeUtils.unescapeJava(initializer.asStringLiteralExpr().getValue());
-        return JsonUtils.toObject(metaJson, DesignMetaDto.class);
+        return JsonUtils.toObject(metaJson, DesignMetaDTO.class);
     }
 
     @Override
     public void replaceDesign(ReplaceDesignArgs args) {
-        ChainAnalysisDto chainAnalysis = args.getChainAnalysis();
-        DesignMetaDto designMeta = args.getDesignMeta();
+        ChainAnalysisDTO chainAnalysis = args.getChainAnalysis();
+        DesignMetaDTO designMeta = args.getDesignMeta();
         GenerateParamRetval generateParamRetval = args.getGenerateParamRetval();
         GenerateReturnTypeRetval generateReturnTypeRetval = args.getGenerateReturnTypeRetval();
 
@@ -172,8 +171,9 @@ public class DesignServiceImpl implements DesignService {
         directBloackStmts.remove(ancestorStatement);
     }
 
-    private String calcAssignVarName(ChainAnalysisDto chainAnalysis) {
-        if (Lists.newArrayList(ChainMethodEnum.drop, ChainMethodEnum.update).contains(chainAnalysis.getChainMethod())) {
+    private String calcAssignVarName(ChainAnalysisDTO chainAnalysis) {
+        if (Lists.newArrayList(KeywordConstant.ChainInitialMethod.DELETE, KeywordConstant.ChainInitialMethod.UPDATE)
+                .contains(chainAnalysis.getChainInitialMethod())) {
             return chainAnalysis.getMethodName() + "Count";
         }
         if (Lists.newArrayList(ReturnShapeEnum.each, ReturnShapeEnum.multiEach)

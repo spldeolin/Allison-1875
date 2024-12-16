@@ -6,7 +6,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.inject.ImplementedBy;
 import com.spldeolin.allison1875.common.javabean.GenerateMvcHandlerRetval;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.impl.MvcControllerServiceImpl;
 
 /**
@@ -17,7 +17,7 @@ public interface MvcControllerService {
 
     List<ClassOrInterfaceDeclaration> detectMvcControllers(CompilationUnit cu);
 
-    void replaceMvcHandlerToInitDec(InitDecAnalysisDto initDecAnalysisDto,
+    void replaceMvcHandlerToInitDec(InitDecAnalysisDTO initDecAnalysisDTO,
             GenerateServiceAndImplRetval generateServiceAndImplRetval,
             GenerateMvcHandlerRetval generateMvcHandlerRetval);
 

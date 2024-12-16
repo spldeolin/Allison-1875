@@ -66,7 +66,7 @@ public class MvcHandlerGeneratorServiceImpl implements MvcHandlerGeneratorServic
 
         mvcHandler.setPublic(true);
 
-        String serviceResultType = args.getRespBodyDtoType();
+        String serviceResultType = args.getRespBodyDTOType();
         if (serviceResultType != null) {
             mvcHandler.setType(serviceResultType);
         } else {
@@ -79,7 +79,7 @@ public class MvcHandlerGeneratorServiceImpl implements MvcHandlerGeneratorServic
         }
         mvcHandler.setName(methodName);
 
-        String serviceParamType = args.getReqBodyDtoType();
+        String serviceParamType = args.getReqBodyDTOType();
         if (serviceParamType != null) {
             Parameter param = new Parameter();
             param.addAnnotation(annotationExprService.springRequestBody());

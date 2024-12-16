@@ -24,11 +24,11 @@ import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.service.MemberAdderService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.exception.SameNameTerminationMethodException;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperArgs;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperXmlArgs;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
@@ -96,7 +96,7 @@ public class QueryTransformer implements Allison1875MainService {
                             .get();
 
                     // 找到所属Design中记录的实体Meta信息
-                    DesignMetaDto designMeta;
+                    DesignMetaDTO designMeta;
                     try {
                         designMeta = designService.findDesignMeta(queryChain);
                         log.info("Design Meta found, designMeta={}", designMeta);
@@ -108,7 +108,7 @@ public class QueryTransformer implements Allison1875MainService {
                     }
 
                     // 分析出chain所描述的信息
-                    ChainAnalysisDto chainAnalysis;
+                    ChainAnalysisDTO chainAnalysis;
                     try {
                         chainAnalysis = queryChainAnalyzerService.analyzeQueryChain(queryChain, designMeta);
                         log.info("Query Chain analyzed, chainAnalysis={}", chainAnalysis);

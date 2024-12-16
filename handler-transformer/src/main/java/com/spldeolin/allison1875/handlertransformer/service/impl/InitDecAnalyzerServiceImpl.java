@@ -11,7 +11,7 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.InitDecAnalyzerService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 public class InitDecAnalyzerServiceImpl implements InitDecAnalyzerService {
 
     @Override
-    public InitDecAnalysisDto analyzeInitDec(CompilationUnit mvcControllerCu, ClassOrInterfaceDeclaration mvcController,
+    public InitDecAnalysisDTO analyzeInitDec(CompilationUnit mvcControllerCu, ClassOrInterfaceDeclaration mvcController,
             InitializerDeclaration initDec) {
-        InitDecAnalysisDto result = new InitDecAnalysisDto();
+        InitDecAnalysisDTO result = new InitDecAnalysisDTO();
         result.setInitDec(initDec);
         for (Statement stmt : initDec.getBody().getStatements()) {
             stmt.ifExpressionStmt(exprStmt -> exprStmt.getExpression().ifVariableDeclarationExpr(vde -> {

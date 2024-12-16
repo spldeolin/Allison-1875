@@ -12,11 +12,11 @@ import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.exception.ParentAbsentException;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import com.spldeolin.allison1875.querytransformer.javabean.Binary;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.service.TransformMethodCallService;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TransformMethodCallServiceImpl implements TransformMethodCallService {
 
     @Override
-    public String methodCallExpr(String mapperVarName, ChainAnalysisDto chainAnalysis,
+    public String methodCallExpr(String mapperVarName, ChainAnalysisDTO chainAnalysis,
             GenerateParamRetval paramGeneration) {
         String result = mapperVarName + "." + chainAnalysis.getMethodName() + "(";
         if (paramGeneration.getIsCond()) {
@@ -48,7 +48,7 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
     }
 
     @Override
-    public List<Statement> argumentBuildStmts(ChainAnalysisDto chainAnalysis, GenerateParamRetval paramGeneration) {
+    public List<Statement> argumentBuildStmts(ChainAnalysisDTO chainAnalysis, GenerateParamRetval paramGeneration) {
         log.info("build Javabean setter call");
         String javabeanTypeQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
         String javabeanVarName = MoreStringUtils.toLowerCamel(
@@ -65,9 +65,9 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
     }
 
     @Override
-    public List<Statement> mapOrMultimapBuildStmts(DesignMetaDto designMeta, ChainAnalysisDto chainAnalysis,
+    public List<Statement> mapOrMultimapBuildStmts(DesignMetaDTO designMeta, ChainAnalysisDTO chainAnalysis,
             GenerateReturnTypeRetval resultGeneration) {
-        Map<String, PropertyDto> properties = designMeta.getProperties();
+        Map<String, PropertyDTO> properties = designMeta.getProperties();
 
         if (chainAnalysis.getReturnShape() == ReturnShapeEnum.each) {
             String propertyName = chainAnalysis.getChain().getArgument(0).asFieldAccessExpr().getNameAsString();
@@ -119,7 +119,7 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
         return null;
     }
 
-    private String calcResultVarName(ChainAnalysisDto chainAnalysis) {
+    private String calcResultVarName(ChainAnalysisDTO chainAnalysis) {
         String varName = chainAnalysis.getMethodName();
         if (chainAnalysis.getChain().getParentNode().filter(p -> p instanceof AssignExpr).isPresent()) {
             varName = ((AssignExpr) chainAnalysis.getChain().getParentNode().get()).getTarget().toString();

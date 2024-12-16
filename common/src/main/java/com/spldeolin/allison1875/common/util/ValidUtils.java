@@ -10,7 +10,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import com.google.common.collect.Lists;
-import com.spldeolin.allison1875.common.javabean.InvalidDto;
+import com.spldeolin.allison1875.common.javabean.InvalidDTO;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,18 +33,18 @@ public class ValidUtils {
         throw new UnsupportedOperationException("Never instantiate me.");
     }
 
-    public static List<InvalidDto> valid(Object object) {
+    public static List<InvalidDTO> valid(Object object) {
         Set<ConstraintViolation<Object>> violations = validator.validate(object);
         if (CollectionUtils.isEmpty(violations)) {
             return Lists.newArrayList();
         }
 
-        List<InvalidDto> result = Lists.newArrayList();
+        List<InvalidDTO> result = Lists.newArrayList();
         for (ConstraintViolation<?> violation : violations) {
             String path = violation.getRootBeanClass().getSimpleName() + "." + violation.getPropertyPath().toString()
                     .replace(".<iterable element>", "");
             String valueText = formatValue(violation.getInvalidValue());
-            InvalidDto invalid = new InvalidDto().setPath(path).setValue(valueText).setReason(violation.getMessage());
+            InvalidDTO invalid = new InvalidDTO().setPath(path).setValue(valueText).setReason(violation.getMessage());
             result.add(invalid);
         }
         return result;

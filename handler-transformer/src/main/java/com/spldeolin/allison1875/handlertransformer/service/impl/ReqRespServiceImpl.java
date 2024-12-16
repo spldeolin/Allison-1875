@@ -31,8 +31,8 @@ import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.handlertransformer.HandlerTransformerConfig;
 import com.spldeolin.allison1875.handlertransformer.enums.JavabeanTypeEnum;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDtoJavabeansRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
+import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDTOJavabeansRetval;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.FieldService;
 import com.spldeolin.allison1875.handlertransformer.service.ReqRespService;
 import com.spldeolin.allison1875.support.GetUrlQuery;
@@ -64,10 +64,10 @@ public class ReqRespServiceImpl implements ReqRespService {
     private ImportExprService importExprService;
 
     @Override
-    public void validInitBody(BlockStmt initBody, InitDecAnalysisDto initDecAnalysis) {
+    public void validInitBody(BlockStmt initBody, InitDecAnalysisDTO initDecAnalysis) {
         if (initBody.findAll(LocalClassDeclarationStmt.class).size() > 2) {
             throw new IllegalArgumentException(
-                    "构造代码块下最多只能有2个类声明，分别用于代表ReqDto和RespDto。[" + initDecAnalysis + "] 当前："
+                    "构造代码块下最多只能有2个类声明，分别用于代表ReqDTO和RespDTO。[" + initDecAnalysis + "] 当前："
                             + initBody.findAll(LocalClassDeclarationStmt.class).stream()
                             .map(one -> one.getClassDeclaration().getNameAsString()).collect(Collectors.joining("、")));
         }
@@ -93,11 +93,11 @@ public class ReqRespServiceImpl implements ReqRespService {
     }
 
     @Override
-    public GenerateDtoJavabeansRetval generateDtoJavabeans(InitDecAnalysisDto initDecAnalysis,
+    public GenerateDTOJavabeansRetval generateDTOJavabeans(InitDecAnalysisDTO initDecAnalysis,
             List<ClassOrInterfaceDeclaration> dtos) {
-        GenerateDtoJavabeansRetval result = new GenerateDtoJavabeansRetval();
+        GenerateDTOJavabeansRetval result = new GenerateDTOJavabeansRetval();
 
-        // 生成ReqDto、RespDto、NestDto
+        // 生成ReqDTO、RespDTO、NestDTO
         for (ClassOrInterfaceDeclaration dto : dtos) {
             JavabeanTypeEnum javabeanType = estimateJavabeanType(dto);
             String packageName = estimatePackageName(javabeanType);
@@ -118,7 +118,7 @@ public class ReqRespServiceImpl implements ReqRespService {
             arg.setAstForest(AstForestContext.get());
             arg.setPackageName(packageName);
             arg.setClassName(javabeanName);
-            arg.setDescription(concatDtoDescription(initDecAnalysis));
+            arg.setDescription(concatDTODescription(initDecAnalysis));
             arg.setAuthor(commonConfig.getAuthor());
             arg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
             arg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
@@ -137,13 +137,13 @@ public class ReqRespServiceImpl implements ReqRespService {
 
             String javabeanQualifier = javabeanGeneration.getJavabeanQualifier();
             if (javabeanType == JavabeanTypeEnum.REQ_DTO) {
-                result.setReqBodyDtoType(calcType(dto, javabeanQualifier));
+                result.setReqBodyDTOType(calcType(dto, javabeanQualifier));
             }
             if (javabeanType == JavabeanTypeEnum.RESP_DTO) {
-                result.setRespBodyDtoType(calcType(dto, javabeanQualifier));
+                result.setRespBodyDTOType(calcType(dto, javabeanQualifier));
             }
 
-            // 遍历到NestDto时，将父节点中的自身替换为Field
+            // 遍历到NestDTO时，将父节点中的自身替换为Field
             if (Lists.newArrayList(JavabeanTypeEnum.NEST_DTO_IN_REQ, JavabeanTypeEnum.NEST_DTO_IN_RESP)
                     .contains(javabeanType)) {
                 ClassOrInterfaceDeclaration parentCoid = (ClassOrInterfaceDeclaration) dto.getParentNode()
@@ -153,9 +153,9 @@ public class ReqRespServiceImpl implements ReqRespService {
                 if (javabeanType == JavabeanTypeEnum.NEST_DTO_IN_REQ) {
                     field.addAnnotation(annotationExprService.javaxValid());
                 }
-                this.moveAnnotationsFromDtoToField(dto, field);
+                this.moveAnnotations(dto, field);
                 field.addVariable(new VariableDeclarator(StaticJavaParser.parseType(calcType(dto, javabeanQualifier)),
-                        standardizeNestDtoFieldName(dto)));
+                        standardizeNestDTOFieldName(dto)));
                 parentCoid.replace(dto, field);
             }
         }
@@ -166,18 +166,18 @@ public class ReqRespServiceImpl implements ReqRespService {
     private String estimatePackageName(JavabeanTypeEnum javabeanType) {
         String packageName;
         if (javabeanType == JavabeanTypeEnum.REQ_DTO) {
-            packageName = commonConfig.getReqDtoPackage();
+            packageName = commonConfig.getReqDTOPackage();
         } else if (javabeanType == JavabeanTypeEnum.RESP_DTO) {
-            packageName = commonConfig.getRespDtoPackage();
+            packageName = commonConfig.getRespDTOPackage();
         } else if (javabeanType == JavabeanTypeEnum.NEST_DTO_IN_REQ) {
-            packageName = commonConfig.getReqDtoPackage();
+            packageName = commonConfig.getReqDTOPackage();
         } else {
-            packageName = commonConfig.getRespDtoPackage();
+            packageName = commonConfig.getRespDTOPackage();
         }
         return packageName;
     }
 
-    private String standardizeNestDtoFieldName(ClassOrInterfaceDeclaration dto) {
+    private String standardizeNestDTOFieldName(ClassOrInterfaceDeclaration dto) {
         boolean isCollectionOrPage =
                 dto.getAnnotationByName("L").isPresent() || dto.getAnnotationByName("P").isPresent();
         String typeName = dto.getNameAsString();
@@ -211,7 +211,7 @@ public class ReqRespServiceImpl implements ReqRespService {
         return javabeanType;
     }
 
-    private void moveAnnotationsFromDtoToField(ClassOrInterfaceDeclaration dto, FieldDeclaration field) {
+    private void moveAnnotations(ClassOrInterfaceDeclaration dto, FieldDeclaration field) {
         for (AnnotationExpr annotation : dto.getAnnotations()) {
             if (!StringUtils.equalsAny(annotation.getNameAsString(), "L", "P")) {
                 field.addAnnotation(annotation);
@@ -219,17 +219,17 @@ public class ReqRespServiceImpl implements ReqRespService {
         }
     }
 
-    private String standardizeJavabeanName(InitDecAnalysisDto initDecAnalysis, ClassOrInterfaceDeclaration dto,
+    private String standardizeJavabeanName(InitDecAnalysisDTO initDecAnalysis, ClassOrInterfaceDeclaration dto,
             JavabeanTypeEnum javabeanType) {
         String javaBeanName;
         if (javabeanType == JavabeanTypeEnum.REQ_DTO) {
-            javaBeanName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "ReqDto";
+            javaBeanName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "ReqDTO";
         } else if (javabeanType == JavabeanTypeEnum.RESP_DTO) {
-            javaBeanName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "RespDto";
+            javaBeanName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "RespDTO";
         } else {
             String originName = dto.getNameAsString();
             if (!StringUtils.endsWithIgnoreCase(originName, "dto")) {
-                javaBeanName = MoreStringUtils.toUpperCamel(originName) + "Dto";
+                javaBeanName = MoreStringUtils.toUpperCamel(originName) + "DTO";
             } else {
                 javaBeanName = originName;
             }
@@ -248,7 +248,7 @@ public class ReqRespServiceImpl implements ReqRespService {
         return javabeanQualifier;
     }
 
-    private String concatDtoDescription(InitDecAnalysisDto initDecAnalysis) {
+    private String concatDTODescription(InitDecAnalysisDTO initDecAnalysis) {
         String result = "";
         if (commonConfig.getEnableLotNoAnnounce()) {
             result += BaseConstant.JAVA_DOC_NEW_LINE + BaseConstant.LOT_NO_ANNOUNCE_PREFIXION

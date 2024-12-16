@@ -5,8 +5,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.google.inject.ImplementedBy;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinDesignArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinChainArgs;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.DesignGeneratorServiceImpl;
 
 /**
@@ -15,10 +15,10 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.DesignGenerat
 @ImplementedBy(DesignGeneratorServiceImpl.class)
 public interface DesignGeneratorService {
 
-    String concatDesignName(TableStructureAnalysisDto persistence);
+    String concatDesignName(TableStructureAnalysisDTO persistence);
 
     GenerateDesignRetval generateDesign(GenerateDesignArgs args);
 
-    Optional<CompilationUnit> generateJoinDesign(GenerateJoinDesignArgs args);
+    Optional<CompilationUnit> generateJoinChain(GenerateJoinChainArgs args);
 
 }

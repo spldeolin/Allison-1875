@@ -27,10 +27,10 @@ import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
 import com.spldeolin.allison1875.docanalyzer.constant.YApiConstant;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeEnumConstantsRetval;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeValidRetval;
-import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDTO;
 import com.spldeolin.allison1875.docanalyzer.service.YApiOpenApiService;
 import com.spldeolin.allison1875.docanalyzer.service.YApiService;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaTraverseUtils;
@@ -56,11 +56,11 @@ public class YApiServiceImpl implements YApiService {
     private YApiOpenApiService yapiOpenApiService;
 
     @Override
-    public void flushToYApi(List<EndpointDto> endpoints) {
-        YApiProjectGetRespDto project = yapiOpenApiService.getProject();
+    public void flushToYApi(List<EndpointDTO> endpoints) {
+        YApiProjectGetRespDTO project = yapiOpenApiService.getProject();
         Long projectId = project.getId();
 
-        Set<String> catNames = endpoints.stream().map(EndpointDto::getCat).collect(Collectors.toSet());
+        Set<String> catNames = endpoints.stream().map(EndpointDTO::getCat).collect(Collectors.toSet());
         catNames.add("回收站");
         Set<String> yapiCatNames = this.getYapiCatIdsEachName(projectId).keySet();
         this.createYApiCat(Sets.difference(catNames, yapiCatNames), projectId);
@@ -79,7 +79,7 @@ public class YApiServiceImpl implements YApiService {
         }
 
         // 新增接口
-        for (EndpointDto endpoint : endpoints) {
+        for (EndpointDTO endpoint : endpoints) {
             List<String> descriptionLines = endpoint.getDescriptionLines();
             String title = Iterables.getFirst(descriptionLines, null);
             if (StringUtils.isEmpty(title)) {
@@ -113,7 +113,7 @@ public class YApiServiceImpl implements YApiService {
 
         // jpdv -> Pretty String
         JsonSchemaTraverseUtils.traverse(bodyJsonSchema, (propertyName, jsonSchema, parentJsonSchema, depth) -> {
-            JsonPropertyDescriptionValueDto jpdv = JsonPropertyDescriptionValueDto.deserialize(
+            JsonPropertyDescriptionValueDTO jpdv = JsonPropertyDescriptionValueDTO.deserialize(
                     jsonSchema.getDescription());
             if (jpdv != null) {
 
@@ -180,9 +180,9 @@ public class YApiServiceImpl implements YApiService {
     }
 
     private Map<String, Long> getYapiCatIdsEachName(Long projectId) {
-        List<YApiInterfaceListMenuRespDto> cats = yapiOpenApiService.listCats(projectId);
+        List<YApiInterfaceListMenuRespDTO> cats = yapiOpenApiService.listCats(projectId);
         Map<String, Long> result = Maps.newHashMap();
-        for (YApiInterfaceListMenuRespDto cat : cats) {
+        for (YApiInterfaceListMenuRespDTO cat : cats) {
             result.put(cat.getName(), cat.getId());
         }
         return result;
@@ -264,7 +264,7 @@ public class YApiServiceImpl implements YApiService {
         return responseBody;
     }
 
-    protected String generateEndpointDoc(EndpointDto endpoint) {
+    protected String generateEndpointDoc(EndpointDTO endpoint) {
         String deprecatedNode = null;
         if (endpoint.getIsDeprecated()) {
             deprecatedNode = "> 该接口已被开发者标记为**已废弃**，不建议调用";
@@ -320,7 +320,7 @@ public class YApiServiceImpl implements YApiService {
                 + generateMoreDoc(endpoint);
     }
 
-    protected String generateMoreDoc(EndpointDto endpoint) {
+    protected String generateMoreDoc(EndpointDTO endpoint) {
         return "";
     }
 

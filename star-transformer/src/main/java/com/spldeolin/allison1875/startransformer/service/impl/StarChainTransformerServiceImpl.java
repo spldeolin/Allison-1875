@@ -15,8 +15,8 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDto;
-import com.spldeolin.allison1875.startransformer.javabean.PhraseDto;
+import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDTO;
+import com.spldeolin.allison1875.startransformer.javabean.PhraseDTO;
 import com.spldeolin.allison1875.startransformer.javabean.TransformStarChainArgs;
 import com.spldeolin.allison1875.startransformer.service.StarChainTransformerService;
 
@@ -29,19 +29,19 @@ public class StarChainTransformerServiceImpl implements StarChainTransformerServ
     @Override
     public void transformStarChain(TransformStarChainArgs args) {
         BlockStmt block = args.getBlock();
-        JavabeanGeneration wholeDtoGeneration = args.getWholeDtoGeneration();
+        JavabeanGeneration wholeDTOGeneration = args.getWholeDTOGeneration();
         MethodCallExpr starChain = args.getStarChain();
-        ChainAnalysisDto analysis = args.getAnalysis();
+        ChainAnalysisDTO analysis = args.getAnalysis();
 
         int i = block.getStatements().indexOf(starChain.findAncestor(Statement.class).get());
         block.setStatement(i, StaticJavaParser.parseStatement(
-                wholeDtoGeneration.getJavabeanQualifier() + " whole = new " + wholeDtoGeneration.getJavabeanName()
+                wholeDTOGeneration.getJavabeanQualifier() + " whole = new " + wholeDTOGeneration.getJavabeanName()
                         + "();"));
         block.addStatement(++i, StaticJavaParser.parseStatement(
                 analysis.getCftEntityQualifier() + " " + entityNameToVarName(analysis.getCftEntityName()) + " = "
                         + analysis.getCftDesignName() + "." + "query().byForced().id.eq("
                         + analysis.getCftSecondArgument() + ").one();"));
-        for (PhraseDto phrase : analysis.getPhrases()) {
+        for (PhraseDTO phrase : analysis.getPhrases()) {
             String code;
             if (phrase.getIsOneToOne()) {
                 code = phrase.getDtEntityQualifier() + " " + entityNameToVarName(phrase.getDtEntityName());
@@ -95,7 +95,7 @@ public class StarChainTransformerServiceImpl implements StarChainTransformerServ
         block.addStatement(++i, StaticJavaParser.parseStatement(
                 "whole." + CodeGenerationUtils.setterName(entityNameToVarName(analysis.getCftEntityName())) + "("
                         + entityNameToVarName(analysis.getCftEntityName()) + ");"));
-        for (PhraseDto phrase : analysis.getPhrases()) {
+        for (PhraseDTO phrase : analysis.getPhrases()) {
             String dtVarName = English.plural(entityNameToVarName(phrase.getDtEntityName()),
                     phrase.getIsOneToOne() ? 1 : 2);
             block.addStatement(++i, StaticJavaParser.parseStatement(

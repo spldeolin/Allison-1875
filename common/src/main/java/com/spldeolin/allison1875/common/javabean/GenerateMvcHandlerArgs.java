@@ -21,9 +21,9 @@ public class GenerateMvcHandlerArgs {
 
     String description;
 
-    String reqBodyDtoType;
+    String reqBodyDTOType;
 
-    String respBodyDtoType;
+    String respBodyDTOType;
 
     @NotEmpty String injectedServiceVarName;
 

@@ -22,10 +22,10 @@ import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.CommentService;
 import com.spldeolin.allison1875.persistencegenerator.service.JdbcTypeService;
 import com.spldeolin.allison1875.persistencegenerator.service.TableStructureAnalyzerService;
@@ -48,14 +48,14 @@ public class TableStructureAnalyzerServiceImpl implements TableStructureAnalyzer
     private CommentService commentService;
 
     @Override
-    public List<TableStructureAnalysisDto> analyzeTableStructure() {
+    public List<TableStructureAnalysisDTO> analyzeTableStructure() {
         // 查询information_schema.COLUMNS、information_schema.TABLES表
-        List<InformationSchemaDto> infoSchemas = this.queryInformationSchema();
+        List<InformationSchemaDTO> infoSchemas = this.queryInformationSchema();
         String deleteFlag = getDeleteFlagName();
 
-        Map<String, TableStructureAnalysisDto> persistences = Maps.newHashMap();
-        for (InformationSchemaDto infoSchema : infoSchemas) {
-            TableStructureAnalysisDto dto = new TableStructureAnalysisDto();
+        Map<String, TableStructureAnalysisDTO> persistences = Maps.newHashMap();
+        for (InformationSchemaDTO infoSchema : infoSchemas) {
+            TableStructureAnalysisDTO dto = new TableStructureAnalysisDTO();
             String domainName = MoreStringUtils.toUpperCamel(infoSchema.getTableName());
             dto.setTableName(infoSchema.getTableName());
             dto.setEntityName(domainName + endWith());
@@ -67,13 +67,13 @@ public class TableStructureAnalyzerServiceImpl implements TableStructureAnalyzer
             dto.setProperties(Lists.newArrayList());
             persistences.put(infoSchema.getTableName(), dto);
         }
-        for (InformationSchemaDto infoSchema : infoSchemas) {
-            TableStructureAnalysisDto tableStructureAnalysis = persistences.get(infoSchema.getTableName());
+        for (InformationSchemaDTO infoSchema : infoSchemas) {
+            TableStructureAnalysisDTO tableStructureAnalysis = persistences.get(infoSchema.getTableName());
             String columnName = infoSchema.getColumnName();
-            PropertyDto property = new PropertyDto();
+            PropertyDTO property = new PropertyDTO();
             property.setColumnName(columnName);
             property.setPropertyName(MoreStringUtils.toLowerCamel(columnName));
-            JavaTypeNamingDto javaType = jdbcTypeService.jdbcType2javaType(infoSchema, tableStructureAnalysis);
+            JavaTypeNamingDTO javaType = jdbcTypeService.jdbcType2javaType(infoSchema, tableStructureAnalysis);
             if (javaType == null) {
                 log.warn("出现了预想外的类型 columnName={} dataType={} columnType={}", infoSchema.getColumnName(),
                         infoSchema.getDataType(), infoSchema.getColumnType());
@@ -108,7 +108,7 @@ public class TableStructureAnalyzerServiceImpl implements TableStructureAnalyzer
         return Lists.newArrayList(persistences.values());
     }
 
-    protected List<InformationSchemaDto> queryInformationSchema() {
+    protected List<InformationSchemaDTO> queryInformationSchema() {
         try (Connection conn = DriverManager.getConnection(config.getJdbcUrl(), config.getUserName(),
                 config.getPassword())) {
             String sql = Resources.toString(Resources.getResource("information_schema.sql"), StandardCharsets.UTF_8);
@@ -123,14 +123,14 @@ public class TableStructureAnalyzerServiceImpl implements TableStructureAnalyzer
 
             System.setProperty("org.jooq.no-logo", "true");
             Result<Record> records = DSL.using(conn, SQLDialect.MYSQL).fetch(sql);
-            return records.into(InformationSchemaDto.class);
+            return records.into(InformationSchemaDTO.class);
         } catch (Exception e) {
             log.error("QueryInformationSchemaProc.process", e);
             return Lists.newArrayList();
         }
     }
 
-    private void reportWhileNoDeleleFlag(String deleteFlag, Map<String, TableStructureAnalysisDto> persistences) {
+    private void reportWhileNoDeleleFlag(String deleteFlag, Map<String, TableStructureAnalysisDTO> persistences) {
         persistences.values().stream().filter(dto -> !dto.getIsDeleteFlagExist())
                 .forEach(dto -> log.info("数据表[{}]没有逻辑删除标识符[{}]", dto.getTableName(), deleteFlag));
     }

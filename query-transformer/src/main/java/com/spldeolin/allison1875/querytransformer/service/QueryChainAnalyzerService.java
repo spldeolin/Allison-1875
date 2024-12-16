@@ -2,9 +2,9 @@ package com.spldeolin.allison1875.querytransformer.service;
 
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.service.impl.QueryChainAnalyzerServiceImpl;
 
 /**
@@ -13,7 +13,7 @@ import com.spldeolin.allison1875.querytransformer.service.impl.QueryChainAnalyze
 @ImplementedBy(QueryChainAnalyzerServiceImpl.class)
 public interface QueryChainAnalyzerService {
 
-    ChainAnalysisDto analyzeQueryChain(MethodCallExpr chain, DesignMetaDto designMeta)
+    ChainAnalysisDTO analyzeQueryChain(MethodCallExpr chain, DesignMetaDTO designMeta)
             throws IllegalChainException;
 
 }

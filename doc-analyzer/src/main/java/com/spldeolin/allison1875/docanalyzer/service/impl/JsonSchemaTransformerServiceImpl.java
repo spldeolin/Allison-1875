@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ReferenceSchema;
 import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDTO;
 import com.spldeolin.allison1875.docanalyzer.service.JsonSchemaTransformerService;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaTraverseUtils;
 
@@ -25,7 +25,7 @@ public class JsonSchemaTransformerServiceImpl implements JsonSchemaTransformerSe
 
         // 处理ReferenceSchema
         JsonSchemaTraverseUtils.traverse(rootJsonSchema, (propertyName, jsonSchema, parentJsonSchema, depth) -> {
-            JsonPropertyDescriptionValueDto jpdv = JsonPropertyDescriptionValueDto.deserialize(
+            JsonPropertyDescriptionValueDTO jpdv = JsonPropertyDescriptionValueDTO.deserialize(
                     jsonSchema.getDescription());
             String path = paths.get(parentJsonSchema);
             if (path == null) {
@@ -59,10 +59,10 @@ public class JsonSchemaTransformerServiceImpl implements JsonSchemaTransformerSe
                     jpdv.setReferencePath(referencePath);
                 }
                 if (parentJsonSchema.isArraySchema()) {
-                    JsonPropertyDescriptionValueDto parentJpdv = JsonPropertyDescriptionValueDto.deserialize(
+                    JsonPropertyDescriptionValueDTO parentJpdv = JsonPropertyDescriptionValueDTO.deserialize(
                             parentJsonSchema.getDescription());
                     if (parentJpdv == null) {
-                        parentJpdv = new JsonPropertyDescriptionValueDto();
+                        parentJpdv = new JsonPropertyDescriptionValueDTO();
                     }
                     parentJpdv.setReferencePath(referencePath);
                     parentJsonSchema.setDescription(parentJpdv.serialize());

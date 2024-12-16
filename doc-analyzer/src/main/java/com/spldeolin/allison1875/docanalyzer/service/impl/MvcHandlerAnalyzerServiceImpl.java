@@ -8,7 +8,7 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeMvcHandlerRetval;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDTO;
 import com.spldeolin.allison1875.docanalyzer.service.MvcHandlerAnalyzerService;
 import com.spldeolin.allison1875.docanalyzer.util.MethodQualifierUtils;
 
@@ -23,7 +23,7 @@ public class MvcHandlerAnalyzerServiceImpl implements MvcHandlerAnalyzerService 
 
     @Override
     public AnalyzeMvcHandlerRetval analyzeMvcHandler(ClassOrInterfaceDeclaration mvcControllerCoid,
-            MvcHandlerDto mvcHandler) {
+            MvcHandlerDTO mvcHandler) {
         AnalyzeMvcHandlerRetval result = new AnalyzeMvcHandlerRetval();
         result.setCat(mvcHandler.getCat().trim());
         result.setHandlerSimpleName(mvcControllerCoid.getName() + "_" + mvcHandler.getMd().getName());
@@ -39,7 +39,7 @@ public class MvcHandlerAnalyzerServiceImpl implements MvcHandlerAnalyzerService 
                 || annotationExprService.isAnnotated(Deprecated.class.getName(), controller);
     }
 
-    protected List<String> ananlyzeMethodDesc(MvcHandlerDto mvcHandler) {
+    protected List<String> ananlyzeMethodDesc(MvcHandlerDTO mvcHandler) {
         // 可拓展为分析Swagger注解等
         return JavadocUtils.getCommentAsLines(mvcHandler.getMd());
     }

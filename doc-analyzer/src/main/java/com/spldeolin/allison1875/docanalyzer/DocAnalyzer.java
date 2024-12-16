@@ -17,9 +17,9 @@ import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeBodyRetval;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeFieldVarsRetval;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeMvcHandlerRetval;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeRequestMappingRetval;
-import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcControllerDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.MvcControllerDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDTO;
 import com.spldeolin.allison1875.docanalyzer.service.FieldService;
 import com.spldeolin.allison1875.docanalyzer.service.JsgBuilderService;
 import com.spldeolin.allison1875.docanalyzer.service.MarkdownService;
@@ -80,17 +80,17 @@ public class DocAnalyzer implements Allison1875MainService {
         JsonSchemaGenerator jsg4resp = jsgBuilderService.buildJsg(analyzeFieldVarsRetvals, false);
 
         // 收集endpoint
-        List<EndpointDto> endpoints = Lists.newArrayList();
+        List<EndpointDTO> endpoints = Lists.newArrayList();
 
         // 遍历controller、遍历handler
-        List<MvcHandlerDto> mvcHandlers = mvcHandlerDetectorService.detectMvcHandler();
+        List<MvcHandlerDTO> mvcHandlers = mvcHandlerDetectorService.detectMvcHandler();
         if (CollectionUtils.isEmpty(mvcHandlers)) {
             log.info("no MVC Handlers detected");
             return;
         }
-        for (MvcHandlerDto mvcHandler : mvcHandlers) {
-            MvcControllerDto mvcController = mvcHandler.getMvcController();
-            EndpointDto endpoint = new EndpointDto();
+        for (MvcHandlerDTO mvcHandler : mvcHandlers) {
+            MvcControllerDTO mvcController = mvcHandler.getMvcController();
+            EndpointDTO endpoint = new EndpointDTO();
 
             // 分析并保存handler的分类、代码简称、描述、是否过时、作者、源码位置 等基本信息
             AnalyzeMvcHandlerRetval analyzeMvcHandlerRetval = mvcHandlerAnalyzerService.analyzeMvcHandler(
@@ -146,7 +146,7 @@ public class DocAnalyzer implements Allison1875MainService {
         log.info("endpoints.size={}", endpoints.size());
     }
 
-    private void setTo(AnalyzeMvcHandlerRetval analyzeMvcHandlerRetval, EndpointDto endpoint) {
+    private void setTo(AnalyzeMvcHandlerRetval analyzeMvcHandlerRetval, EndpointDTO endpoint) {
         endpoint.setCat(analyzeMvcHandlerRetval.getCat());
         endpoint.setHandlerSimpleName(analyzeMvcHandlerRetval.getHandlerSimpleName());
         endpoint.setDescriptionLines(analyzeMvcHandlerRetval.getDescriptionLines());

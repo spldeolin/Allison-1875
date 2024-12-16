@@ -4,8 +4,8 @@ import com.google.inject.ImplementedBy;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
 import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDto;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDto;
+import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.MapperCoidServiceImpl;
 
 /**
@@ -14,7 +14,7 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.MapperCoidSer
 @ImplementedBy(MapperCoidServiceImpl.class)
 public interface MapperCoidService {
 
-    DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDto persistence,
+    DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDTO persistence,
             JavabeanGeneration javabeanGeneration);
 
     String generateInsertMethodToMapper(GenerateMethodToMapperArgs args);
@@ -41,7 +41,7 @@ public interface MapperCoidService {
 
     String generateDeleteByKeyMethodToMapper(GenerateMethodToMapperArgs args);
 
-    QueryByKeysDto generateQueryByKeysMethodToMapper(GenerateMethodToMapperArgs args);
+    QueryByKeysDTO generateQueryByKeysMethodToMapper(GenerateMethodToMapperArgs args);
 
     String generateQueryByEntityMethodToMapper(GenerateMethodToMapperArgs args);
 

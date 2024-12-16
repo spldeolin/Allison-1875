@@ -22,7 +22,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
@@ -32,23 +31,23 @@ import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDto;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDto;
+import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
 import com.spldeolin.allison1875.querytransformer.QueryTransformerConfig;
-import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
 import com.spldeolin.allison1875.querytransformer.enums.OrderSequenceEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
-import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDto;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.AssignmentDTO;
+import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperArgs;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperXmlArgs;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.JoinClauseDto;
-import com.spldeolin.allison1875.querytransformer.javabean.JoinConditionDto;
-import com.spldeolin.allison1875.querytransformer.javabean.JoinedPropertyDto;
-import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDto;
-import com.spldeolin.allison1875.querytransformer.javabean.SortPropertyDto;
+import com.spldeolin.allison1875.querytransformer.javabean.JoinClauseDTO;
+import com.spldeolin.allison1875.querytransformer.javabean.JoinConditionDTO;
+import com.spldeolin.allison1875.querytransformer.javabean.JoinedPropertyDTO;
+import com.spldeolin.allison1875.querytransformer.javabean.SearchConditionDTO;
+import com.spldeolin.allison1875.querytransformer.javabean.SortPropertyDTO;
 import com.spldeolin.allison1875.querytransformer.javabean.XmlSourceFile;
 import com.spldeolin.allison1875.querytransformer.service.MapperLayerService;
 import lombok.extern.slf4j.Slf4j;
@@ -82,11 +81,11 @@ public class MapperLayerServiceImpl implements MapperLayerService {
             return Optional.empty();
         }
 
-        ChainAnalysisDto chainAnalysis = args.getChainAnalysis();
+        ChainAnalysisDTO chainAnalysis = args.getChainAnalysis();
         String methodName = chainAnalysis.getMethodName();
         methodName = antiDuplicationService.getNewMethodNameIfExist(methodName, mapper);
         log.info(
-                "anti duplication worked completed, new method name '{}' update to ChainAnalysisDto.methodName, old={}",
+                "anti duplication worked completed, new method name '{}' update to ChainAnalysisDTO.methodName, old={}",
                 methodName, chainAnalysis.getMethodName());
         chainAnalysis.setMethodName(methodName);
 
@@ -107,8 +106,8 @@ public class MapperLayerServiceImpl implements MapperLayerService {
 
     @Override
     public void generateMethodToMapperXml(GenerateMethodToMapperXmlArgs args) {
-        ChainAnalysisDto chainAnalysis = args.getChainAnalysis();
-        DesignMetaDto designMeta = args.getDesignMeta();
+        ChainAnalysisDTO chainAnalysis = args.getChainAnalysis();
+        DesignMetaDTO designMeta = args.getDesignMeta();
         GenerateParamRetval generateParamRetval = args.getGenerateParamRetval();
         GenerateReturnTypeRetval generateReturnTypeRetval = args.getGenerateReturnTypeRetval();
 
@@ -120,7 +119,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
 
             List<String> xmlLines = Lists.newArrayList();
             xmlLines.add("");
-            if (chainAnalysis.getChainMethod() == ChainMethodEnum.query) {
+            if (chainAnalysis.getChainInitialMethod() == KeywordConstant.ChainInitialMethod.SELECT) {
                 // QUERY
                 xmlLines.add(concatLotNoComment(chainAnalysis));
                 String startTag = this.concatSelectStartTag(designMeta, chainAnalysis, generateParamRetval,
@@ -130,7 +129,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 if (queryTransformerConfig.getEnableGenerateFormatterMarker()) {
                     xmlLines.add(SINGLE_INDENT + BaseConstant.FORMATTER_OFF_MARKER);
                 }
-                ArrayList<JoinClauseDto> joinClauses = Lists.newArrayList(chainAnalysis.getJoinClauses());
+                ArrayList<JoinClauseDTO> joinClauses = Lists.newArrayList(chainAnalysis.getJoinClauses());
                 boolean join = !joinClauses.isEmpty();
                 xmlLines.add(SINGLE_INDENT + "SELECT");
                 if (chainAnalysis.getReturnShape() == ReturnShapeEnum.count) {
@@ -138,14 +137,14 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 } else if (CollectionUtils.isEmpty(chainAnalysis.getSelectProperties())) {
                     if (join) {
                         // 有join时，最外层的select_expr需要加上t1.
-                        for (PropertyDto property : designMeta.getProperties().values()) {
+                        for (PropertyDTO property : designMeta.getProperties().values()) {
                             xmlLines.add(DOUBLE_INDENT + "t1.`" + property.getColumnName() + "` AS "
                                     + property.getPropertyName() + ",");
                         }
                         // 有join时，还需要select joinedProperties
                         for (int i = 0; i < joinClauses.size(); i++) {
-                            JoinClauseDto joinClause = joinClauses.get(i);
-                            for (JoinedPropertyDto joinedProp : joinClause.getJoinedProperties()) {
+                            JoinClauseDTO joinClause = joinClauses.get(i);
+                            for (JoinedPropertyDTO joinedProp : joinClause.getJoinedProperties()) {
                                 xmlLines.add(
                                         DOUBLE_INDENT + "t" + (i + 2) + ".`" + joinedProp.getProperty().getColumnName()
                                                 + "` AS " + joinedProp.getVarName() + ",");
@@ -155,7 +154,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                         xmlLines.add(DOUBLE_INDENT + "<include refid='all' />");
                     }
                 } else {
-                    for (PropertyDto property : chainAnalysis.getSelectProperties()) {
+                    for (PropertyDTO property : chainAnalysis.getSelectProperties()) {
                         xmlLines.add(DOUBLE_INDENT + (join ? "t1." : "") + "`" + property.getColumnName() + "` AS "
                                 + property.getPropertyName() + ",");
                     }
@@ -170,8 +169,8 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 xmlLines.addAll(concatWhereSection(designMeta, chainAnalysis, true));
                 if (CollectionUtils.isNotEmpty(chainAnalysis.getSortProperties())) {
                     xmlLines.add(SINGLE_INDENT + "ORDER BY");
-                    for (SortPropertyDto sortProp : chainAnalysis.getSortProperties()) {
-                        PropertyDto property = designMeta.getProperties().get(sortProp.getPropertyName());
+                    for (SortPropertyDTO sortProp : chainAnalysis.getSortProperties()) {
+                        PropertyDTO property = designMeta.getProperties().get(sortProp.getPropertyName());
                         xmlLines.add(DOUBLE_INDENT + (join ? "t1." : "") + "`" + property.getColumnName() + "`" + (
                                 sortProp.getOrderSequence() == OrderSequenceEnum.DESC ? " DESC," : ","));
                     }
@@ -187,7 +186,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                     xmlLines.add(SINGLE_INDENT + BaseConstant.FORMATTER_ON_MARKER);
                 }
                 xmlLines.add("</select>");
-            } else if (chainAnalysis.getChainMethod() == ChainMethodEnum.update) {
+            } else if (chainAnalysis.getChainInitialMethod() == KeywordConstant.ChainInitialMethod.UPDATE) {
                 // UPDATE
                 xmlLines.add(concatLotNoComment(chainAnalysis));
                 String startTag = concatUpdateStartTag(chainAnalysis, generateParamRetval);
@@ -197,8 +196,8 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 }
                 xmlLines.add(SINGLE_INDENT + "UPDATE `" + designMeta.getTableName() + "`");
                 xmlLines.add(SINGLE_INDENT + "SET");
-                for (AssignmentDto assignment : chainAnalysis.getAssignments()) {
-                    PropertyDto property = designMeta.getProperties().get(assignment.getProperty().getPropertyName());
+                for (AssignmentDTO assignment : chainAnalysis.getAssignments()) {
+                    PropertyDTO property = designMeta.getProperties().get(assignment.getProperty().getPropertyName());
                     xmlLines.add(
                             DOUBLE_INDENT + "`" + property.getColumnName() + "` = #{" + assignment.getVarName() + "},");
                 }
@@ -210,7 +209,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                     xmlLines.add(SINGLE_INDENT + BaseConstant.FORMATTER_ON_MARKER);
                 }
                 xmlLines.add("</update>");
-            } else if (chainAnalysis.getChainMethod() == ChainMethodEnum.drop) {
+            } else if (chainAnalysis.getChainInitialMethod() == KeywordConstant.ChainInitialMethod.DELETE) {
                 // DROP
                 xmlLines.add(concatLotNoComment(chainAnalysis));
                 String startTag = concatDeleteStartTag(chainAnalysis, generateParamRetval);
@@ -229,7 +228,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
                 }
                 xmlLines.add("</delete>");
             } else {
-                throw new Allison1875Exception("unknown ChainMethodEnum [" + chainAnalysis.getChainMethod() + "]");
+                throw new RuntimeException("impossible unless bug.");
             }
 
             List<String> newLines = Lists.newArrayList();
@@ -254,19 +253,19 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         }
     }
 
-    private List<String> concatJoinSection(JoinClauseDto joinClause, int i) {
+    private List<String> concatJoinSection(JoinClauseDTO joinClause, int i) {
         i += 2;
         List<String> xmlLines = Lists.newArrayList();
         String joinSql = DOUBLE_INDENT + joinClause.getJoinType().getSql() + " `" + joinClause.getJoinedDesignMeta()
                 .getTableName() + "` t" + i + " ON ";
         if (joinClause.getJoinConditions().size() == 1) {
-            JoinConditionDto joinCond = Iterables.getOnlyElement(joinClause.getJoinConditions());
+            JoinConditionDTO joinCond = Iterables.getOnlyElement(joinClause.getJoinConditions());
             String onBinary = concatOnBinary(i, joinCond);
             xmlLines.add(joinSql + onBinary);
         } else {
             // join有多个joinCond时，每个joinCond占1行
             xmlLines.add(joinSql + "(");
-            for (JoinConditionDto joinCond : joinClause.getJoinConditions()) {
+            for (JoinConditionDTO joinCond : joinClause.getJoinConditions()) {
                 xmlLines.add(TREBLE_INDENT + concatOnBinary(i, joinCond));
             }
             xmlLines.add(DOUBLE_INDENT + ")");
@@ -274,7 +273,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         return xmlLines;
     }
 
-    private static String concatOnBinary(int i, JoinConditionDto joinCond) {
+    private static String concatOnBinary(int i, JoinConditionDTO joinCond) {
         String onBinary = "t" + i + ".`" + joinCond.getProperty().getColumnName() + "`";
         switch (joinCond.getComparisonOperator()) {
             case EQUALS:
@@ -395,7 +394,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         return result;
     }
 
-    private List<String> concatWhereSection(DesignMetaDto designMeta, ChainAnalysisDto chainAnalysis,
+    private List<String> concatWhereSection(DesignMetaDTO designMeta, ChainAnalysisDTO chainAnalysis,
             boolean needNotDeletedSql) {
         List<String> xmlLines = Lists.newArrayList();
         boolean join = !chainAnalysis.getJoinClauses().isEmpty();
@@ -403,8 +402,8 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         if (needNotDeletedSql && designMeta.getNotDeletedSql() != null) {
             xmlLines.add(SINGLE_INDENT + "  AND " + designMeta.getNotDeletedSql());
         }
-        for (SearchConditionDto searchCond : chainAnalysis.getSearchConditions()) {
-            PropertyDto property = searchCond.getProperty();
+        for (SearchConditionDTO searchCond : chainAnalysis.getSearchConditions()) {
+            PropertyDTO property = searchCond.getProperty();
             String varName = searchCond.getVarName();
             String dollarVar = "#{" + varName + "}";
 
@@ -545,14 +544,14 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         return xmlLines;
     }
 
-    private String concatLotNoComment(ChainAnalysisDto chainAnalysis) {
+    private String concatLotNoComment(ChainAnalysisDTO chainAnalysis) {
         if (commonConfig.getEnableLotNoAnnounce()) {
             return "<!-- " + BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo() + " -->";
         }
         return "";
     }
 
-    private String concatSelectStartTag(DesignMetaDto designMeta, ChainAnalysisDto chainAnalysis,
+    private String concatSelectStartTag(DesignMetaDTO designMeta, ChainAnalysisDTO chainAnalysis,
             GenerateParamRetval paramGeneration, GenerateReturnTypeRetval resultGeneration) {
         String startTag = "<select id='" + chainAnalysis.getMethodName() + "'";
         if (paramGeneration.getParameters().size() == 1) {
@@ -573,7 +572,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         return startTag;
     }
 
-    private String concatUpdateStartTag(ChainAnalysisDto chainAnalysis, GenerateParamRetval paramGeneration) {
+    private String concatUpdateStartTag(ChainAnalysisDTO chainAnalysis, GenerateParamRetval paramGeneration) {
         String startTag = "<update id='" + chainAnalysis.getMethodName() + "'";
         if (paramGeneration.getParameters().size() == 1) {
             startTag += " parameterType='" + paramGeneration.getParameters().get(0).getTypeAsString() + "'";
@@ -582,7 +581,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         return startTag;
     }
 
-    private String concatDeleteStartTag(ChainAnalysisDto chainAnalysis, GenerateParamRetval paramGeneration) {
+    private String concatDeleteStartTag(ChainAnalysisDTO chainAnalysis, GenerateParamRetval paramGeneration) {
         String startTag = "<delete id='" + chainAnalysis.getMethodName() + "'";
         if (paramGeneration.getParameters().size() == 1) {
             startTag += " parameterType='" + paramGeneration.getParameters().get(0).getTypeAsString() + "'";

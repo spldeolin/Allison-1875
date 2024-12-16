@@ -12,7 +12,7 @@ import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.service.MemberAdderService;
 import com.spldeolin.allison1875.handlertransformer.HandlerTransformerConfig;
 import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDto;
+import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.MvcControllerService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,13 +55,13 @@ public class MvcControllerServiceImpl implements MvcControllerService {
     }
 
     @Override
-    public void replaceMvcHandlerToInitDec(InitDecAnalysisDto initDecAnalysisDto,
+    public void replaceMvcHandlerToInitDec(InitDecAnalysisDTO initDecAnalysisDTO,
             GenerateServiceAndImplRetval generateServiceAndImplRetval,
             GenerateMvcHandlerRetval generateMvcHandlerRetval) {
-        ClassOrInterfaceDeclaration mvcController = initDecAnalysisDto.getMvcController();
+        ClassOrInterfaceDeclaration mvcController = initDecAnalysisDTO.getMvcController();
 
         // 使用handle创建Handler方法，并追加到controller中
-        initDecAnalysisDto.getInitDec().replace(generateMvcHandlerRetval.getMvcHandler());
+        initDecAnalysisDTO.getInitDec().replace(generateMvcHandlerRetval.getMvcHandler());
 
         for (AnnotationExpr annotationExpr : generateMvcHandlerRetval.getAnnotationsAddingToMvcController()) {
             if (!mvcController.getAnnotations().contains(annotationExpr)) {

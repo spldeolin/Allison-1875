@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDTO;
 import com.spldeolin.allison1875.docanalyzer.service.impl.YApiOpenApiServiceImpl;
 
 /**
@@ -14,9 +14,9 @@ import com.spldeolin.allison1875.docanalyzer.service.impl.YApiOpenApiServiceImpl
 @ImplementedBy(YApiOpenApiServiceImpl.class)
 public interface YApiOpenApiService {
 
-    YApiProjectGetRespDto getProject();
+    YApiProjectGetRespDTO getProject();
 
-    List<YApiInterfaceListMenuRespDto> listCats(Long projectId);
+    List<YApiInterfaceListMenuRespDTO> listCats(Long projectId);
 
     JsonNode listCatsAsJsonNode(Long projectId);
 

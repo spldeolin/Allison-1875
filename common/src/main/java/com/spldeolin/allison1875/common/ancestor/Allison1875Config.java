@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.common.ancestor;
 
 import java.util.List;
-import com.spldeolin.allison1875.common.javabean.InvalidDto;
+import com.spldeolin.allison1875.common.javabean.InvalidDTO;
 import com.spldeolin.allison1875.common.util.ValidUtils;
 
 /**
@@ -9,7 +9,7 @@ import com.spldeolin.allison1875.common.util.ValidUtils;
  */
 public abstract class Allison1875Config {
 
-    public List<InvalidDto> invalidSelf() {
+    public List<InvalidDTO> invalidSelf() {
         return ValidUtils.valid(this);
     }
 

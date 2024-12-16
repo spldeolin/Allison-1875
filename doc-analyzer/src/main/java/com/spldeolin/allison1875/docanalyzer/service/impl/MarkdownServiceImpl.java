@@ -27,8 +27,8 @@ import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeEnumConstantsRetval;
 import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeValidRetval;
-import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.EndpointDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDTO;
 import com.spldeolin.allison1875.docanalyzer.service.MarkdownService;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaTraverseUtils;
 import com.spldeolin.allison1875.docanalyzer.util.LoadClassUtils;
@@ -47,13 +47,13 @@ public class MarkdownServiceImpl implements MarkdownService {
     private DocAnalyzerConfig config;
 
     @Override
-    public void flushToMarkdown(List<EndpointDto> endpoints) {
-        Multimap<String/*cat*/, EndpointDto> endpointMap = ArrayListMultimap.create();
+    public void flushToMarkdown(List<EndpointDTO> endpoints) {
+        Multimap<String/*cat*/, EndpointDTO> endpointMap = ArrayListMultimap.create();
         endpoints.forEach(e -> endpointMap.put(e.getCat(), e));
 
         for (String cat : endpointMap.keySet()) {
             StringBuilder content = new StringBuilder();
-            for (EndpointDto endpoint : endpointMap.get(cat)) {
+            for (EndpointDTO endpoint : endpointMap.get(cat)) {
                 content.append(this.generateEndpointDoc(endpoint));
             }
 
@@ -71,7 +71,7 @@ public class MarkdownServiceImpl implements MarkdownService {
         }
     }
 
-    protected String generateEndpointDoc(EndpointDto endpoint) {
+    protected String generateEndpointDoc(EndpointDTO endpoint) {
         StringBuilder result = new StringBuilder(64);
         String title = Iterables.getFirst(endpoint.getDescriptionLines(), null);
         if (StringUtils.isEmpty(title)) {
@@ -106,7 +106,7 @@ public class MarkdownServiceImpl implements MarkdownService {
         return result.toString();
     }
 
-    private String generateRespSample(EndpointDto endpoint) {
+    private String generateRespSample(EndpointDTO endpoint) {
         if (config.getEnableResponseBodySample() && endpoint.getResponseBodyDescribe() != null) {
             return "";
         }
@@ -121,7 +121,7 @@ public class MarkdownServiceImpl implements MarkdownService {
         return result.toString();
     }
 
-    private String generateCurl(EndpointDto endpoint) {
+    private String generateCurl(EndpointDTO endpoint) {
         if (config.getEnableCurl() && endpoint.getRequestBodyDescribe() != null) {
             return "";
         }
@@ -141,15 +141,15 @@ public class MarkdownServiceImpl implements MarkdownService {
 
     private String fakeJsonByDescribe(String describe) {
         try {
-            Object fakeDto = er.nextObject(LoadClassUtils.loadClass(describe, AstForestContext.get().getClassLoader()));
-            return JsonUtils.toJsonPrettily(fakeDto);
+            Object fakeDTO = er.nextObject(LoadClassUtils.loadClass(describe, AstForestContext.get().getClassLoader()));
+            return JsonUtils.toJsonPrettily(fakeDTO);
         } catch (Exception e) {
             log.error("fail to fake json, describe={}", describe, e);
             throw new Allison1875Exception(e);
         }
     }
 
-    protected String generateReqOrRespDoc(EndpointDto endpoint, boolean isReqBody) {
+    protected String generateReqOrRespDoc(EndpointDTO endpoint, boolean isReqBody) {
         JsonSchema rootJsonSchema;
         if (isReqBody) {
             if (endpoint.getRequestBodyJsonSchema() == null) {
@@ -175,16 +175,16 @@ public class MarkdownServiceImpl implements MarkdownService {
                 return;
             }
             // 如果parent是arrayNode，从parrent获取jpdv，否则从自身node获取jpdv
-            JsonPropertyDescriptionValueDto jpdv;
+            JsonPropertyDescriptionValueDTO jpdv;
             if (parentJsonSchema.isArraySchema()) {
-                jpdv = JsonPropertyDescriptionValueDto.deserialize(parentJsonSchema.getDescription());
+                jpdv = JsonPropertyDescriptionValueDTO.deserialize(parentJsonSchema.getDescription());
             } else {
-                jpdv = JsonPropertyDescriptionValueDto.deserialize(jsonSchema.getDescription());
+                jpdv = JsonPropertyDescriptionValueDTO.deserialize(jsonSchema.getDescription());
             }
 
             if (jpdv == null) {
                 // root schema 为 object arrary
-                jpdv = new JsonPropertyDescriptionValueDto();
+                jpdv = new JsonPropertyDescriptionValueDTO();
             }
 
             content.append("|");
@@ -270,7 +270,7 @@ public class MarkdownServiceImpl implements MarkdownService {
         return new EasyRandom(erp);
     }
 
-    protected String generateMoreDoc(EndpointDto endpoint) {
+    protected String generateMoreDoc(EndpointDTO endpoint) {
         return "";
     }
 

@@ -21,12 +21,12 @@ import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDto;
-import com.spldeolin.allison1875.querytransformer.enums.ChainMethodEnum;
+import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant;
+import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDTO;
 import com.spldeolin.allison1875.querytransformer.enums.ComparisonOperatorEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
 import com.spldeolin.allison1875.querytransformer.javabean.Binary;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.javabean.CompareableBinary;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
@@ -48,7 +48,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     private JavabeanGeneratorService javabeanGeneratorService;
 
     @Override
-    public GenerateParamRetval generateParam(ChainAnalysisDto chainAnalysis) {
+    public GenerateParamRetval generateParam(ChainAnalysisDTO chainAnalysis) {
         List<Parameter> params = Lists.newArrayList();
         boolean isJavabean = false;
         FileFlush condFlush = null;
@@ -67,7 +67,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
             for (Binary binary : binaries) {
                 String varName = binary.getVarName();
-                JavaTypeNamingDto javaType = binary.getProperty().getJavaType();
+                JavaTypeNamingDTO javaType = binary.getProperty().getJavaType();
                 FieldArg fieldArg = new FieldArg();
                 fieldArg.setDescription(binary.getProperty().getDescription());
                 if (binary instanceof CompareableBinary && Lists.newArrayList(ComparisonOperatorEnum.IN,
@@ -90,7 +90,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         } else if (CollectionUtils.isNotEmpty(binaries)) {
             for (Binary binary : binaries) {
                 String varName = binary.getVarName();
-                JavaTypeNamingDto javaType = binary.getProperty().getJavaType();
+                JavaTypeNamingDTO javaType = binary.getProperty().getJavaType();
                 Parameter param = new Parameter();
                 param.addAnnotation(StaticJavaParser.parseAnnotation(
                         String.format("@org.apache.ibatis.annotations.Param(\"%s\")", varName)));
@@ -116,11 +116,12 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     }
 
     @Override
-    public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDto chainAnalysis) {
+    public GenerateReturnTypeRetval generateReturnType(ChainAnalysisDTO chainAnalysis) {
         boolean isAssigned = isAssigned(chainAnalysis);
         GenerateReturnTypeRetval result = new GenerateReturnTypeRetval();
 
-        if (Lists.newArrayList(ChainMethodEnum.update, ChainMethodEnum.drop).contains(chainAnalysis.getChainMethod())) {
+        if (Lists.newArrayList(KeywordConstant.ChainInitialMethod.UPDATE, KeywordConstant.ChainInitialMethod.DELETE)
+                .contains(chainAnalysis.getChainInitialMethod())) {
             result.setResultType(PrimitiveType.intType());
             return result;
         }
@@ -156,7 +157,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
             javabeanArg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
             javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
             for (VariableProperty returnProp : returnProps) {
-                JavaTypeNamingDto javaType = returnProp.getProperty().getJavaType();
+                JavaTypeNamingDTO javaType = returnProp.getProperty().getJavaType();
                 FieldArg fieldArg = new FieldArg();
                 fieldArg.setDescription(returnProp.getProperty().getDescription());
                 fieldArg.setTypeQualifier(javaType.getQualifier());
@@ -179,7 +180,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         } else if (returnProps.size() == 1) {
             // 指定了1个属性，使用该属性类型作为返回值类型
             VariableProperty returnProp = Iterables.getOnlyElement(returnProps);
-            JavaTypeNamingDto javaType = returnProp.getProperty().getJavaType();
+            JavaTypeNamingDTO javaType = returnProp.getProperty().getJavaType();
             result.setElementTypeQualifier(javaType.getQualifier());
             if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
                     .contains(chainAnalysis.getReturnShape())) {
@@ -203,7 +204,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         }
     }
 
-    private boolean isAssigned(ChainAnalysisDto chainAnalysis) {
+    private boolean isAssigned(ChainAnalysisDTO chainAnalysis) {
         if (chainAnalysis.getChain().getParentNode().isPresent()) {
             return chainAnalysis.getChain().getParentNode().get().getParentNode()
                     .filter(parent -> parent instanceof VariableDeclarationExpr).isPresent();

@@ -15,7 +15,7 @@ public final class StarSchema {
      * @param centralFactTablePrimaryKey 事实表的主键
      * @param primaryKey 主键
      */
-    public static <E, K> Cft<K> cft(EntityKey<E, K> centralFactTablePrimaryKey, K primaryKey) {
+    public static <E, K> Cft<K> cft(PropertyName<E, K> centralFactTablePrimaryKey, K primaryKey) {
         throw e;
     }
 
@@ -26,7 +26,7 @@ public final class StarSchema {
          *
          * @param dimensionTableForeignKey 维度表关联事实表的外键
          */
-        public <E> Cft<K> oo(EntityKey<E, K> dimensionTableForeignKey) {
+        public <E> Cft<K> oo(PropertyName<E, K> dimensionTableForeignKey) {
             throw e;
         }
 
@@ -35,7 +35,7 @@ public final class StarSchema {
          *
          * @param dimensionTableForeignKey 维度表关联事实表的外键
          */
-        public <E> Om<E, K> om(EntityKey<E, K> dimensionTableForeignKey) {
+        public <E> Om<E, K> om(PropertyName<E, K> dimensionTableForeignKey) {
             throw e;
         }
 
@@ -52,7 +52,7 @@ public final class StarSchema {
          *
          * @param dimensionTableKey 维度表key的
          */
-        public Om<E, K> key(EntityKey<E, ?> dimensionTableKey) {
+        public Om<E, K> key(PropertyName<E, ?> dimensionTableKey) {
             throw e;
         }
 
@@ -61,7 +61,7 @@ public final class StarSchema {
          *
          * @param dtKeyGetter 维度表key
          */
-        public Om<E, K> mkey(EntityKey<E, ?> dimensionTableKey) {
+        public Om<E, K> mkey(PropertyName<E, ?> dimensionTableKey) {
             throw e;
         }
 

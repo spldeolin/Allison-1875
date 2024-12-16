@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.docanalyzer.service;
 
 import java.util.List;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDTO;
 import com.spldeolin.allison1875.docanalyzer.service.impl.MvcHandlerDetectorServiceImpl;
 
 /**
@@ -13,6 +13,6 @@ import com.spldeolin.allison1875.docanalyzer.service.impl.MvcHandlerDetectorServ
 @ImplementedBy(MvcHandlerDetectorServiceImpl.class)
 public interface MvcHandlerDetectorService {
 
-    List<MvcHandlerDto> detectMvcHandler();
+    List<MvcHandlerDTO> detectMvcHandler();
 
 }

@@ -18,10 +18,10 @@ public class TransformStarChainArgs {
 
     BlockStmt block;
 
-    ChainAnalysisDto analysis;
+    ChainAnalysisDTO analysis;
 
     MethodCallExpr starChain;
 
-    JavabeanGeneration wholeDtoGeneration;
+    JavabeanGeneration wholeDTOGeneration;
 
 }

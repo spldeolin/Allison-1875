@@ -20,7 +20,7 @@ public class GenerateMethodToMapperArgs {
 
     String mapperQualifier;
 
-    ChainAnalysisDto chainAnalysis;
+    ChainAnalysisDTO chainAnalysis;
 
     List<Parameter> cloneParameters;
 

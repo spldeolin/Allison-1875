@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.persistencegenerator.service;
 
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDto;
+import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.CommentServiceImpl;
 
 /**
@@ -10,8 +10,8 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.CommentServic
 @ImplementedBy(CommentServiceImpl.class)
 public interface CommentService {
 
-    String analyzeColumnComment(InformationSchemaDto infoSchema);
+    String analyzeColumnComment(InformationSchemaDTO infoSchema);
 
-    String analyzeTableComment(InformationSchemaDto infoSchema);
+    String analyzeTableComment(InformationSchemaDTO infoSchema);
 
 }

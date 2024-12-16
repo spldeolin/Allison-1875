@@ -16,11 +16,11 @@ import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.startransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDto;
+import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.startransformer.javabean.TransformStarChainArgs;
 import com.spldeolin.allison1875.startransformer.service.StarChainService;
 import com.spldeolin.allison1875.startransformer.service.StarChainTransformerService;
-import com.spldeolin.allison1875.startransformer.service.WholeDtoService;
+import com.spldeolin.allison1875.startransformer.service.WholeDTOService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,7 +34,7 @@ public class StarTransformer implements Allison1875MainService {
     private StarChainService starChainService;
 
     @Inject
-    private WholeDtoService wholeDtoService;
+    private WholeDTOService wholeDTOService;
 
     @Inject
     private StarChainTransformerService starChainTransformerService;
@@ -54,7 +54,7 @@ public class StarTransformer implements Allison1875MainService {
                 for (MethodCallExpr starChain : starChainService.detectStarChains(block)) {
 
                     // analyze chain
-                    ChainAnalysisDto analysis;
+                    ChainAnalysisDTO analysis;
                     try {
                         analysis = starChainService.analyzeStarChain(starChain);
                         log.info("Star Chain analyzed, analysis={}", analysis);
@@ -63,24 +63,24 @@ public class StarTransformer implements Allison1875MainService {
                         continue;
                     }
 
-                    // generate WholeDto
-                    JavabeanGeneration wholeDtoGeneration;
+                    // generate WholeDTO
+                    JavabeanGeneration wholeDTOGeneration;
                     try {
-                        wholeDtoGeneration = wholeDtoService.generateWholeDto(analysis);
-                        log.info("Whole DTO generated, name={} path={}", wholeDtoGeneration.getJavabeanName(),
-                                wholeDtoGeneration.getPath());
+                        wholeDTOGeneration = wholeDTOService.generateWholeDTO(analysis);
+                        log.info("Whole DTO generated, name={} path={}", wholeDTOGeneration.getJavabeanName(),
+                                wholeDTOGeneration.getPath());
                     } catch (Exception e) {
                         log.error("fail to generate Whole DTO, analysis={}", analysis, e);
                         continue;
                     }
-                    flushes.add(wholeDtoGeneration.getFileFlush());
+                    flushes.add(wholeDTOGeneration.getFileFlush());
 
                     // transform Query Chain and replace Star Chain
                     TransformStarChainArgs args = new TransformStarChainArgs();
                     args.setBlock(block);
                     args.setAnalysis(analysis);
                     args.setStarChain(starChain);
-                    args.setWholeDtoGeneration(wholeDtoGeneration);
+                    args.setWholeDTOGeneration(wholeDTOGeneration);
                     try {
                         starChainTransformerService.transformStarChain(args);
                         log.info("Star Chain transformed");

@@ -9,9 +9,9 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
 import com.spldeolin.allison1875.docanalyzer.exception.YapiException;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiCommonRespDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDto;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDto;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiCommonRespDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDTO;
+import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDTO;
 import com.spldeolin.allison1875.docanalyzer.service.YApiOpenApiService;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -34,14 +34,14 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
     private DocAnalyzerConfig config;
 
     @Override
-    public YApiProjectGetRespDto getProject() {
+    public YApiProjectGetRespDTO getProject() {
         String url = config.getYapiUrl() + "/api/project/get" + tokenQuery();
         try (Response response = okHttpClient.newCall(new Builder().url(url).build()).execute()) {
             if (response.body() == null) {
                 throw new YapiException("response body absent");
             }
-            YApiCommonRespDto<YApiProjectGetRespDto> responseBody = JsonUtils.toParameterizedObject(
-                    response.body().string(), new TypeReference<YApiCommonRespDto<YApiProjectGetRespDto>>() {
+            YApiCommonRespDTO<YApiProjectGetRespDTO> responseBody = JsonUtils.toParameterizedObject(
+                    response.body().string(), new TypeReference<YApiCommonRespDTO<YApiProjectGetRespDTO>>() {
                     });
             ensureSuccess(responseBody);
             return responseBody.getData();
@@ -51,15 +51,15 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
     }
 
     @Override
-    public List<YApiInterfaceListMenuRespDto> listCats(Long projectId) {
+    public List<YApiInterfaceListMenuRespDTO> listCats(Long projectId) {
         String url = config.getYapiUrl() + "/api/interface/list_menu" + tokenQuery() + "&project_id=" + projectId;
         try (Response response = okHttpClient.newCall(new Builder().url(url).build()).execute()) {
             if (response.body() == null) {
                 throw new YapiException("response body absent");
             }
-            YApiCommonRespDto<List<YApiInterfaceListMenuRespDto>> responseBody = JsonUtils.toParameterizedObject(
+            YApiCommonRespDTO<List<YApiInterfaceListMenuRespDTO>> responseBody = JsonUtils.toParameterizedObject(
                     response.body().string(),
-                    new TypeReference<YApiCommonRespDto<List<YApiInterfaceListMenuRespDto>>>() {
+                    new TypeReference<YApiCommonRespDTO<List<YApiInterfaceListMenuRespDTO>>>() {
                     });
             ensureSuccess(responseBody);
             return responseBody.getData();
@@ -153,7 +153,7 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         return "?token=" + config.getYapiToken();
     }
 
-    private static void ensureSuccess(YApiCommonRespDto<?> resp) throws YapiException {
+    private static void ensureSuccess(YApiCommonRespDTO<?> resp) throws YapiException {
         if (resp == null) {
             throw new YapiException("resp is null");
         }

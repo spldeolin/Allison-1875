@@ -4,7 +4,7 @@ import java.util.List;
 import com.spldeolin.allison1875.common.ancestor.Allison1875MainService;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Module;
 import com.spldeolin.allison1875.common.config.CommonConfig;
-import com.spldeolin.allison1875.common.javabean.InvalidDto;
+import com.spldeolin.allison1875.common.javabean.InvalidDTO;
 import lombok.ToString;
 
 /**
@@ -28,8 +28,8 @@ public class StarTransformerModule extends Allison1875Module {
     }
 
     @Override
-    public List<InvalidDto> validConfigs() {
-        List<InvalidDto> invalids = commonConfig.invalidSelf();
+    public List<InvalidDTO> validConfigs() {
+        List<InvalidDTO> invalids = commonConfig.invalidSelf();
         invalids.addAll(starTransformerConfig.invalidSelf());
         return invalids;
     }
