@@ -10,7 +10,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.exception.ParentAbsentException;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
 import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
@@ -38,8 +38,7 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
             result += MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(condQualifier, "."));
         } else {
             result += chainAnalysis.getBinariesAsArgs().stream().filter(b -> b.getArgument() != null)
-                    .map(p -> p.getArgument().toString())
-                    .collect(Collectors.joining(", "));
+                    .map(p -> p.getArgument().toString()).collect(Collectors.joining(", "));
         }
         result += ")";
         log.info("Method Call built [{}]", result);
@@ -98,8 +97,8 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
             String elementTypeName = StringUtils.substringAfterLast(resultGeneration.getElementTypeQualifier(), ".");
 
             boolean isAssignWithoutType = (chainAnalysis.getChain().getParentNode()
-                    .orElseThrow(() -> new ParentAbsentException(chainAnalysis.getChain())).getParentNode()
-                    .filter(gp -> gp instanceof ExpressionStmt)).isPresent();
+                    .orElseThrow(() -> new Allison1875Exception("cannot find parent for" + chainAnalysis.getChain()))
+                    .getParentNode().filter(gp -> gp instanceof ExpressionStmt)).isPresent();
 
             List<Statement> statements = Lists.newArrayList();
             if (isAssignWithoutType) {

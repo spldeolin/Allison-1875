@@ -22,11 +22,11 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.exception.CuAbsentException;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
@@ -99,7 +99,8 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         method.setBody(null);
         mapper.getMembers().add(method);
 
-        CompilationUnit cu = mapper.findCompilationUnit().orElseThrow(() -> new CuAbsentException(mapper));
+        CompilationUnit cu = mapper.findCompilationUnit()
+                .orElseThrow(() -> new Allison1875Exception("cannot find cu for " + mapper.getName()));
         importExprService.extractQualifiedTypeToImport(cu);
         return Optional.of(FileFlush.build(cu));
     }
@@ -357,7 +358,7 @@ public class MapperLayerServiceImpl implements MapperLayerService {
         if (methodAddedMappers.containsKey(mapperQualifier)) {
             return methodAddedMappers.get(mapperQualifier);
         }
-        Optional<CompilationUnit> cu = AstForestContext.get().findCu(mapperQualifier);
+        Optional<CompilationUnit> cu = AstForestContext.get().tryFindCu(mapperQualifier);
         if (!cu.isPresent()) {
             return null;
         }

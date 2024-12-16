@@ -15,8 +15,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
-import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
@@ -136,7 +136,7 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
     private Class<?> tryReflectController(ClassOrInterfaceDeclaration controller)
             throws ClassNotFoundException {
         String qualifier = controller.getFullyQualifiedName()
-                .orElseThrow(() -> new QualifierAbsentException(controller));
+                .orElseThrow(() -> new Allison1875Exception("Node '" + controller.getName() + "' has no Qualifier"));
         try {
             return LoadClassUtils.loadClass(qualifier, AstForestContext.get().getClassLoader());
         } catch (ClassNotFoundException e) {

@@ -15,11 +15,11 @@ import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.service.ImportExprService;
@@ -151,7 +151,8 @@ public class ServiceLayerServiceImpl implements ServiceLayerService {
         serviceImpl.addAnnotation(annotationExprService.springService());
         String serviceImplName = service.getNameAsString() + "Impl";
         serviceImpl.setPublic(true).setStatic(false).setInterface(false).setName(serviceImplName).addImplementedType(
-                service.getFullyQualifiedName().orElseThrow(() -> new QualifierAbsentException(service)));
+                service.getFullyQualifiedName().orElseThrow(
+                        () -> new Allison1875Exception("Node '" + service.getName() + "' has no Qualifier")));
         serviceImplCu.setTypes(new NodeList<>(serviceImpl));
         absolutePath = CodeGenerationUtils.fileInPackageAbsolutePath(sourceRoot, commonConfig.getServiceImplPackage(),
                 serviceImpl.getName() + ".java");

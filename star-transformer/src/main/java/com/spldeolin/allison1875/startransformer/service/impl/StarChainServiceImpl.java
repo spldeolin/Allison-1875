@@ -110,7 +110,7 @@ public class StarChainServiceImpl implements StarChainService {
             phrase.setKeys(Lists.newArrayList(keys));
             phrase.setMkeys(Lists.newArrayList(mkeys));
             if (CollectionUtils.isNotEmpty(phrase.getKeys()) || CollectionUtils.isNotEmpty(phrase.getMkeys())) {
-                AstForestContext.get().findCu(phrase.getDtEntityQualifier()).ifPresent(cu -> {
+                AstForestContext.get().tryFindCu(phrase.getDtEntityQualifier()).ifPresent(cu -> {
                     for (VariableDeclarator vd : cu.findAll(VariableDeclarator.class)) {
                         phrase.getEntityFieldTypesEachFieldName()
                                 .put(vd.getNameAsString(), vd.getType().resolve().describe());

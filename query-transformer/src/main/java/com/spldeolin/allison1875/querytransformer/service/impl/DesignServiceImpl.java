@@ -19,8 +19,8 @@ import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.StringEscapeUtils;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
-import com.spldeolin.allison1875.common.exception.ParentAbsentException;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
@@ -50,7 +50,7 @@ public class DesignServiceImpl implements DesignService {
 
     @Override
     public ClassOrInterfaceDeclaration findCoidWithChecksum(String qualifier) {
-        Optional<CompilationUnit> opt = AstForestContext.get().findCu(qualifier);
+        Optional<CompilationUnit> opt = AstForestContext.get().tryFindCu(qualifier);
         if (!opt.isPresent()) {
             throw new IllegalDesignException("cannot found Design [" + qualifier + "]");
         }
@@ -112,8 +112,7 @@ public class DesignServiceImpl implements DesignService {
                 chainAnalysis, generateReturnTypeRetval);
 
         Statement ancestorStatement = chainAnalysis.getChain().findAncestor(Statement.class).orElseThrow(
-                () -> new ParentAbsentException(
-                        "Node [" + chainAnalysis.getChain().getNameAsString() + "] has no Parent Statement"));
+                () -> new Allison1875Exception("cannot find parent for" + chainAnalysis.getChain()));
         String ancestorStatementCode = TokenRangeUtils.getRawCode(ancestorStatement);
         log.info("ancestorStatement={}", ancestorStatementCode);
 

@@ -15,7 +15,7 @@ public class JavadocTest {
     public static void main(String[] args) {
         AstForest astForest = new AstForestTestImpl(new File("common/src/test/java"));
 
-        astForest.findCu("com.spldeolin.allison1875.common.test.javadoc.TestSubject").ifPresent(cu -> {
+        astForest.tryFindCu("com.spldeolin.allison1875.common.test.javadoc.TestSubject").ifPresent(cu -> {
             cu.getPrimaryType().ifPresent(primaryType -> {
                 Javadoc javadoc = primaryType.getJavadoc().get();
                 System.out.println(javadoc);

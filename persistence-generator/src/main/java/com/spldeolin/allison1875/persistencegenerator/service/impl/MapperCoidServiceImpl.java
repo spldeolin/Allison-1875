@@ -24,10 +24,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.exception.CuAbsentException;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
@@ -65,7 +65,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         // find
         List<MethodDeclaration> customMethods = Lists.newArrayList();
         String mapperQualifier = commonConfig.getMapperPackage() + "." + persistence.getMapperName();
-        Optional<CompilationUnit> opt = AstForestContext.get().findCu(mapperQualifier);
+        Optional<CompilationUnit> opt = AstForestContext.get().tryFindCu(mapperQualifier);
         ClassOrInterfaceDeclaration mapper;
         if (opt.isPresent()) {
             Optional<TypeDeclaration<?>> primaryType = opt.get().getPrimaryType();
@@ -106,7 +106,8 @@ public class MapperCoidServiceImpl implements MapperCoidService {
 
         DetectOrGenerateMapperRetval result = new DetectOrGenerateMapperRetval();
         result.setMapper(mapper);
-        result.setMapperCu(mapper.findCompilationUnit().orElseThrow(() -> new CuAbsentException(mapper)));
+        result.setMapperCu(mapper.findCompilationUnit()
+                .orElseThrow(() -> new Allison1875Exception("cannot find cu for " + mapper.getName())));
         result.getCustomMethods().addAll(customMethods);
         return result;
     }

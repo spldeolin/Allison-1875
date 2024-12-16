@@ -14,9 +14,9 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
@@ -50,7 +50,7 @@ public class FieldServiceImpl implements FieldService {
                     coid -> coid.getFullyQualifiedName().isPresent())) {
                 // 忽略qulifier不存在因为coid可能是一个声明在class内部的class（比如handler-transformer转化前initDec中的类）
                 String coidQualifier = coid.getFullyQualifiedName()
-                        .orElseThrow(() -> new QualifierAbsentException(coid));
+                        .orElseThrow(() -> new Allison1875Exception("Node '" + coid.getName() + "' has no Qualifier"));
                 for (FieldDeclaration field : coid.getFields()) {
                     List<String> fieldCommentLines = this.ananlyzeFieldCommentLines(field);
                     for (VariableDeclarator fieldVar : field.getVariables()) {

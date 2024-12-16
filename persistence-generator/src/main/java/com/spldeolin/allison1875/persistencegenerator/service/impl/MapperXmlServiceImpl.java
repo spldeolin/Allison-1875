@@ -17,10 +17,10 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
@@ -572,7 +572,8 @@ public class MapperXmlServiceImpl implements MapperXmlService {
                 sourceCodeLines.add("<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis"
                         + ".org/dtd/mybatis-3-mapper.dtd\">");
                 sourceCodeLines.add(String.format("<mapper namespace=\"%s\">", args.getMapper().getFullyQualifiedName()
-                        .orElseThrow(() -> new QualifierAbsentException(args.getMapper()))));
+                        .orElseThrow(() -> new Allison1875Exception(
+                                "Node '" + args.getMapper().getName() + "' has no Qualifier"))));
                 sourceCodeLines.add("</mapper>");
                 FileUtils.writeLines(mapperXmlFile, StandardCharsets.UTF_8.name(), sourceCodeLines);
             }

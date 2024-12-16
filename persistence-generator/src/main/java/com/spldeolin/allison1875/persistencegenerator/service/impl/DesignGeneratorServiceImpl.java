@@ -24,12 +24,11 @@ import com.github.javaparser.utils.StringEscapeUtils;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.exception.PrimaryTypeAbsentException;
-import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.HashingUtils;
@@ -79,7 +78,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         CompilationUnit cu = args.getJoinChainCu();
         if (cu == null) {
-            cu = AstForestContext.get().findCu(commonConfig.getDesignPackage() + ".JoinChain").orElseGet(() -> {
+            cu = AstForestContext.get().tryFindCu(commonConfig.getDesignPackage() + ".JoinChain").orElseGet(() -> {
                 CompilationUnit designCu = new CompilationUnit();
                 Path designPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
                         commonConfig.getDesignPackage(), "JoinChain.java");
@@ -105,7 +104,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
             });
         }
         TypeDeclaration<?> design = cu.getPrimaryType()
-                .orElseThrow(() -> new PrimaryTypeAbsentException("JoinChain PrimaryType absent"));
+                .orElseThrow(() -> new Allison1875Exception("JoinChain PrimaryType absent"));
 
         FieldDeclaration joinedEntityField = StaticJavaParser.parseBodyDeclaration(
                 String.format("public Join%s<MQCM, ME> %s = %s.ett;", entityName, entityName,
@@ -415,8 +414,8 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         meta.setDesignName(designName);
         meta.setEntityQualifier(entityGeneration.getJavabeanQualifier());
         meta.setEntityName(entityGeneration.getJavabeanName());
-        meta.setMapperQualifier(args.getMapper().getFullyQualifiedName()
-                .orElseThrow(() -> new QualifierAbsentException(args.getMapper())));
+        meta.setMapperQualifier(args.getMapper().getFullyQualifiedName().orElseThrow(
+                () -> new Allison1875Exception("Node '" + args.getMapper().getName() + "' has no Qualifier")));
         meta.setMapperName(args.getMapper().getNameAsString());
         meta.setMapperPaths(commonConfig.getMapperXmlDirs().stream()
                 .map(one -> one + File.separator + tableStructureAnalysis.getMapperName() + ".xml")

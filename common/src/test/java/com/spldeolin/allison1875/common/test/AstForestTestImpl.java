@@ -14,7 +14,6 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderType
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.spldeolin.allison1875.common.ast.AstForest;
-import com.spldeolin.allison1875.common.exception.CompilationUnitParseException;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,25 +56,19 @@ public class AstForestTestImpl implements AstForest {
     }
 
     @Override
-    public Optional<CompilationUnit> findCu(String primaryTypeQualifier) {
-        Path absPath;
+    public Optional<CompilationUnit> tryFindCu(String primaryTypeQualifier) {
         try {
-            absPath = sourceRoot.toPath().resolve(qualifierToRelativePath(primaryTypeQualifier));
+            Path absPath = sourceRoot.toPath().resolve(qualifierToRelativePath(primaryTypeQualifier));
+            if (!absPath.toFile().exists()) {
+                log.debug("cu not exists, qualifier={}", primaryTypeQualifier);
+                return Optional.empty();
+            }
+
+            return Optional.of(CompilationUnitUtils.parseJava(absPath.toFile()));
         } catch (Exception e) {
-            log.warn("impossible path, qualifier={}", primaryTypeQualifier, e);
+            log.debug("cannot find cu, qualifier={}", primaryTypeQualifier, e);
             return Optional.empty();
         }
-        if (!absPath.toFile().exists()) {
-            return Optional.empty();
-        }
-        CompilationUnit cu;
-        try {
-            cu = CompilationUnitUtils.parseJava(absPath.toFile());
-        } catch (CompilationUnitParseException e) {
-            log.warn("fail to parse cu, qualifier={}", primaryTypeQualifier, e);
-            return Optional.empty();
-        }
-        return Optional.of(cu);
     }
 
     private String qualifierToRelativePath(String qualifier) {

@@ -12,7 +12,7 @@ public class FieldTypeCollectorTest {
 
     public static void main(String[] args) {
         AstForest astForest = new AstForestTestImpl(new File("common/src/test/java"));
-        astForest.findCu(SchoolDTO.class.getName()).flatMap(CompilationUnit::getPrimaryType).ifPresent(pt -> {
+        astForest.tryFindCu(SchoolDTO.class.getName()).flatMap(CompilationUnit::getPrimaryType).ifPresent(pt -> {
 
             NestJavabeanCollector fieldTypeCollector = new NestJavabeanCollector(astForest, pt);
             fieldTypeCollector.collect();

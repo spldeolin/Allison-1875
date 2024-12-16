@@ -21,7 +21,6 @@ import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.enums.FileExistenceResolutionEnum;
-import com.spldeolin.allison1875.common.exception.ParentAbsentException;
 import com.spldeolin.allison1875.common.javabean.JavabeanArg;
 import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
@@ -147,7 +146,7 @@ public class ReqRespServiceImpl implements ReqRespService {
             if (Lists.newArrayList(JavabeanTypeEnum.NEST_DTO_IN_REQ, JavabeanTypeEnum.NEST_DTO_IN_RESP)
                     .contains(javabeanType)) {
                 ClassOrInterfaceDeclaration parentCoid = (ClassOrInterfaceDeclaration) dto.getParentNode()
-                        .orElseThrow(() -> new ParentAbsentException(dto));
+                        .orElseThrow(() -> new Allison1875Exception("cannot find parent for" + dto.getName()));
                 FieldDeclaration field = new FieldDeclaration();
                 dto.getJavadoc().ifPresent(field::setJavadocComment);
                 if (javabeanType == JavabeanTypeEnum.NEST_DTO_IN_REQ) {

@@ -6,8 +6,7 @@ import java.nio.file.Path;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.spldeolin.allison1875.common.exception.CompilationUnitParseException;
-import com.spldeolin.allison1875.common.exception.StorageAbsentException;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -20,15 +19,15 @@ public class CompilationUnitUtils {
         throw new UnsupportedOperationException("Never instantiate me.");
     }
 
-    public static CompilationUnit parseJava(File javaFile) throws CompilationUnitParseException {
+    public static CompilationUnit parseJava(File javaFile) {
         try {
             CompilationUnit cu = StaticJavaParser.parse(javaFile);
             log.debug("SourceCode parsed {}", getCuAbsolutePath(cu));
             return cu;
         } catch (FileNotFoundException e) {
-            throw new CompilationUnitParseException(String.format("javaFile '%s' not exists", javaFile));
+            throw new Allison1875Exception(String.format("javaFile '%s' not exists", javaFile));
         } catch (ParseProblemException e) {
-            throw new CompilationUnitParseException(String.format("fail to parse [%s]", javaFile), e);
+            throw new Allison1875Exception(String.format("fail to parse [%s]", javaFile), e);
         }
     }
 
@@ -38,8 +37,8 @@ public class CompilationUnitUtils {
      * @return e.g.: /Users/deolin/Documents/allison1875/common/src/main/java/com/spldeolin/allison1875/common/util
      *         /Locations.java
      */
-    public static Path getCuAbsolutePath(CompilationUnit cu) throws StorageAbsentException {
-        return cu.getStorage().orElseThrow(() -> new StorageAbsentException("Cu [" + cu + "has not set Storage yet"))
+    public static Path getCuAbsolutePath(CompilationUnit cu) {
+        return cu.getStorage().orElseThrow(() -> new Allison1875Exception("Cu [" + cu + "has not set Storage yet"))
                 .getPath();
     }
 

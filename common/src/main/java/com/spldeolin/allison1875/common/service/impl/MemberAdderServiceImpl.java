@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.exception.QualifierAbsentException;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.javabean.AddInjectFieldRetval;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.service.MemberAdderService;
@@ -82,7 +82,8 @@ public class MemberAdderServiceImpl implements MemberAdderService {
 
     @Override
     public AddInjectFieldRetval addInjectField(ClassOrInterfaceDeclaration toBeAdd, ClassOrInterfaceDeclaration coid) {
-        String typeQualifier = toBeAdd.getFullyQualifiedName().orElseThrow(() -> new QualifierAbsentException(toBeAdd));
+        String typeQualifier = toBeAdd.getFullyQualifiedName()
+                .orElseThrow(() -> new Allison1875Exception("Node '" + toBeAdd.getName() + "' has no Qualifier"));
         String varName = MoreStringUtils.toLowerCamel(toBeAdd.getNameAsString());
         return this.addInjectField(typeQualifier, varName, coid);
     }
