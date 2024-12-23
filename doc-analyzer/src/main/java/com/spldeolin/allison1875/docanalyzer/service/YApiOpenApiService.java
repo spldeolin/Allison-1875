@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiInterfaceListMenuRespDTO;
-import com.spldeolin.allison1875.docanalyzer.javabean.YApiProjectGetRespDTO;
+import com.spldeolin.allison1875.docanalyzer.dto.YApiInterfaceListMenuRespDTO;
+import com.spldeolin.allison1875.docanalyzer.dto.YApiProjectGetRespDTO;
 import com.spldeolin.allison1875.docanalyzer.service.impl.YApiOpenApiServiceImpl;
 
 /**

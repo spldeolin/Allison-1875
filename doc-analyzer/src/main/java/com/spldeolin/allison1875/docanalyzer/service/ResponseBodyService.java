@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeBodyRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeBodyRetval;
 import com.spldeolin.allison1875.docanalyzer.service.impl.ResponseBodyServiceImpl;
 
 /**

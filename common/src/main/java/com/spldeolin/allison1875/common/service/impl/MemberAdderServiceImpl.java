@@ -10,7 +10,7 @@ import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.javabean.AddInjectFieldRetval;
+import com.spldeolin.allison1875.common.dto.AddInjectFieldRetval;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.service.MemberAdderService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;

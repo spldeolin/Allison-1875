@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.startransformer.service;
 
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.startransformer.javabean.TransformStarChainArgs;
+import com.spldeolin.allison1875.startransformer.dto.TransformStarChainArgs;
 import com.spldeolin.allison1875.startransformer.service.impl.StarChainTransformerServiceImpl;
 
 /**

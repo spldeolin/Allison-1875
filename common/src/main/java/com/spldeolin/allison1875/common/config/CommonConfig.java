@@ -98,16 +98,16 @@ public class CommonConfig extends Allison1875Config {
     String author = "Allison 1875";
 
     /**
-     * 生成的Javabean是否实现java.io.Serializable接口
+     * 生成的DataModel是否实现java.io.Serializable接口
      */
     @NotNull
-    Boolean isJavabeanSerializable = false;
+    Boolean isDataModelSerializable = false;
 
     /**
-     * 生成的Javabean是否实现java.lang.Cloneable接口
+     * 生成的DataModel是否实现java.lang.Cloneable接口
      */
     @NotNull
-    Boolean isJavabeanCloneable = false;
+    Boolean isDataModelCloneable = false;
 
     /**
      * 是否在该生成的地方生成 Any modifications may be overwritten by future code generations. 声明

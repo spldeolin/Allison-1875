@@ -20,18 +20,18 @@ import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
+import com.spldeolin.allison1875.common.dto.DataModelArg;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
 import com.spldeolin.allison1875.common.enums.FileExistenceResolutionEnum;
-import com.spldeolin.allison1875.common.javabean.JavabeanArg;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
+import com.spldeolin.allison1875.common.service.DataModelService;
 import com.spldeolin.allison1875.common.service.ImportExprService;
-import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.handlertransformer.HandlerTransformerConfig;
-import com.spldeolin.allison1875.handlertransformer.enums.JavabeanTypeEnum;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDTOJavabeansRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateDTOsRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.enums.DTOTypeEnum;
 import com.spldeolin.allison1875.handlertransformer.service.FieldService;
 import com.spldeolin.allison1875.handlertransformer.service.ReqRespService;
 import com.spldeolin.allison1875.support.GetUrlQuery;
@@ -54,7 +54,7 @@ public class ReqRespServiceImpl implements ReqRespService {
     private FieldService fieldService;
 
     @Inject
-    private JavabeanGeneratorService javabeanGeneratorService;
+    private DataModelService dataModelGeneratorService;
 
     @Inject
     private AnnotationExprService annotationExprService;
@@ -92,68 +92,67 @@ public class ReqRespServiceImpl implements ReqRespService {
     }
 
     @Override
-    public GenerateDTOJavabeansRetval generateDTOJavabeans(InitDecAnalysisDTO initDecAnalysis,
+    public GenerateDTOsRetval generateDTOs(InitDecAnalysisDTO initDecAnalysis,
             List<ClassOrInterfaceDeclaration> dtos) {
-        GenerateDTOJavabeansRetval result = new GenerateDTOJavabeansRetval();
+        GenerateDTOsRetval result = new GenerateDTOsRetval();
 
         // 生成ReqDTO、RespDTO、NestDTO
         for (ClassOrInterfaceDeclaration dto : dtos) {
-            JavabeanTypeEnum javabeanType = estimateJavabeanType(dto);
-            String packageName = estimatePackageName(javabeanType);
-            String javabeanName = standardizeJavabeanName(initDecAnalysis, dto, javabeanType);
+            DTOTypeEnum dtoTypeEnum = estimateDTOType(dto);
+            String packageName = estimatePackageName(dtoTypeEnum);
+            String dtoName = standardizeDTOName(initDecAnalysis, dto, dtoTypeEnum);
 
             if (BooleanUtils.isNotTrue(result.getIsHttpGet())) {
-                result.setIsHttpGet(javabeanType == JavabeanTypeEnum.REQ_PARAMS);
+                result.setIsHttpGet(dtoTypeEnum == DTOTypeEnum.REQ_PARAMS);
             }
 
-            if (javabeanType == JavabeanTypeEnum.REQ_PARAMS) {
+            if (dtoTypeEnum == DTOTypeEnum.REQ_PARAMS) {
                 for (FieldDeclaration fd : dto.getFields()) {
                     result.getReqParams().addAll(fd.getVariables());
                 }
                 continue;
             }
 
-            JavabeanArg arg = new JavabeanArg();
+            DataModelArg arg = new DataModelArg();
             arg.setAstForest(AstForestContext.get());
             arg.setPackageName(packageName);
-            arg.setClassName(javabeanName);
+            arg.setClassName(dtoName);
             arg.setDescription(concatDTODescription(initDecAnalysis));
             arg.setAuthor(commonConfig.getAuthor());
-            arg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
-            arg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
-            arg.setMore4Javabean((tempCu, javabean) -> {
+            arg.setIsDataModelSerializable(commonConfig.getIsDataModelSerializable());
+            arg.setIsDataModelCloneable(commonConfig.getIsDataModelCloneable());
+            arg.setMoreOperation((tempCu, dataModel) -> {
                 for (FieldDeclaration field : dto.getFields()) {
-                    fieldService.more4SpecialTypeField(field, javabeanType);
+                    fieldService.more4SpecialTypeField(field, dtoTypeEnum);
                 }
                 importExprService.copyImports(initDecAnalysis.getMvcControllerCu(), tempCu);
-                javabean.setMembers(dto.getMembers());
+                dataModel.setMembers(dto.getMembers());
             });
-            arg.setJavabeanExistenceResolution(FileExistenceResolutionEnum.RENAME);
-            JavabeanGeneration javabeanGeneration = javabeanGeneratorService.generate(arg);
-            result.getFlushes().add(FileFlush.build(javabeanGeneration.getCu()));
+            arg.setDataModelExistenceResolution(FileExistenceResolutionEnum.RENAME);
+            DataModelGeneration dataModelGeneration = dataModelGeneratorService.generateDataModel(arg);
+            result.getFlushes().add(FileFlush.build(dataModelGeneration.getCu()));
 
-            dto.setName(javabeanGeneration.getJavabeanName());
+            dto.setName(dataModelGeneration.getDtoName());
 
-            String javabeanQualifier = javabeanGeneration.getJavabeanQualifier();
-            if (javabeanType == JavabeanTypeEnum.REQ_DTO) {
-                result.setReqBodyDTOType(calcType(dto, javabeanQualifier));
+            String dtoQualifier = dataModelGeneration.getDtoQualifier();
+            if (dtoTypeEnum == DTOTypeEnum.REQ_DTO) {
+                result.setReqBodyDTOType(calcType(dto, dtoQualifier));
             }
-            if (javabeanType == JavabeanTypeEnum.RESP_DTO) {
-                result.setRespBodyDTOType(calcType(dto, javabeanQualifier));
+            if (dtoTypeEnum == DTOTypeEnum.RESP_DTO) {
+                result.setRespBodyDTOType(calcType(dto, dtoQualifier));
             }
 
             // 遍历到NestDTO时，将父节点中的自身替换为Field
-            if (Lists.newArrayList(JavabeanTypeEnum.NEST_DTO_IN_REQ, JavabeanTypeEnum.NEST_DTO_IN_RESP)
-                    .contains(javabeanType)) {
+            if (Lists.newArrayList(DTOTypeEnum.NEST_DTO_IN_REQ, DTOTypeEnum.NEST_DTO_IN_RESP).contains(dtoTypeEnum)) {
                 ClassOrInterfaceDeclaration parentCoid = (ClassOrInterfaceDeclaration) dto.getParentNode()
                         .orElseThrow(() -> new Allison1875Exception("cannot find parent for" + dto.getName()));
                 FieldDeclaration field = new FieldDeclaration();
                 dto.getJavadoc().ifPresent(field::setJavadocComment);
-                if (javabeanType == JavabeanTypeEnum.NEST_DTO_IN_REQ) {
+                if (dtoTypeEnum == DTOTypeEnum.NEST_DTO_IN_REQ) {
                     field.addAnnotation(annotationExprService.javaxValid());
                 }
                 this.moveAnnotations(dto, field);
-                field.addVariable(new VariableDeclarator(StaticJavaParser.parseType(calcType(dto, javabeanQualifier)),
+                field.addVariable(new VariableDeclarator(StaticJavaParser.parseType(calcType(dto, dtoQualifier)),
                         standardizeNestDTOFieldName(dto)));
                 parentCoid.replace(dto, field);
             }
@@ -162,13 +161,13 @@ public class ReqRespServiceImpl implements ReqRespService {
         return result;
     }
 
-    private String estimatePackageName(JavabeanTypeEnum javabeanType) {
+    private String estimatePackageName(DTOTypeEnum dtoType) {
         String packageName;
-        if (javabeanType == JavabeanTypeEnum.REQ_DTO) {
+        if (dtoType == DTOTypeEnum.REQ_DTO) {
             packageName = commonConfig.getReqDTOPackage();
-        } else if (javabeanType == JavabeanTypeEnum.RESP_DTO) {
+        } else if (dtoType == DTOTypeEnum.RESP_DTO) {
             packageName = commonConfig.getRespDTOPackage();
-        } else if (javabeanType == JavabeanTypeEnum.NEST_DTO_IN_REQ) {
+        } else if (dtoType == DTOTypeEnum.NEST_DTO_IN_REQ) {
             packageName = commonConfig.getReqDTOPackage();
         } else {
             packageName = commonConfig.getRespDTOPackage();
@@ -188,26 +187,26 @@ public class ReqRespServiceImpl implements ReqRespService {
         return fieldName;
     }
 
-    private JavabeanTypeEnum estimateJavabeanType(ClassOrInterfaceDeclaration dto) {
-        JavabeanTypeEnum javabeanType;
+    private DTOTypeEnum estimateDTOType(ClassOrInterfaceDeclaration dto) {
+        DTOTypeEnum dtoType;
         if (dto.getNameAsString().equalsIgnoreCase("Req")) {
             if (dto.getAnnotationByName(GetUrlQuery.class.getSimpleName()).isPresent()) {
-                javabeanType = JavabeanTypeEnum.REQ_PARAMS;
+                dtoType = DTOTypeEnum.REQ_PARAMS;
             } else {
-                javabeanType = JavabeanTypeEnum.REQ_DTO;
+                dtoType = DTOTypeEnum.REQ_DTO;
             }
         } else if (dto.getNameAsString().equalsIgnoreCase("Resp")) {
-            javabeanType = JavabeanTypeEnum.RESP_DTO;
+            dtoType = DTOTypeEnum.RESP_DTO;
         } else if (dto.findAncestor(ClassOrInterfaceDeclaration.class,
                 ancestor -> ancestor.getNameAsString().equalsIgnoreCase("Req")).isPresent()) {
-            javabeanType = JavabeanTypeEnum.NEST_DTO_IN_REQ;
+            dtoType = DTOTypeEnum.NEST_DTO_IN_REQ;
         } else if (dto.findAncestor(ClassOrInterfaceDeclaration.class,
                 ancestor -> ancestor.getNameAsString().equalsIgnoreCase("Resp")).isPresent()) {
-            javabeanType = JavabeanTypeEnum.NEST_DTO_IN_RESP;
+            dtoType = DTOTypeEnum.NEST_DTO_IN_RESP;
         } else {
             throw new Allison1875Exception("unknown Name [" + dto.getNameAsString() + "]");
         }
-        return javabeanType;
+        return dtoType;
     }
 
     private void moveAnnotations(ClassOrInterfaceDeclaration dto, FieldDeclaration field) {
@@ -218,33 +217,33 @@ public class ReqRespServiceImpl implements ReqRespService {
         }
     }
 
-    private String standardizeJavabeanName(InitDecAnalysisDTO initDecAnalysis, ClassOrInterfaceDeclaration dto,
-            JavabeanTypeEnum javabeanType) {
-        String javaBeanName;
-        if (javabeanType == JavabeanTypeEnum.REQ_DTO) {
-            javaBeanName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "ReqDTO";
-        } else if (javabeanType == JavabeanTypeEnum.RESP_DTO) {
-            javaBeanName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "RespDTO";
+    private String standardizeDTOName(InitDecAnalysisDTO initDecAnalysis, ClassOrInterfaceDeclaration dto,
+            DTOTypeEnum dtoType) {
+        String dtoName;
+        if (dtoType == DTOTypeEnum.REQ_DTO) {
+            dtoName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "ReqDTO";
+        } else if (dtoType == DTOTypeEnum.RESP_DTO) {
+            dtoName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "RespDTO";
         } else {
             String originName = dto.getNameAsString();
             if (!StringUtils.endsWithIgnoreCase(originName, "dto")) {
-                javaBeanName = MoreStringUtils.toUpperCamel(originName) + "DTO";
+                dtoName = MoreStringUtils.toUpperCamel(originName) + "DTO";
             } else {
-                javaBeanName = originName;
+                dtoName = originName;
             }
         }
-        return javaBeanName;
+        return dtoName;
     }
 
 
-    private String calcType(ClassOrInterfaceDeclaration dto, String javabeanQualifier) {
+    private String calcType(ClassOrInterfaceDeclaration dto, String dtoQualifier) {
         if (dto.getAnnotationByName("L").isPresent()) {
-            return "java.util.List<" + javabeanQualifier + ">";
+            return "java.util.List<" + dtoQualifier + ">";
         }
         if (dto.getAnnotationByName("P").isPresent()) {
-            return String.format("%s<%s>", config.getPageTypeQualifier(), javabeanQualifier);
+            return String.format("%s<%s>", config.getPageTypeQualifier(), dtoQualifier);
         }
-        return javabeanQualifier;
+        return dtoQualifier;
     }
 
     private String concatDTODescription(InitDecAnalysisDTO initDecAnalysis) {

@@ -14,19 +14,19 @@ import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.javabean.AddInjectFieldRetval;
-import com.spldeolin.allison1875.common.javabean.GenerateMvcHandlerArgs;
-import com.spldeolin.allison1875.common.javabean.GenerateMvcHandlerRetval;
+import com.spldeolin.allison1875.common.dto.AddInjectFieldRetval;
+import com.spldeolin.allison1875.common.dto.GenerateMvcHandlerArgs;
+import com.spldeolin.allison1875.common.dto.GenerateMvcHandlerRetval;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.service.MemberAdderService;
 import com.spldeolin.allison1875.common.service.MvcHandlerGeneratorService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
-import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceArgs;
-import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDTOJavabeansRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplArgs;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.dto.AddMethodToServiceArgs;
+import com.spldeolin.allison1875.handlertransformer.dto.AddMethodToServiceRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateDTOsRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateServiceAndImplArgs;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateServiceAndImplRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.DTOService;
 import com.spldeolin.allison1875.handlertransformer.service.InitDecAnalyzerService;
 import com.spldeolin.allison1875.handlertransformer.service.InitDecDetectorService;
@@ -96,15 +96,15 @@ public class HandlerTransformer implements Allison1875MainService {
                     // 自底向上收集（广度优先遍历收集 + 反转）
                     List<ClassOrInterfaceDeclaration> dtoCoids = dtoService.detectDTOBottomTop(initBody);
 
-                    // 生成Javabean
-                    GenerateDTOJavabeansRetval generateDTOJavabeansRetval = reqRespService.generateDTOJavabeans(
+                    // 生成DTO
+                    GenerateDTOsRetval generateDTOsRetval = reqRespService.generateDTOs(
                             initDecAnalysis, dtoCoids);
-                    flushes.addAll(generateDTOJavabeansRetval.getFlushes());
+                    flushes.addAll(generateDTOsRetval.getFlushes());
 
                     // 生成Service方法
                     MethodDeclaration serviceMethod = serviceLayerService.generateServiceMethod(initDecAnalysis,
-                            generateDTOJavabeansRetval.getReqBodyDTOType(), generateDTOJavabeansRetval.getReqParams(),
-                            generateDTOJavabeansRetval.getRespBodyDTOType());
+                            generateDTOsRetval.getReqBodyDTOType(), generateDTOsRetval.getReqParams(),
+                            generateDTOsRetval.getRespBodyDTOType());
 
                     // 生成Service / ServiceImpl
                     GenerateServiceAndImplArgs gsaiArgs = new GenerateServiceAndImplArgs();
@@ -140,13 +140,13 @@ public class HandlerTransformer implements Allison1875MainService {
                                 + initDecAnalysis.getLotNo();
                     }
                     gmhArgs.setDescription(description);
-                    gmhArgs.setReqBodyDTOType(generateDTOJavabeansRetval.getReqBodyDTOType());
-                    gmhArgs.setRespBodyDTOType(generateDTOJavabeansRetval.getRespBodyDTOType());
+                    gmhArgs.setReqBodyDTOType(generateDTOsRetval.getReqBodyDTOType());
+                    gmhArgs.setRespBodyDTOType(generateDTOsRetval.getRespBodyDTOType());
                     gmhArgs.setInjectedServiceVarName(addInjectFieldRetval.getFieldVarName());
                     gmhArgs.setServiceMethodName(addMethodToServiceRetval.getMethodName());
                     gmhArgs.setMvcController(mvcController);
-                    gmhArgs.setIsHttpGet(generateDTOJavabeansRetval.getIsHttpGet());
-                    gmhArgs.setReqParams(generateDTOJavabeansRetval.getReqParams());
+                    gmhArgs.setIsHttpGet(generateDTOsRetval.getIsHttpGet());
+                    gmhArgs.setReqParams(generateDTOsRetval.getReqParams());
                     GenerateMvcHandlerRetval generateMvcHandlerRetval = mvcHandlerGeneratorService.generateMvcHandler(
                             gmhArgs);
 

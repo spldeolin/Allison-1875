@@ -3,8 +3,8 @@ package com.spldeolin.allison1875.extension.satisficing.common;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.type.Type;
-import com.spldeolin.allison1875.common.javabean.GenerateMvcHandlerArgs;
-import com.spldeolin.allison1875.common.javabean.GenerateMvcHandlerRetval;
+import com.spldeolin.allison1875.common.dto.GenerateMvcHandlerArgs;
+import com.spldeolin.allison1875.common.dto.GenerateMvcHandlerRetval;
 import com.spldeolin.allison1875.common.service.impl.MvcHandlerGeneratorServiceImpl;
 import com.spldeolin.satisficing.api.RequestResult;
 

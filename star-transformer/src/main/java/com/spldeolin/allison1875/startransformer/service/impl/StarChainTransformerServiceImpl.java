@@ -12,12 +12,12 @@ import com.github.javaparser.ast.stmt.ForEachStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.utils.CodeGenerationUtils;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDTO;
-import com.spldeolin.allison1875.startransformer.javabean.PhraseDTO;
-import com.spldeolin.allison1875.startransformer.javabean.TransformStarChainArgs;
+import com.spldeolin.allison1875.startransformer.dto.ChainAnalysisDTO;
+import com.spldeolin.allison1875.startransformer.dto.PhraseDTO;
+import com.spldeolin.allison1875.startransformer.dto.TransformStarChainArgs;
 import com.spldeolin.allison1875.startransformer.service.StarChainTransformerService;
 
 /**
@@ -29,13 +29,13 @@ public class StarChainTransformerServiceImpl implements StarChainTransformerServ
     @Override
     public void transformStarChain(TransformStarChainArgs args) {
         BlockStmt block = args.getBlock();
-        JavabeanGeneration wholeDTOGeneration = args.getWholeDTOGeneration();
+        DataModelGeneration wholeDTOGeneration = args.getWholeDTOGeneration();
         MethodCallExpr starChain = args.getStarChain();
         ChainAnalysisDTO analysis = args.getAnalysis();
 
         int i = block.getStatements().indexOf(starChain.findAncestor(Statement.class).get());
         block.setStatement(i, StaticJavaParser.parseStatement(
-                wholeDTOGeneration.getJavabeanQualifier() + " whole = new " + wholeDTOGeneration.getJavabeanName()
+                wholeDTOGeneration.getDtoQualifier() + " whole = new " + wholeDTOGeneration.getDtoName()
                         + "();"));
         block.addStatement(++i, StaticJavaParser.parseStatement(
                 analysis.getCftEntityQualifier() + " " + entityNameToVarName(analysis.getCftEntityName()) + " = "

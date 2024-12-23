@@ -12,13 +12,13 @@ import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.DesignMetaDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;
+import com.spldeolin.allison1875.querytransformer.dto.Binary;
+import com.spldeolin.allison1875.querytransformer.dto.ChainAnalysisDTO;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateParamRetval;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
-import com.spldeolin.allison1875.querytransformer.javabean.Binary;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.service.TransformMethodCallService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,16 +48,15 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
 
     @Override
     public List<Statement> argumentBuildStmts(ChainAnalysisDTO chainAnalysis, GenerateParamRetval paramGeneration) {
-        log.info("build Javabean setter call");
-        String javabeanTypeQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
-        String javabeanVarName = MoreStringUtils.toLowerCamel(
-                MoreStringUtils.splitAndGetLastPart(javabeanTypeQualifier, "."));
+        log.info("build Cond setters call");
+        String condTypeQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
+        String condVarName = MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(condTypeQualifier, "."));
         List<Statement> result = Lists.newArrayList();
         result.add(StaticJavaParser.parseStatement(
-                "final " + javabeanTypeQualifier + " " + javabeanVarName + " = new " + javabeanTypeQualifier + "();"));
+                "final " + condTypeQualifier + " " + condVarName + " = new " + condTypeQualifier + "();"));
         for (Binary binariesAsArg : chainAnalysis.getBinariesAsArgs()) {
             result.add(StaticJavaParser.parseStatement(
-                    javabeanVarName + ".set" + MoreStringUtils.toUpperCamel(binariesAsArg.getVarName()) + "("
+                    condVarName + ".set" + MoreStringUtils.toUpperCamel(binariesAsArg.getVarName()) + "("
                             + binariesAsArg.getArgument() + ");"));
         }
         return result;

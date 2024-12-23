@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.common.service;
 
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.javabean.AddInjectFieldRetval;
+import com.spldeolin.allison1875.common.dto.AddInjectFieldRetval;
 import com.spldeolin.allison1875.common.service.impl.MemberAdderServiceImpl;
 
 /**

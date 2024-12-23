@@ -4,9 +4,9 @@ import java.util.List;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.javabean.GenerateMvcHandlerRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.common.dto.GenerateMvcHandlerRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateServiceAndImplRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.impl.MvcControllerServiceImpl;
 
 /**

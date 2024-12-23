@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.persistencegenerator.service.impl;
 
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.InformationSchemaDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.CommentService;
 
 /**

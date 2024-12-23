@@ -47,10 +47,10 @@ public class JsonUtils {
     public static ObjectMapper createObjectMapper() {
         ObjectMapper om = new ObjectMapper();
 
-        // 反序列化时，忽略Javabean中不存在的属性，而不是抛出异常
+        // 反序列化时，忽略DataModel中不存在的属性，而不是抛出异常
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        // 序列化没有property的Javabean时，当作{ }，而不是抛出异常
+        // 序列化没有property的DataModel时，当作{ }，而不是抛出异常
         om.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
         // 使用所在操作系统的时区

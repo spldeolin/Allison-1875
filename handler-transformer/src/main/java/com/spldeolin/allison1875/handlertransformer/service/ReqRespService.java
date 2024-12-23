@@ -4,8 +4,8 @@ import java.util.List;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateDTOJavabeansRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateDTOsRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.impl.ReqRespServiceImpl;
 
 /**
@@ -16,7 +16,6 @@ public interface ReqRespService {
 
     void validInitBody(BlockStmt initBody, InitDecAnalysisDTO initDecAnalysis);
 
-    GenerateDTOJavabeansRetval generateDTOJavabeans(InitDecAnalysisDTO initDecAnalysis,
-            List<ClassOrInterfaceDeclaration> dtos);
+    GenerateDTOsRetval generateDTOs(InitDecAnalysisDTO initDecAnalysis, List<ClassOrInterfaceDeclaration> dtos);
 
 }

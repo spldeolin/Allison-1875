@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.common.test.memberadder;
 
-import com.spldeolin.allison1875.common.javabean.FieldArg;
-import com.spldeolin.allison1875.common.javabean.InvalidDTO;
+import com.spldeolin.allison1875.common.dto.FieldArg;
+import com.spldeolin.allison1875.common.dto.InvalidDTO;
 
 /**
  * @author Deolin 2024-02-14

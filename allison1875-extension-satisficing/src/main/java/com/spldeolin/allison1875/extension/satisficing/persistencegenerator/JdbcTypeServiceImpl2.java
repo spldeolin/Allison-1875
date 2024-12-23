@@ -26,9 +26,9 @@ import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.InformationSchemaDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.JavaTypeNamingDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.JdbcTypeServiceImpl;
 import com.spldeolin.satisficing.api.EnumAncestor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,7 +117,7 @@ public class JdbcTypeServiceImpl2 extends JdbcTypeServiceImpl {
                                     + ".findFirst().orElse(null); }", enumName)).asMethodDeclaration()
                     .setJavadocComment("获取code对应的枚举"));
             ed.addMember(StaticJavaParser.parseBodyDeclaration(
-                    "@Override public String toString() { return asJavabean().toString(); }").asMethodDeclaration());
+                    "@Override public String toString() { return asDTO().toString(); }").asMethodDeclaration());
             cu.addType(ed);
             Path enumPath = CodeGenerationUtils.fileInPackageAbsolutePath(AstForestContext.get().getSourceRoot(),
                     enumPackage, enumName + ".java");

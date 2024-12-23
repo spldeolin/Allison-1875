@@ -7,7 +7,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
 import com.spldeolin.allison1875.common.Allison1875;
-import com.spldeolin.allison1875.common.javabean.AddInjectFieldRetval;
+import com.spldeolin.allison1875.common.dto.AddInjectFieldRetval;
 import com.spldeolin.allison1875.common.service.MemberAdderService;
 import com.spldeolin.allison1875.common.service.impl.MemberAdderServiceImpl;
 
@@ -29,18 +29,18 @@ public class MemberAdderServiceImplTest {
 
 
         System.out.println("不同名");
-        AddInjectFieldRetval retval = memberAdderService.addInjectField(
-                "com.spldeolin.allison1875.common.javabean.FieldArg", "d", coid);
+        AddInjectFieldRetval retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.dto.FieldArg",
+                "d", coid);
         System.out.println(retval);
         System.out.println(coid);
 
         System.out.println("同名同类型");
-        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.javabean.InvalidDTO", "b", coid);
+        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.dto.InvalidDTO", "b", coid);
         System.out.println(retval);
         System.out.println(coid);
 
         System.out.println("同名不同类型");
-        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.javabean.InvalidDTO", "c", coid);
+        retval = memberAdderService.addInjectField("com.spldeolin.allison1875.common.dto.InvalidDTO", "c", coid);
         System.out.println(retval);
         System.out.println(coid);
 

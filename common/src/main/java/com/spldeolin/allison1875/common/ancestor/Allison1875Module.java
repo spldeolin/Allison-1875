@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.common.ancestor;
 
 import java.util.List;
 import com.google.inject.AbstractModule;
-import com.spldeolin.allison1875.common.javabean.InvalidDTO;
+import com.spldeolin.allison1875.common.dto.InvalidDTO;
 import lombok.extern.slf4j.Slf4j;
 
 /**

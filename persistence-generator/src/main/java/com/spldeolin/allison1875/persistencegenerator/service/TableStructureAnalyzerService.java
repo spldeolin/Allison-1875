@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.persistencegenerator.service;
 
 import java.util.List;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.TableStructureAnalyzerServiceImpl;
 
 /**

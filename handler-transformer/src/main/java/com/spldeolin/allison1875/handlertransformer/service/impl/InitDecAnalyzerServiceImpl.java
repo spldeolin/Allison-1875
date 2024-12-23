@@ -11,7 +11,7 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.dto.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.InitDecAnalyzerService;
 import lombok.extern.slf4j.Slf4j;
 

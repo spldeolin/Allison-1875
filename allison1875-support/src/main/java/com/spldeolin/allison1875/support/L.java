@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 代表该Javabean作为属性时包装在Collectio中
+ * 代表该DTO作为属性时包装在Collection中
  *
  * 适配Allison 1875 handler-transformer
  *

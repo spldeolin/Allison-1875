@@ -10,7 +10,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 import com.google.common.collect.Lists;
-import com.spldeolin.allison1875.common.javabean.InvalidDTO;
+import com.spldeolin.allison1875.common.dto.InvalidDTO;
 import lombok.extern.slf4j.Slf4j;
 
 /**

@@ -3,10 +3,10 @@ package com.spldeolin.allison1875.querytransformer.service;
 import java.util.List;
 import com.github.javaparser.ast.stmt.Statement;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.DesignMetaDTO;
+import com.spldeolin.allison1875.querytransformer.dto.ChainAnalysisDTO;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateParamRetval;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.service.impl.TransformMethodCallServiceImpl;
 
 /**

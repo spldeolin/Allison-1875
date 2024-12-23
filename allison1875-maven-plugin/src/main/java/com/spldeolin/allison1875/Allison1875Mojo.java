@@ -64,9 +64,9 @@ public abstract class Allison1875Mojo extends AbstractMojo {
         String basePackage = commonConfig.getBasePackage();
         commonConfig.setBasePackage(MoreObjects.firstNonNull(basePackage, project.getGroupId()));
         commonConfig.setReqDTOPackage(
-                MoreObjects.firstNonNull(commonConfig.getReqDTOPackage(), basePackage + ".javabean.req"));
+                MoreObjects.firstNonNull(commonConfig.getReqDTOPackage(), basePackage + ".dto.req"));
         commonConfig.setRespDTOPackage(
-                MoreObjects.firstNonNull(commonConfig.getRespDTOPackage(), basePackage + ".javabean.resp"));
+                MoreObjects.firstNonNull(commonConfig.getRespDTOPackage(), basePackage + ".dto.resp"));
         commonConfig.setServicePackage(
                 MoreObjects.firstNonNull(commonConfig.getServicePackage(), basePackage + ".service"));
         commonConfig.setServiceImplPackage(
@@ -77,12 +77,11 @@ public abstract class Allison1875Mojo extends AbstractMojo {
                 MoreObjects.firstNonNull(commonConfig.getEntityPackage(), basePackage + ".entity"));
         commonConfig.setDesignPackage(
                 MoreObjects.firstNonNull(commonConfig.getDesignPackage(), basePackage + ".design"));
-        commonConfig.setCondPackage(
-                MoreObjects.firstNonNull(commonConfig.getCondPackage(), basePackage + ".javabean.cond"));
+        commonConfig.setCondPackage(MoreObjects.firstNonNull(commonConfig.getCondPackage(), basePackage + ".dto.cond"));
         commonConfig.setRecordPackage(
-                MoreObjects.firstNonNull(commonConfig.getRecordPackage(), basePackage + ".javabean.record"));
+                MoreObjects.firstNonNull(commonConfig.getRecordPackage(), basePackage + ".dto.record"));
         commonConfig.setWholeDTOPackage(
-                MoreObjects.firstNonNull(commonConfig.getWholeDTOPackage(), basePackage + ".javabean"));
+                MoreObjects.firstNonNull(commonConfig.getWholeDTOPackage(), basePackage + ".dto"));
         commonConfig.setMapperXmlDirs(
                 commonConfig.getMapperXmlDirs().stream().map(this::getCanonicalFileRelativeToBasedir)
                         .collect(Collectors.toList()));

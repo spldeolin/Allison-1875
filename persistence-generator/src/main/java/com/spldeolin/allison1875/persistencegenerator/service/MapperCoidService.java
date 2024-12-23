@@ -1,11 +1,11 @@
 package com.spldeolin.allison1875.persistencegenerator.service;
 
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
-import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
+import com.spldeolin.allison1875.persistencegenerator.dto.DetectOrGenerateMapperRetval;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateMethodToMapperArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.MapperCoidServiceImpl;
 
 /**
@@ -15,7 +15,7 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.MapperCoidSer
 public interface MapperCoidService {
 
     DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDTO persistence,
-            JavabeanGeneration javabeanGeneration);
+            DataModelGeneration dataModelGeneration);
 
     String generateInsertMethodToMapper(GenerateMethodToMapperArgs args);
 

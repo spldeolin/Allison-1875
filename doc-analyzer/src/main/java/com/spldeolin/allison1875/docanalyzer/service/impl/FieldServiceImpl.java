@@ -20,7 +20,7 @@ import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeFieldVarsRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeFieldVarsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.EnumService;
 import com.spldeolin.allison1875.docanalyzer.service.FieldService;
 import lombok.extern.slf4j.Slf4j;

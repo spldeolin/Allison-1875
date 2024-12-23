@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.persistencegenerator.service;
 
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.InformationSchemaDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.CommentServiceImpl;
 
 /**

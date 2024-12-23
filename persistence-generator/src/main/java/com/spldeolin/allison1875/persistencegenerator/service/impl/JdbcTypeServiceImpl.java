@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.InformationSchemaDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.InformationSchemaDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.JavaTypeNamingDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.JdbcTypeService;
 
 /**

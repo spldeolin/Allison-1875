@@ -7,8 +7,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeMvcHandlerRetval;
-import com.spldeolin.allison1875.docanalyzer.javabean.MvcHandlerDTO;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeMvcHandlerRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.MvcHandlerDTO;
 import com.spldeolin.allison1875.docanalyzer.service.MvcHandlerAnalyzerService;
 import com.spldeolin.allison1875.docanalyzer.util.MethodQualifierUtils;
 

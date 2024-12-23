@@ -10,14 +10,14 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.javabean.FieldArg;
-import com.spldeolin.allison1875.common.javabean.JavabeanArg;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
+import com.spldeolin.allison1875.common.dto.DataModelArg;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
+import com.spldeolin.allison1875.common.dto.FieldArg;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
-import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
+import com.spldeolin.allison1875.common.service.DataModelService;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.EntityGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,27 +35,27 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
     private PersistenceGeneratorConfig config;
 
     @Inject
-    private JavabeanGeneratorService javabeanGeneratorService;
+    private DataModelService dataModelGeneratorService;
 
     @Inject
     private AnnotationExprService annotationExprService;
 
     @Override
-    public JavabeanGeneration generateEntity(TableStructureAnalysisDTO persistence) {
-        JavabeanArg arg = new JavabeanArg();
+    public DataModelGeneration generateEntity(TableStructureAnalysisDTO persistence) {
+        DataModelArg arg = new DataModelArg();
         arg.setAstForest(AstForestContext.get());
         arg.setPackageName(commonConfig.getEntityPackage());
         arg.setClassName(persistence.getEntityName());
         arg.setDescription(concatEntityDescription(persistence));
         arg.setAuthor(commonConfig.getAuthor());
-        arg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
-        arg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
-        arg.setMore4Javabean((cu, javabean) -> {
+        arg.setIsDataModelSerializable(commonConfig.getIsDataModelSerializable());
+        arg.setIsDataModelCloneable(commonConfig.getIsDataModelCloneable());
+        arg.setMoreOperation((cu, dataModel) -> {
             // 追加父类，并追加EqualsAndHashCode注解（如果需要的话）
             if (config.getSuperEntity() != null) {
-                javabean.addExtendedType(config.getSuperEntity().getName());
-                javabean.addAnnotation(annotationExprService.lombokEqualsAndHashCode());
-                javabean.getAnnotations().removeIf(anno -> anno.getNameAsString().equals("Accessors"));
+                dataModel.addExtendedType(config.getSuperEntity().getName());
+                dataModel.addAnnotation(annotationExprService.lombokEqualsAndHashCode());
+                dataModel.getAnnotations().removeIf(anno -> anno.getNameAsString().equals("Accessors"));
             }
         });
         for (PropertyDTO property : persistence.getProperties()) {
@@ -68,8 +68,8 @@ public class EntityGeneratorServiceImpl implements EntityGeneratorService {
             fieldArg.setFieldName(property.getPropertyName());
             arg.getFieldArgs().add(fieldArg);
         }
-        arg.setJavabeanExistenceResolution(config.getEntityExistenceResolution());
-        return javabeanGeneratorService.generate(arg);
+        arg.setDataModelExistenceResolution(config.getEntityExistenceResolution());
+        return dataModelGeneratorService.generateDataModel(arg);
     }
 
     private List<String> getSuperEntityFieldNames() {

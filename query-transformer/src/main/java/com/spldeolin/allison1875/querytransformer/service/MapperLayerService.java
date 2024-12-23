@@ -3,8 +3,8 @@ package com.spldeolin.allison1875.querytransformer.service;
 import java.util.Optional;
 import com.google.inject.ImplementedBy;
 import com.spldeolin.allison1875.common.ast.FileFlush;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperArgs;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateMethodToMapperXmlArgs;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateMethodToMapperArgs;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateMethodToMapperXmlArgs;
 import com.spldeolin.allison1875.querytransformer.service.impl.MapperLayerServiceImpl;
 
 /**

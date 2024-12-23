@@ -1,6 +1,6 @@
 package com.spldeolin.allison1875.extension.satisficing.docanalyzer;
 
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeEnumConstantsRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeEnumConstantsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.impl.EnumServiceImpl;
 import com.spldeolin.satisficing.api.EnumAncestor;
 

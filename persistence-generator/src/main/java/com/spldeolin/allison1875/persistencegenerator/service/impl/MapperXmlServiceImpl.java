@@ -24,11 +24,11 @@ import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.KeyMethodNameDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.ReplaceMapperXmlMethodsArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.KeyMethodNameDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.ReplaceMapperXmlMethodsArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.MapperXmlService;
 import com.spldeolin.allison1875.persistencegenerator.util.TextUtils;
 

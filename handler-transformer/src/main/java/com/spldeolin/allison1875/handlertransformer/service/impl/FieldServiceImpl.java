@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.handlertransformer.service.impl;
 
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.handlertransformer.enums.JavabeanTypeEnum;
+import com.spldeolin.allison1875.handlertransformer.enums.DTOTypeEnum;
 import com.spldeolin.allison1875.handlertransformer.service.FieldService;
 
 /**
@@ -12,7 +12,7 @@ import com.spldeolin.allison1875.handlertransformer.service.FieldService;
 public class FieldServiceImpl implements FieldService {
 
     @Override
-    public void more4SpecialTypeField(FieldDeclaration field, JavabeanTypeEnum javabeanType) {
+    public void more4SpecialTypeField(FieldDeclaration field, DTOTypeEnum dtoTypeEnum) {
     }
 
 }

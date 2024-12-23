@@ -1,8 +1,8 @@
 package com.spldeolin.allison1875.persistencegenerator.service;
 
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.EntityGeneratorServiceImpl;
 
 /**
@@ -11,6 +11,6 @@ import com.spldeolin.allison1875.persistencegenerator.service.impl.EntityGenerat
 @ImplementedBy(EntityGeneratorServiceImpl.class)
 public interface EntityGeneratorService {
 
-    JavabeanGeneration generateEntity(TableStructureAnalysisDTO persistence);
+    DataModelGeneration generateEntity(TableStructureAnalysisDTO persistence);
 
 }

@@ -2,7 +2,7 @@ package com.spldeolin.allison1875.docanalyzer.service;
 
 import com.google.common.collect.Table;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeFieldVarsRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeFieldVarsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.impl.FieldServiceImpl;
 
 /**

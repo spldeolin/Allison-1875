@@ -14,19 +14,19 @@ import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinChainArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.KeyMethodNameDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.ReplaceMapperXmlMethodsArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.DetectOrGenerateMapperRetval;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateDesignArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateDesignRetval;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateJoinChainArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateMethodToMapperArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.KeyMethodNameDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.ReplaceMapperXmlMethodsArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.DesignGeneratorService;
 import com.spldeolin.allison1875.persistencegenerator.service.EntityGeneratorService;
 import com.spldeolin.allison1875.persistencegenerator.service.MapperCoidService;
@@ -81,7 +81,7 @@ public class PersistenceGenerator implements Allison1875MainService {
             flushes.addAll(tableStructureAnalysis.getFlushes());
 
             // 生成Entity
-            JavabeanGeneration entityGeneration = entityGeneratorService.generateEntity(tableStructureAnalysis);
+            DataModelGeneration entityGeneration = entityGeneratorService.generateEntity(tableStructureAnalysis);
             flushes.add(entityGeneration.getFileFlush());
 
             // 寻找或创建Mapper
@@ -208,8 +208,8 @@ public class PersistenceGenerator implements Allison1875MainService {
         }
     }
 
-    protected String getEntityNameInXml(JavabeanGeneration javabeanGeneration) {
-        return javabeanGeneration.getJavabeanQualifier();
+    protected String getEntityNameInXml(DataModelGeneration dataModelGeneration) {
+        return dataModelGeneration.getDtoQualifier();
     }
 
 }

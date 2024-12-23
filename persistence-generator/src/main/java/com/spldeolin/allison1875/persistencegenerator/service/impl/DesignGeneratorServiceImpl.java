@@ -29,20 +29,20 @@ import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.HashingUtils;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateDesignArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateDesignRetval;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateJoinChainArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant.ChainInitialMethod;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinChainArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.DesignMetaDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.DesignGeneratorService;
 import com.spldeolin.allison1875.support.OnChainComparison;
 import com.spldeolin.allison1875.support.PropertyName;
@@ -67,8 +67,8 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
     @Override
     public Optional<CompilationUnit> generateJoinChain(GenerateJoinChainArgs args) {
         TableStructureAnalysisDTO tableStructureAnalysis = args.getTableStructureAnalysis();
-        JavabeanGeneration entityGeneration = args.getEntityGeneration();
-        String entityName = entityGeneration.getJavabeanName();
+        DataModelGeneration entityGeneration = args.getEntityGeneration();
+        String entityName = entityGeneration.getDtoName();
 
         if (!config.getEnableGenerateDesign()) {
             return Optional.empty();
@@ -194,7 +194,7 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
     @Override
     public GenerateDesignRetval generateDesign(GenerateDesignArgs args) {
         TableStructureAnalysisDTO tableStructureAnalysis = args.getTableStructureAnalysis();
-        JavabeanGeneration entityGeneration = args.getEntityGeneration();
+        DataModelGeneration entityGeneration = args.getEntityGeneration();
 
         if (!config.getEnableGenerateDesign()) {
             return new GenerateDesignRetval();
@@ -246,28 +246,28 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         queryChainMethodsCoid.addMember(
                 StaticJavaParser.parseBodyDeclaration("public OrderChain order() { throw e; }"));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                "public java.util.List<" + entityGeneration.getJavabeanQualifier() + "> many() { throw e; }"));
+                "public java.util.List<" + entityGeneration.getDtoQualifier() + "> many() { throw e; }"));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public <P> java.util.Map<P, %s> many(Each<P> property) { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(String.format(
                 "public <P> com.google.common.collect.Multimap<P, %s> many(MultiEach<P> property) { throw e; }",
-                entityGeneration.getJavabeanName())));
+                entityGeneration.getDtoName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                String.format("public %s one() { throw e; }", entityGeneration.getJavabeanName())));
+                String.format("public %s one() { throw e; }", entityGeneration.getDtoName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration("public int count() { throw e; }"));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public JoinChain<QueryChainMethods, %s> leftJoin() { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public JoinChain<QueryChainMethods, %s> rightJoin() { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public JoinChain<QueryChainMethods, %s> innerJoin() { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         queryChainMethodsCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public JoinChain<QueryChainMethods, %s> outerJoin() { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         designCoid.addMember(queryChainMethodsCoid);
 
         ClassOrInterfaceDeclaration queryChainCoid = new ClassOrInterfaceDeclaration();
@@ -333,15 +333,15 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
                     .setJavadocComment(property.getDescription()));
         }
         nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                "public java.util.List<" + entityGeneration.getJavabeanQualifier() + "> many() { throw e; }"));
+                "public java.util.List<" + entityGeneration.getDtoQualifier() + "> many() { throw e; }"));
         nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public <P> java.util.Map<P, %s> many(Each<P> property) { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration(String.format(
                 "public <P> com.google.common.collect.Multimap<P, %s> many(MultiEach<P> property) { throw e; }",
-                entityGeneration.getJavabeanName())));
+                entityGeneration.getDtoName())));
         nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                "public " + entityGeneration.getJavabeanName() + " one() { throw e; }"));
+                "public " + entityGeneration.getDtoName() + " one() { throw e; }"));
         nextableByChainReturnCoid.addMember(StaticJavaParser.parseBodyDeclaration("public int count() { throw e; }"));
         nextableByChainReturnCoid.addMember(
                 StaticJavaParser.parseBodyDeclaration("public OrderChain order() { throw e; }"));
@@ -372,15 +372,15 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
         nextableOrderChainCoid.setPublic(true).setStatic(true).setInterface(false).setName("NextableOrderChain")
                 .addExtendedType("OrderChain");
         nextableOrderChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                "public java.util.List<" + entityGeneration.getJavabeanQualifier() + "> many() { throw e; }"));
+                "public java.util.List<" + entityGeneration.getDtoQualifier() + "> many() { throw e; }"));
         nextableOrderChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
                 String.format("public <P> java.util.Map<P, %s> many(Each<P> property) { throw e; }",
-                        entityGeneration.getJavabeanName())));
+                        entityGeneration.getDtoName())));
         nextableOrderChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(String.format(
                 "public <P> com.google.common.collect.Multimap<P, %s> many(MultiEach<P> property) { throw e; }",
-                entityGeneration.getJavabeanName())));
+                entityGeneration.getDtoName())));
         nextableOrderChainCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                "public " + entityGeneration.getJavabeanName() + " one() { throw e; }"));
+                "public " + entityGeneration.getDtoName() + " one() { throw e; }"));
         nextableOrderChainCoid.addMember(StaticJavaParser.parseBodyDeclaration("public int count() { throw e; }"));
         designCoid.addMember(nextableOrderChainCoid);
 
@@ -405,15 +405,15 @@ public class DesignGeneratorServiceImpl implements DesignGeneratorService {
 
         for (PropertyDTO property : tableStructureAnalysis.getProperties()) {
             designCoid.addMember(StaticJavaParser.parseBodyDeclaration(
-                    "public static com.spldeolin.allison1875.support.PropertyName<" + entityGeneration.getJavabeanName()
+                    "public static com.spldeolin.allison1875.support.PropertyName<" + entityGeneration.getDtoName()
                             + "," + property.getJavaType().getSimpleName() + "> " + property.getPropertyName() + ";"));
         }
 
         DesignMetaDTO meta = new DesignMetaDTO();
         meta.setDesignQualifier(commonConfig.getDesignPackage() + "." + designName);
         meta.setDesignName(designName);
-        meta.setEntityQualifier(entityGeneration.getJavabeanQualifier());
-        meta.setEntityName(entityGeneration.getJavabeanName());
+        meta.setEntityQualifier(entityGeneration.getDtoQualifier());
+        meta.setEntityName(entityGeneration.getDtoName());
         meta.setMapperQualifier(args.getMapper().getFullyQualifiedName().orElseThrow(
                 () -> new Allison1875Exception("Node '" + args.getMapper().getName() + "' has no Qualifier")));
         meta.setMapperName(args.getMapper().getNameAsString());

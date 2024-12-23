@@ -14,23 +14,23 @@ import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
+import com.spldeolin.allison1875.common.dto.DataModelArg;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
+import com.spldeolin.allison1875.common.dto.FieldArg;
 import com.spldeolin.allison1875.common.enums.FileExistenceResolutionEnum;
-import com.spldeolin.allison1875.common.javabean.FieldArg;
-import com.spldeolin.allison1875.common.javabean.JavabeanArg;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
-import com.spldeolin.allison1875.common.service.JavabeanGeneratorService;
+import com.spldeolin.allison1875.common.service.DataModelService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.constant.KeywordConstant;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.JavaTypeNamingDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.JavaTypeNamingDTO;
+import com.spldeolin.allison1875.querytransformer.dto.Binary;
+import com.spldeolin.allison1875.querytransformer.dto.ChainAnalysisDTO;
+import com.spldeolin.allison1875.querytransformer.dto.CompareableBinary;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateParamRetval;
+import com.spldeolin.allison1875.querytransformer.dto.GenerateReturnTypeRetval;
+import com.spldeolin.allison1875.querytransformer.dto.VariableProperty;
 import com.spldeolin.allison1875.querytransformer.enums.ComparisonOperatorEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
-import com.spldeolin.allison1875.querytransformer.javabean.Binary;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
-import com.spldeolin.allison1875.querytransformer.javabean.CompareableBinary;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateParamRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.GenerateReturnTypeRetval;
-import com.spldeolin.allison1875.querytransformer.javabean.VariableProperty;
 import com.spldeolin.allison1875.querytransformer.service.MethodGeneratorService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,26 +45,26 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     private CommonConfig commonConfig;
 
     @Inject
-    private JavabeanGeneratorService javabeanGeneratorService;
+    private DataModelService dataModelGeneratorService;
 
     @Override
     public GenerateParamRetval generateParam(ChainAnalysisDTO chainAnalysis) {
         List<Parameter> params = Lists.newArrayList();
-        boolean isJavabean = false;
+        boolean isDTO = false;
         FileFlush condFlush = null;
 
         Set<Binary> binaries = chainAnalysis.getBinariesAsArgs();
         if (binaries.size() > 3) {
-            JavabeanArg javabeanArg = new JavabeanArg();
-            javabeanArg.setAstForest(AstForestContext.get());
-            javabeanArg.setPackageName(commonConfig.getCondPackage());
+            DataModelArg dataModelArg = new DataModelArg();
+            dataModelArg.setAstForest(AstForestContext.get());
+            dataModelArg.setPackageName(commonConfig.getCondPackage());
             if (commonConfig.getEnableLotNoAnnounce()) {
-                javabeanArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
+                dataModelArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
             }
-            javabeanArg.setClassName(MoreStringUtils.toUpperCamel(chainAnalysis.getMethodName()) + "Cond");
-            javabeanArg.setAuthor(commonConfig.getAuthor());
-            javabeanArg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
-            javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
+            dataModelArg.setClassName(MoreStringUtils.toUpperCamel(chainAnalysis.getMethodName()) + "Cond");
+            dataModelArg.setAuthor(commonConfig.getAuthor());
+            dataModelArg.setIsDataModelSerializable(commonConfig.getIsDataModelSerializable());
+            dataModelArg.setIsDataModelCloneable(commonConfig.getIsDataModelCloneable());
             for (Binary binary : binaries) {
                 String varName = binary.getVarName();
                 JavaTypeNamingDTO javaType = binary.getProperty().getJavaType();
@@ -77,16 +77,16 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
                     fieldArg.setTypeQualifier(javaType.getQualifier());
                 }
                 fieldArg.setFieldName(varName);
-                javabeanArg.getFieldArgs().add(fieldArg);
+                dataModelArg.getFieldArgs().add(fieldArg);
             }
-            javabeanArg.setJavabeanExistenceResolution(FileExistenceResolutionEnum.RENAME);
-            JavabeanGeneration condGeneration = javabeanGeneratorService.generate(javabeanArg);
+            dataModelArg.setDataModelExistenceResolution(FileExistenceResolutionEnum.RENAME);
+            DataModelGeneration condGeneration = dataModelGeneratorService.generateDataModel(dataModelArg);
             condFlush = condGeneration.getFileFlush();
             Parameter param = new Parameter();
-            param.setType(condGeneration.getJavabeanQualifier());
-            param.setName(MoreStringUtils.toLowerCamel(condGeneration.getJavabeanName()));
+            param.setType(condGeneration.getDtoQualifier());
+            param.setName(MoreStringUtils.toLowerCamel(condGeneration.getDtoName()));
             params.add(param);
-            isJavabean = true;
+            isDTO = true;
         } else if (CollectionUtils.isNotEmpty(binaries)) {
             for (Binary binary : binaries) {
                 String varName = binary.getVarName();
@@ -110,7 +110,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
 
         GenerateParamRetval result = new GenerateParamRetval();
         result.getParameters().addAll(params);
-        result.setIsCond(isJavabean);
+        result.setIsCond(isDTO);
         result.setCondFlush(condFlush);
         return result;
     }
@@ -146,34 +146,34 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
 
         Set<VariableProperty> returnProps = chainAnalysis.getPropertiesAsResult();
         if (returnProps.size() > 1) {
-            JavabeanArg javabeanArg = new JavabeanArg();
-            javabeanArg.setAstForest(AstForestContext.get());
-            javabeanArg.setPackageName(commonConfig.getRecordPackage());
+            DataModelArg dataModelArg = new DataModelArg();
+            dataModelArg.setAstForest(AstForestContext.get());
+            dataModelArg.setPackageName(commonConfig.getRecordPackage());
             if (commonConfig.getEnableLotNoAnnounce()) {
-                javabeanArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
+                dataModelArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
             }
-            javabeanArg.setClassName(MoreStringUtils.toUpperCamel(chainAnalysis.getMethodName()) + "Record");
-            javabeanArg.setAuthor(commonConfig.getAuthor());
-            javabeanArg.setIsJavabeanSerializable(commonConfig.getIsJavabeanSerializable());
-            javabeanArg.setIsJavabeanCloneable(commonConfig.getIsJavabeanCloneable());
+            dataModelArg.setClassName(MoreStringUtils.toUpperCamel(chainAnalysis.getMethodName()) + "Record");
+            dataModelArg.setAuthor(commonConfig.getAuthor());
+            dataModelArg.setIsDataModelSerializable(commonConfig.getIsDataModelSerializable());
+            dataModelArg.setIsDataModelCloneable(commonConfig.getIsDataModelCloneable());
             for (VariableProperty returnProp : returnProps) {
                 JavaTypeNamingDTO javaType = returnProp.getProperty().getJavaType();
                 FieldArg fieldArg = new FieldArg();
                 fieldArg.setDescription(returnProp.getProperty().getDescription());
                 fieldArg.setTypeQualifier(javaType.getQualifier());
                 fieldArg.setFieldName(returnProp.getVarName());
-                javabeanArg.getFieldArgs().add(fieldArg);
+                dataModelArg.getFieldArgs().add(fieldArg);
             }
-            javabeanArg.setJavabeanExistenceResolution(FileExistenceResolutionEnum.RENAME);
-            JavabeanGeneration recordGeneration = javabeanGeneratorService.generate(javabeanArg);
+            dataModelArg.setDataModelExistenceResolution(FileExistenceResolutionEnum.RENAME);
+            DataModelGeneration recordGeneration = dataModelGeneratorService.generateDataModel(dataModelArg);
             result.setFlush(recordGeneration.getFileFlush());
-            result.setElementTypeQualifier(recordGeneration.getJavabeanQualifier());
+            result.setElementTypeQualifier(recordGeneration.getDtoQualifier());
             if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
                     .contains(chainAnalysis.getReturnShape())) {
                 result.setResultType(
-                        StaticJavaParser.parseType("java.util.List<" + recordGeneration.getJavabeanQualifier() + ">"));
+                        StaticJavaParser.parseType("java.util.List<" + recordGeneration.getDtoQualifier() + ">"));
             } else {
-                result.setResultType(StaticJavaParser.parseType(recordGeneration.getJavabeanQualifier()));
+                result.setResultType(StaticJavaParser.parseType(recordGeneration.getDtoQualifier()));
             }
             return result;
 

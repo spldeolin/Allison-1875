@@ -28,17 +28,17 @@ import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.PersistenceGeneratorConfig;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.PropertyDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.DetectOrGenerateMapperRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateMethodToMapperArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.DetectOrGenerateMapperRetval;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateMethodToMapperArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.MapperCoidService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,7 +60,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
 
     @Override
     public DetectOrGenerateMapperRetval detectOrGenerateMapper(TableStructureAnalysisDTO persistence,
-            JavabeanGeneration javabeanGeneration) {
+            DataModelGeneration dataModelGeneration) {
 
         // find
         List<MethodDeclaration> customMethods = Lists.newArrayList();
@@ -98,7 +98,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             String comment = concatMapperDescription(persistence);
             Javadoc javadoc = JavadocUtils.setJavadoc(mapper, comment,
                     commonConfig.getAuthor() + " " + LocalDate.now());
-            javadoc.addBlockTag(new JavadocBlockTag(Type.SEE, javabeanGeneration.getJavabeanName()));
+            javadoc.addBlockTag(new JavadocBlockTag(Type.SEE, dataModelGeneration.getDtoName()));
             mapper.setPublic(true).setInterface(true).setName(persistence.getMapperName());
             mapper.setInterface(true);
             cu.addType(mapper);
@@ -132,7 +132,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         insert.setName(methodName);
         insert.addParameter(StaticJavaParser.parseParameter(
                 "@org.apache.ibatis.annotations.Param(\"entities\") List<" + args.getEntityGeneration()
-                        .getJavabeanQualifier() + "> entities"));
+                        .getDtoQualifier() + "> entities"));
         insert.setBody(null);
         args.getMapper().getMembers().addLast(insert);
         return methodName;
@@ -148,7 +148,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         insert.setName(methodName);
         insert.addParameter(StaticJavaParser.parseParameter(
                 "@org.apache.ibatis.annotations.Param(\"entities\") List<" + args.getEntityGeneration()
-                        .getJavabeanQualifier() + "> entities"));
+                        .getDtoQualifier() + "> entities"));
         insert.setBody(null);
         args.getMapper().getMembers().addLast(insert);
         return methodName;
@@ -165,7 +165,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         update.setName(methodName);
         update.addParameter(StaticJavaParser.parseParameter(
                 "@org.apache.ibatis.annotations.Param(\"entities\") List<" + args.getEntityGeneration()
-                        .getJavabeanQualifier() + "> entities"));
+                        .getDtoQualifier() + "> entities"));
         update.setBody(null);
         args.getMapper().getMembers().addLast(update);
         return methodName;
@@ -181,7 +181,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         update.setName(methodName);
         update.addParameter(StaticJavaParser.parseParameter(
                 "@org.apache.ibatis.annotations.Param(\"entities\") List<" + args.getEntityGeneration()
-                        .getJavabeanQualifier() + "> entities"));
+                        .getDtoQualifier() + "> entities"));
         update.setBody(null);
         args.getMapper().getMembers().addLast(update);
         return methodName;
@@ -215,7 +215,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         insert.setJavadocComment(comment);
         insert.setType(PrimitiveType.intType());
         insert.setName(methodName);
-        insert.addParameter(args.getEntityGeneration().getJavabeanQualifier(), "entity");
+        insert.addParameter(args.getEntityGeneration().getDtoQualifier(), "entity");
         insert.setBody(null);
         args.getMapper().getMembers().addLast(insert);
         return methodName;
@@ -229,7 +229,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         insert.setJavadocComment(comment);
         insert.setType(PrimitiveType.intType());
         insert.setName(methodName);
-        insert.addParameter(args.getEntityGeneration().getJavabeanQualifier(), "entity");
+        insert.addParameter(args.getEntityGeneration().getDtoQualifier(), "entity");
         insert.setBody(null);
         args.getMapper().getMembers().addLast(insert);
         return methodName;
@@ -242,8 +242,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             methodName = antiDuplicationService.getNewMethodNameIfExist("listAll", args.getMapper());
             MethodDeclaration listAll = new MethodDeclaration();
             String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "获取全部");
-            listAll.setType(
-                    StaticJavaParser.parseType("List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
+            listAll.setType(StaticJavaParser.parseType("List<" + args.getEntityGeneration().getDtoQualifier() + ">"));
             listAll.setName(methodName);
             listAll.setJavadocComment(comment);
             listAll.setBody(null);
@@ -257,9 +256,9 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         String methodName = antiDuplicationService.getNewMethodNameIfExist("queryByEntity", args.getMapper());
         MethodDeclaration queryByEntity = new MethodDeclaration();
         String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "根据实体内的属性查询");
-        queryByEntity.setType(parseType("java.util.List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
+        queryByEntity.setType(parseType("java.util.List<" + args.getEntityGeneration().getDtoQualifier() + ">"));
         queryByEntity.setName(methodName);
-        queryByEntity.addParameter(args.getEntityGeneration().getJavabeanQualifier(), "entity");
+        queryByEntity.addParameter(args.getEntityGeneration().getDtoQualifier(), "entity");
         queryByEntity.setBody(null);
         queryByEntity.setJavadocComment(comment);
         args.getMapper().getMembers().addLast(queryByEntity);
@@ -273,7 +272,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             methodName = antiDuplicationService.getNewMethodNameIfExist("queryById", args.getMapper());
             MethodDeclaration queryById = new MethodDeclaration();
             String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "根据ID查询");
-            queryById.setType(new ClassOrInterfaceType().setName(args.getEntityGeneration().getJavabeanQualifier()));
+            queryById.setType(new ClassOrInterfaceType().setName(args.getEntityGeneration().getDtoQualifier()));
             queryById.setName(methodName);
 
             if (args.getTableStructureAnalysisDTO().getIdProperties().size() == 1) {
@@ -311,7 +310,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             queryByIdsEachId.addAnnotation(
                     parseAnnotation("@org.apache.ibatis.annotations.MapKey(\"" + varName + "\")"));
             queryByIdsEachId.setType(parseType(
-                    "java.util.Map<" + pkTypeName + ", " + args.getEntityGeneration().getJavabeanQualifier() + ">"));
+                    "java.util.Map<" + pkTypeName + ", " + args.getEntityGeneration().getDtoQualifier() + ">"));
             queryByIdsEachId.setName(methodName);
             String varsName = English.plural(varName);
             queryByIdsEachId.addParameter(parseParameter(
@@ -331,7 +330,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             MethodDeclaration queryByIds = new MethodDeclaration();
             String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(), "根据多个ID查询");
             PropertyDTO onlyPk = Iterables.getOnlyElement(args.getTableStructureAnalysisDTO().getIdProperties());
-            queryByIds.setType(parseType("java.util.List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
+            queryByIds.setType(parseType("java.util.List<" + args.getEntityGeneration().getDtoQualifier() + ">"));
             queryByIds.setName(methodName);
             String varsName = English.plural(MoreStringUtils.toLowerCamel(onlyPk.getPropertyName()));
             Parameter parameter = parseParameter(
@@ -354,7 +353,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         String comment = concatMapperMethodComment(generateMethodToMapper.getTableStructureAnalysisDTO(),
                 "根据「" + generateMethodToMapper.getKey().getDescription() + "」查询");
         method.setType(parseType(
-                "java.util.List<" + generateMethodToMapper.getEntityGeneration().getJavabeanQualifier() + ">"));
+                "java.util.List<" + generateMethodToMapper.getEntityGeneration().getDtoQualifier() + ">"));
         method.setName(methodName);
         String varName = MoreStringUtils.toLowerCamel(generateMethodToMapper.getKey().getPropertyName());
         Parameter parameter = parseParameter(
@@ -374,7 +373,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
         MethodDeclaration method = new MethodDeclaration();
         String comment = concatMapperMethodComment(args.getTableStructureAnalysisDTO(),
                 "根据多个「" + args.getKey().getDescription() + "」查询");
-        method.setType(parseType("java.util.List<" + args.getEntityGeneration().getJavabeanQualifier() + ">"));
+        method.setType(parseType("java.util.List<" + args.getEntityGeneration().getDtoQualifier() + ">"));
         method.setName(methodName);
         String typeName = "java.util.List<" + args.getKey().getJavaType().getSimpleName() + ">";
         String varsName = English.plural(MoreStringUtils.toLowerCamel(args.getKey().getPropertyName()));
@@ -398,7 +397,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             updateByIdEvenNull.setJavadocComment(comment);
             updateByIdEvenNull.setType(PrimitiveType.intType());
             updateByIdEvenNull.setName(methodName);
-            updateByIdEvenNull.addParameter(args.getEntityGeneration().getJavabeanQualifier(), "entity");
+            updateByIdEvenNull.addParameter(args.getEntityGeneration().getDtoQualifier(), "entity");
             updateByIdEvenNull.setBody(null);
             args.getMapper().getMembers().addLast(updateByIdEvenNull);
         }
@@ -416,7 +415,7 @@ public class MapperCoidServiceImpl implements MapperCoidService {
             updateById.setJavadocComment(comment);
             updateById.setType(PrimitiveType.intType());
             updateById.setName(methodName);
-            updateById.addParameter(args.getEntityGeneration().getJavabeanQualifier(), "entity");
+            updateById.addParameter(args.getEntityGeneration().getDtoQualifier(), "entity");
             updateById.setBody(null);
             args.getMapper().getMembers().addLast(updateById);
         }

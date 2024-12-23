@@ -8,7 +8,7 @@ import com.github.pagehelper.PageSerializable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeFieldVarsRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeFieldVarsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.impl.FieldServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 

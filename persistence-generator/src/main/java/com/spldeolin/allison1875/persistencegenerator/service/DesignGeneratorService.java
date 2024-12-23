@@ -3,10 +3,10 @@ package com.spldeolin.allison1875.persistencegenerator.service;
 import java.util.Optional;
 import com.github.javaparser.ast.CompilationUnit;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateDesignRetval;
-import com.spldeolin.allison1875.persistencegenerator.javabean.GenerateJoinChainArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateDesignArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateDesignRetval;
+import com.spldeolin.allison1875.persistencegenerator.dto.GenerateJoinChainArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.DesignGeneratorServiceImpl;
 
 /**

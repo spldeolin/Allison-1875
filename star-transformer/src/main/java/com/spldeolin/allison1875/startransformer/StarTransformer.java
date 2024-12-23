@@ -12,12 +12,12 @@ import com.spldeolin.allison1875.common.ancestor.Allison1875MainService;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
-import com.spldeolin.allison1875.common.javabean.JavabeanGeneration;
+import com.spldeolin.allison1875.common.dto.DataModelGeneration;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
+import com.spldeolin.allison1875.startransformer.dto.ChainAnalysisDTO;
+import com.spldeolin.allison1875.startransformer.dto.TransformStarChainArgs;
 import com.spldeolin.allison1875.startransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.startransformer.javabean.ChainAnalysisDTO;
-import com.spldeolin.allison1875.startransformer.javabean.TransformStarChainArgs;
 import com.spldeolin.allison1875.startransformer.service.StarChainService;
 import com.spldeolin.allison1875.startransformer.service.StarChainTransformerService;
 import com.spldeolin.allison1875.startransformer.service.WholeDTOService;
@@ -64,10 +64,10 @@ public class StarTransformer implements Allison1875MainService {
                     }
 
                     // generate WholeDTO
-                    JavabeanGeneration wholeDTOGeneration;
+                    DataModelGeneration wholeDTOGeneration;
                     try {
                         wholeDTOGeneration = wholeDTOService.generateWholeDTO(analysis);
-                        log.info("Whole DTO generated, name={} path={}", wholeDTOGeneration.getJavabeanName(),
+                        log.info("Whole DTO generated, name={} path={}", wholeDTOGeneration.getDtoName(),
                                 wholeDTOGeneration.getPath());
                     } catch (Exception e) {
                         log.error("fail to generate Whole DTO, analysis={}", analysis, e);

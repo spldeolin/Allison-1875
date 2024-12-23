@@ -26,11 +26,11 @@ import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.handlertransformer.HandlerTransformerConfig;
-import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceArgs;
-import com.spldeolin.allison1875.handlertransformer.javabean.AddMethodToServiceRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplArgs;
-import com.spldeolin.allison1875.handlertransformer.javabean.GenerateServiceAndImplRetval;
-import com.spldeolin.allison1875.handlertransformer.javabean.InitDecAnalysisDTO;
+import com.spldeolin.allison1875.handlertransformer.dto.AddMethodToServiceArgs;
+import com.spldeolin.allison1875.handlertransformer.dto.AddMethodToServiceRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateServiceAndImplArgs;
+import com.spldeolin.allison1875.handlertransformer.dto.GenerateServiceAndImplRetval;
+import com.spldeolin.allison1875.handlertransformer.dto.InitDecAnalysisDTO;
 import com.spldeolin.allison1875.handlertransformer.service.ServiceLayerService;
 import lombok.extern.slf4j.Slf4j;
 

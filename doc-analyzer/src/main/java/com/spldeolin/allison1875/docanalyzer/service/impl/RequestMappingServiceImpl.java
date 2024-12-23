@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeRequestMappingRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeRequestMappingRetval;
 import com.spldeolin.allison1875.docanalyzer.service.RequestMappingService;
 
 /**

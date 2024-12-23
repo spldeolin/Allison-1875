@@ -9,7 +9,7 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
-import com.spldeolin.allison1875.docanalyzer.javabean.AnalyzeEnumConstantsRetval;
+import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeEnumConstantsRetval;
 import com.spldeolin.allison1875.docanalyzer.service.EnumService;
 import com.spldeolin.allison1875.docanalyzer.util.LoadClassUtils;
 import lombok.extern.slf4j.Slf4j;

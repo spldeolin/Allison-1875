@@ -4,7 +4,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.handlertransformer.enums.JavabeanTypeEnum;
+import com.spldeolin.allison1875.handlertransformer.enums.DTOTypeEnum;
 import com.spldeolin.allison1875.handlertransformer.service.FieldService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FieldServiceImpl2 implements FieldService {
 
     @Override
-    public void more4SpecialTypeField(FieldDeclaration field, JavabeanTypeEnum javabeanType) {
+    public void more4SpecialTypeField(FieldDeclaration field, DTOTypeEnum dtoType) {
         if (Lists.newArrayList("Date", "LocalDate", "LocalTime", "LocalDateTime")
                 .contains(field.getCommonType().toString())) {
             if (!field.getAnnotationByName("JsonFormat").isPresent()) {
@@ -25,8 +25,8 @@ public class FieldServiceImpl2 implements FieldService {
                                 + "\"Asia/Shanghai\")"));
             }
         }
-        boolean isRespOrInResp = Lists.newArrayList(JavabeanTypeEnum.RESP_DTO, JavabeanTypeEnum.NEST_DTO_IN_RESP)
-                .contains(javabeanType);
+        boolean isRespOrInResp = Lists.newArrayList(DTOTypeEnum.RESP_DTO, DTOTypeEnum.NEST_DTO_IN_RESP)
+                .contains(dtoType);
         if (field.getCommonType().toString().equals("Long") && isRespOrInResp) {
             if (!field.getAnnotationByName("JsonSerialize").isPresent()) {
                 field.addAnnotation(StaticJavaParser.parseAnnotation(

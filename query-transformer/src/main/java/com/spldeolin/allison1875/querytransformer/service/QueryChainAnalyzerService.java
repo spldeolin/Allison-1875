@@ -2,9 +2,9 @@ package com.spldeolin.allison1875.querytransformer.service;
 
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.google.inject.ImplementedBy;
-import com.spldeolin.allison1875.persistencegenerator.facade.javabean.DesignMetaDTO;
+import com.spldeolin.allison1875.persistencegenerator.facade.dto.DesignMetaDTO;
+import com.spldeolin.allison1875.querytransformer.dto.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.querytransformer.javabean.ChainAnalysisDTO;
 import com.spldeolin.allison1875.querytransformer.service.impl.QueryChainAnalyzerServiceImpl;
 
 /**

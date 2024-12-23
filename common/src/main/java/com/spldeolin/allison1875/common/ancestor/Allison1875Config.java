@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.common.ancestor;
 
 import java.util.List;
-import com.spldeolin.allison1875.common.javabean.InvalidDTO;
+import com.spldeolin.allison1875.common.dto.InvalidDTO;
 import com.spldeolin.allison1875.common.util.ValidUtils;
 
 /**

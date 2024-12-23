@@ -3,10 +3,10 @@ package com.spldeolin.allison1875.persistencegenerator.service;
 import java.util.List;
 import com.google.inject.ImplementedBy;
 import com.spldeolin.allison1875.common.ast.FileFlush;
-import com.spldeolin.allison1875.persistencegenerator.javabean.KeyMethodNameDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.QueryByKeysDTO;
-import com.spldeolin.allison1875.persistencegenerator.javabean.ReplaceMapperXmlMethodsArgs;
-import com.spldeolin.allison1875.persistencegenerator.javabean.TableStructureAnalysisDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.KeyMethodNameDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.QueryByKeysDTO;
+import com.spldeolin.allison1875.persistencegenerator.dto.ReplaceMapperXmlMethodsArgs;
+import com.spldeolin.allison1875.persistencegenerator.dto.TableStructureAnalysisDTO;
 import com.spldeolin.allison1875.persistencegenerator.service.impl.MapperXmlServiceImpl;
 
 /**

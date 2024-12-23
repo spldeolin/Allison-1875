@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ReferenceSchema;
 import com.google.common.collect.Maps;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.docanalyzer.javabean.JsonPropertyDescriptionValueDTO;
+import com.spldeolin.allison1875.docanalyzer.dto.JsonPropertyDescriptionValueDTO;
 import com.spldeolin.allison1875.docanalyzer.service.JsonSchemaTransformerService;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaTraverseUtils;
 
