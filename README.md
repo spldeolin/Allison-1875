@@ -59,7 +59,9 @@ mvn install -f allison1875/allison1875-extension-satisficing/pom.xml
     <artifactId>allison1875-maven-plugin</artifactId>
     <version>12.0-SNAPSHOT</version>
     <configuration>
-        <basePackage>com.your.base.package</basePackage>
+        <common>
+            <basePackage>com.your.base.package</basePackage>
+        </common>
     </configuration>
 </plugin>
 
@@ -77,7 +79,9 @@ mvn install -f allison1875/allison1875-extension-satisficing/pom.xml
         </dependency>
     </dependencies>
     <configuration>
-        <basePackage>com.your.base.package</basePackage>
+        <common>
+            <basePackage>com.your.base.package</basePackage>
+        </common>
     </configuration>
 </plugin>
 ```
