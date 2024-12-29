@@ -13,7 +13,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
 import com.spldeolin.allison1875.docanalyzer.dto.AnalyzeBodyRetval;
-import com.spldeolin.allison1875.docanalyzer.exception.JsonSchemaException;
 import com.spldeolin.allison1875.docanalyzer.service.JsonSchemaTransformerService;
 import com.spldeolin.allison1875.docanalyzer.service.RequestBodyService;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaGenerateUtils;
@@ -52,7 +51,7 @@ public class RequestBodyServiceImpl implements RequestBodyService {
         JsonSchema jsonSchema;
         try {
             jsonSchema = JsonSchemaGenerateUtils.generateSchema(requestBodyDescribe, jsg);
-        } catch (JsonSchemaException e) {
+        } catch (Exception e) {
             log.error("fail to generateSchema, requestBodyDescribe={}", requestBodyDescribe);
             throw e;
         }

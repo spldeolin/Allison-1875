@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.service.AntiDuplicationService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
@@ -44,8 +45,6 @@ import com.spldeolin.allison1875.querytransformer.enums.ComparisonOperatorEnum;
 import com.spldeolin.allison1875.querytransformer.enums.JoinTypeEnum;
 import com.spldeolin.allison1875.querytransformer.enums.OrderSequenceEnum;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
-import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.QueryChainAnalyzerService;
 import com.spldeolin.allison1875.support.OnChainComparison;
@@ -74,8 +73,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
     private CommonConfig commonConfig;
 
     @Override
-    public ChainAnalysisDTO analyzeQueryChain(MethodCallExpr queryChain, DesignMetaDTO designMeta)
-            throws IllegalChainException {
+    public ChainAnalysisDTO analyzeQueryChain(MethodCallExpr queryChain, DesignMetaDTO designMeta) {
         String chainCode = queryChain.toString();
         String betweenCode = chainCode.substring(chainCode.indexOf(".") + 1, chainCode.lastIndexOf("."));
         String designQualifier = designMeta.getDesignQualifier();
@@ -88,7 +86,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         } else if (betweenCode.startsWith("delete(")) {
             initialMethod = KeywordConstant.ChainInitialMethod.DELETE;
         } else {
-            throw new IllegalChainException("initialMethod is none of select, update nor delete");
+            throw new Allison1875Exception("initialMethod is none of select, update nor delete");
         }
 
         String methodName = this.analyzeSpecifiedMethodName(initialMethod, queryChain, designMeta);
@@ -107,7 +105,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 returnShape = ReturnShapeEnum.multiEach;
                 keyPropertyName = queryChain.getArgument(0).asFieldAccessExpr().getNameAsString();
             } else {
-                throw new IllegalChainException("many() argument is none of each nor multiEach");
+                throw new Allison1875Exception("many() argument is none of each nor multiEach");
             }
         } else if (queryChain.getNameAsString().equals("count")) {
             returnShape = ReturnShapeEnum.count;
@@ -360,8 +358,8 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
 
     private String getJoinedDesignQualifier(ClassOrInterfaceDeclaration joinChain, String entityName) {
         return joinChain.getFieldByName(entityName)
-                .orElseThrow(() -> new IllegalDesignException("Entity Field is absent in JoinChain")).getVariable(0)
-                .getInitializer().orElseThrow(() -> new IllegalDesignException("Initializer is absent in Entity Field"))
+                .orElseThrow(() -> new Allison1875Exception("Entity Field is absent in JoinChain")).getVariable(0)
+                .getInitializer().orElseThrow(() -> new Allison1875Exception("Initializer is absent in Entity Field"))
                 .asFieldAccessExpr().getScope().asNameExpr().getNameAsString().replace('_', '.');
     }
 

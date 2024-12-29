@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.Allison1875;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.HashingUtils;
@@ -21,7 +22,6 @@ import com.spldeolin.allison1875.startransformer.StarTransformerConfig;
 import com.spldeolin.allison1875.startransformer.dto.ChainAnalysisDTO;
 import com.spldeolin.allison1875.startransformer.dto.PhraseDTO;
 import com.spldeolin.allison1875.startransformer.enums.ChainMethodEnum;
-import com.spldeolin.allison1875.startransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.startransformer.service.StarChainService;
 import com.spldeolin.allison1875.startransformer.util.NamingUtils;
 import com.spldeolin.allison1875.support.StarSchema;
@@ -73,12 +73,12 @@ public class StarChainServiceImpl implements StarChainService {
 
 
     @Override
-    public ChainAnalysisDTO analyzeStarChain(MethodCallExpr starChain) throws IllegalChainException {
+    public ChainAnalysisDTO analyzeStarChain(MethodCallExpr starChain) {
         return this.analyzeRecursively(starChain, Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList());
     }
 
     private ChainAnalysisDTO analyzeRecursively(MethodCallExpr mce, List<PhraseDTO> phrases, List<String> keys,
-            List<String> mkeys) throws IllegalChainException {
+            List<String> mkeys) {
         if (ChainMethodEnum.oo.toString().equals(mce.getNameAsString())) {
             PhraseDTO phrase = new PhraseDTO();
             phrase.setIsOneToOne(true);
@@ -146,7 +146,7 @@ public class StarChainServiceImpl implements StarChainService {
         if (mce.getScope().filter(Expression::isMethodCallExpr).isPresent()) {
             return this.analyzeRecursively(mce.getScope().get().asMethodCallExpr(), phrases, keys, mkeys);
         }
-        throw new IllegalChainException("impossible unless bug.");
+        throw new Allison1875Exception("impossible unless bug.");
     }
 
     private String buildWholeDTOName(String entityName) {

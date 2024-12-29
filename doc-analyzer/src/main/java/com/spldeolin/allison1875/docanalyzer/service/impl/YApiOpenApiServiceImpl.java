@@ -6,12 +6,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
 import com.spldeolin.allison1875.docanalyzer.dto.YApiCommonRespDTO;
 import com.spldeolin.allison1875.docanalyzer.dto.YApiInterfaceListMenuRespDTO;
 import com.spldeolin.allison1875.docanalyzer.dto.YApiProjectGetRespDTO;
-import com.spldeolin.allison1875.docanalyzer.exception.YapiException;
 import com.spldeolin.allison1875.docanalyzer.service.YApiOpenApiService;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -38,7 +38,7 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         String url = config.getYapiUrl() + "/api/project/get" + tokenQuery();
         try (Response response = okHttpClient.newCall(new Builder().url(url).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             YApiCommonRespDTO<YApiProjectGetRespDTO> responseBody = JsonUtils.toParameterizedObject(
                     response.body().string(), new TypeReference<YApiCommonRespDTO<YApiProjectGetRespDTO>>() {
@@ -46,7 +46,7 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
             ensureSuccess(responseBody);
             return responseBody.getData();
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -55,7 +55,7 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         String url = config.getYapiUrl() + "/api/interface/list_menu" + tokenQuery() + "&project_id=" + projectId;
         try (Response response = okHttpClient.newCall(new Builder().url(url).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             YApiCommonRespDTO<List<YApiInterfaceListMenuRespDTO>> responseBody = JsonUtils.toParameterizedObject(
                     response.body().string(),
@@ -64,7 +64,7 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
             ensureSuccess(responseBody);
             return responseBody.getData();
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -73,13 +73,13 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         String url = config.getYapiUrl() + "/api/interface/list_menu" + tokenQuery() + "&project_id=" + projectId;
         try (Response response = okHttpClient.newCall(new Builder().url(url).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             JsonNode responseBody = JsonUtils.toTree(response.body().string());
             ensureSuccess(responseBody);
             return responseBody.get("data");
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -91,13 +91,13 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
                 .add("project_id", projectId.toString()).add("token", config.getYapiToken()).build();
         try (Response response = okHttpClient.newCall(new Builder().url(url).post(formBody).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             JsonNode responseBody = JsonUtils.toTree(response.body().string());
             ensureSuccess(responseBody);
             return responseBody;
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -106,13 +106,13 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         String url = config.getYapiUrl() + "/api/interface/get" + tokenQuery() + "&id=" + id;
         try (Response response = okHttpClient.newCall(new Builder().url(url).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             JsonNode responseBody = JsonUtils.toTree(response.body().string());
             ensureSuccess(responseBody);
             return responseBody.get("data");
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -122,13 +122,13 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         RequestBody requestBody = RequestBody.create(mediaType, JsonUtils.toJson(requestBodyMap));
         try (Response response = okHttpClient.newCall(new Builder().url(url).post(requestBody).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             JsonNode responseBody = JsonUtils.toTree(response.body().string());
             ensureSuccess(responseBody);
             return responseBody;
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -139,13 +139,13 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
                 JsonUtils.toJson(requestBodyMap));
         try (Response response = okHttpClient.newCall(new Builder().url(url).post(requestBody).build()).execute()) {
             if (response.body() == null) {
-                throw new YapiException("response body absent");
+                throw new Allison1875Exception("response body absent");
             }
             JsonNode responseBody = JsonUtils.toTree(response.body().string());
             ensureSuccess(responseBody);
             return responseBody;
         } catch (Exception e) {
-            throw new YapiException(e);
+            throw new Allison1875Exception(e);
         }
     }
 
@@ -153,21 +153,21 @@ public class YApiOpenApiServiceImpl implements YApiOpenApiService {
         return "?token=" + config.getYapiToken();
     }
 
-    private static void ensureSuccess(YApiCommonRespDTO<?> resp) throws YapiException {
+    private static void ensureSuccess(YApiCommonRespDTO<?> resp) {
         if (resp == null) {
-            throw new YapiException("resp is null");
+            throw new Allison1875Exception("resp is null");
         }
         if (resp.getErrcode() != 0) {
-            throw new YapiException(resp.getErrmsg());
+            throw new Allison1875Exception(resp.getErrmsg());
         }
     }
 
     private void ensureSuccess(JsonNode respNode) {
         if (respNode == null) {
-            throw new YapiException("respNode is null");
+            throw new Allison1875Exception("respNode is null");
         }
         if (respNode.get("errcode").asInt() != 0 || respNode.get("data") == null) {
-            throw new YapiException(respNode.toString());
+            throw new Allison1875Exception(respNode.toString());
         }
     }
 

@@ -1,6 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.enums;
 
-import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -34,7 +34,7 @@ public enum JoinTypeEnum {
             case "outer":
                 return outerJoin;
             default:
-                throw new IllegalChainException("Unknown join type: " + value);
+                throw new Allison1875Exception("Unknown join type: " + value);
         }
     }
 

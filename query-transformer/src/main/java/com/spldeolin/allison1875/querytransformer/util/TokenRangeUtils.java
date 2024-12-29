@@ -3,7 +3,7 @@ package com.spldeolin.allison1875.querytransformer.util;
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.Node;
-import com.spldeolin.allison1875.querytransformer.exception.TokenRangeAbsentException;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 
 /**
  * @author Deolin 2021-06-14
@@ -17,11 +17,13 @@ public class TokenRangeUtils {
     public static String getRawCode(Node node) {
         if (node.getComment().isPresent()) {
             JavaToken begin = node.getComment().get().getTokenRange()
-                    .orElseThrow(() -> new TokenRangeAbsentException(node)).getBegin();
-            JavaToken end = node.getTokenRange().orElseThrow(() -> new TokenRangeAbsentException(node)).getEnd();
+                    .orElseThrow(() -> new Allison1875Exception("Node [" + node + "] has no Token Range")).getBegin();
+            JavaToken end = node.getTokenRange()
+                    .orElseThrow(() -> new Allison1875Exception("Node [" + node + "] has no Token Range")).getEnd();
             return new TokenRange(begin, end).toString();
         } else {
-            return node.getTokenRange().orElseThrow(() -> new TokenRangeAbsentException(node)).toString();
+            return node.getTokenRange()
+                    .orElseThrow(() -> new Allison1875Exception("Node [" + node + "] has no Token Range")).toString();
         }
     }
 

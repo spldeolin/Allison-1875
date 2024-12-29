@@ -32,8 +32,6 @@ import com.spldeolin.allison1875.querytransformer.dto.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.dto.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.dto.ReplaceDesignArgs;
 import com.spldeolin.allison1875.querytransformer.enums.ReturnShapeEnum;
-import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.TransformMethodCallService;
 import com.spldeolin.allison1875.querytransformer.util.TokenRangeUtils;
@@ -52,18 +50,18 @@ public class DesignServiceImpl implements DesignService {
     public ClassOrInterfaceDeclaration findCoidWithChecksum(String qualifier) {
         Optional<CompilationUnit> opt = AstForestContext.get().tryFindCu(qualifier);
         if (!opt.isPresent()) {
-            throw new IllegalDesignException("cannot found Design [" + qualifier + "]");
+            throw new Allison1875Exception("cannot found Design [" + qualifier + "]");
         }
         CompilationUnit designCu = opt.get();
 
         List<Comment> orphanComments = designCu.getOrphanComments();
         if (orphanComments.size() < 2 || !orphanComments.get(1).isLineComment()) {
-            throw new IllegalDesignException("cannot found Design Hashcode");
+            throw new Allison1875Exception("cannot found Design Hashcode");
         }
         String hashcode = orphanComments.get(1).asLineComment().getContent().trim();
 
         if (!designCu.getPrimaryType().isPresent()) {
-            throw new IllegalDesignException(
+            throw new Allison1875Exception(
                     "cannot found Design Type in file [" + CompilationUnitUtils.getCuAbsolutePath(designCu)
                             + "], this Design file need to regenerate");
         }
@@ -71,7 +69,7 @@ public class DesignServiceImpl implements DesignService {
         String hashing = HashingUtils.hashTypeDeclaration(primaryType);
 
         if (!hashing.equals(hashcode)) {
-            throw new IllegalDesignException(
+            throw new Allison1875Exception(
                     "modifications exist in Type [" + qualifier + "], this Design file need to regenerate");
         }
 
@@ -88,13 +86,13 @@ public class DesignServiceImpl implements DesignService {
     @Override
     public DesignMetaDTO findDesignMeta(ClassOrInterfaceDeclaration design) {
         FieldDeclaration queryMetaField = design.getFieldByName(KeywordConstant.META_FIELD_NAME).orElseThrow(
-                () -> new IllegalChainException(
+                () -> new Allison1875Exception(
                         "Meta Field is not exist in Design [" + design.getNameAsString() + "]"));
         if (CollectionUtils.isEmpty(queryMetaField.getVariables())) {
-            throw new IllegalDesignException("Variable is not exist in Meta Field, metaField=" + queryMetaField);
+            throw new Allison1875Exception("Variable is not exist in Meta Field, metaField=" + queryMetaField);
         }
         Expression initializer = queryMetaField.getVariable(0).getInitializer().orElseThrow(
-                () -> new IllegalDesignException(
+                () -> new Allison1875Exception(
                         "Initializer is not exist in Meta Field, metaField=" + queryMetaField));
         String metaJson = StringEscapeUtils.unescapeJava(initializer.asStringLiteralExpr().getValue());
         return JsonUtils.toObject(metaJson, DesignMetaDTO.class);

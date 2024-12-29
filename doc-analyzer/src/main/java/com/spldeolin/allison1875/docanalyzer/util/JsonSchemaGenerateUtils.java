@@ -3,8 +3,8 @@ package com.spldeolin.allison1875.docanalyzer.util;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.docanalyzer.exception.DotAbsentInStringException;
-import com.spldeolin.allison1875.docanalyzer.exception.JsonSchemaException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,7 +17,7 @@ public class JsonSchemaGenerateUtils {
         throw new UnsupportedOperationException("Never instantiate me.");
     }
 
-    public static JsonSchema generateSchema(String describe, JsonSchemaGenerator jsg) throws JsonSchemaException {
+    public static JsonSchema generateSchema(String describe, JsonSchemaGenerator jsg) {
         TypeFactory tf = TypeFactory.defaultInstance();
 
         try {
@@ -30,7 +30,7 @@ public class JsonSchemaGenerateUtils {
                 // 即便递归到describe中没有.可替换了，依然generateSchema失败，递归尝试失败，说明describe本身就无法处理（无法处理的原因见方法Javadoc）
                 log.warn("Cannot generate the json schema, qualifierForClassLoader={}, reason={}", describe,
                         e.getMessage());
-                throw new JsonSchemaException(e);
+                throw new Allison1875Exception(e);
             }
         }
     }

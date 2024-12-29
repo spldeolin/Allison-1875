@@ -9,7 +9,6 @@ import com.fasterxml.jackson.module.jsonSchema.types.ReferenceSchema;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.spldeolin.allison1875.common.util.JsonUtils;
-import com.spldeolin.allison1875.docanalyzer.exception.JsonSchemaException;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaGenerateUtils;
 import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaTraverseUtils;
 
@@ -18,7 +17,7 @@ import com.spldeolin.allison1875.docanalyzer.util.JsonSchemaTraverseUtils;
  */
 public class JsonSchemaTraverseUtilsTest {
 
-    public static void main(String[] args) throws JsonSchemaException {
+    public static void main(String[] args) {
         JsonSchema root = JsonSchemaGenerateUtils.generateSchema("json_schema_traverse_test.StudentDTO",
                 new JsonSchemaGenerator(JsonUtils.createObjectMapper()));
 

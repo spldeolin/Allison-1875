@@ -5,7 +5,6 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.google.inject.ImplementedBy;
 import com.spldeolin.allison1875.startransformer.dto.ChainAnalysisDTO;
-import com.spldeolin.allison1875.startransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.startransformer.service.impl.StarChainServiceImpl;
 
 /**
@@ -16,6 +15,6 @@ public interface StarChainService {
 
     List<MethodCallExpr> detectStarChains(BlockStmt block);
 
-    ChainAnalysisDTO analyzeStarChain(MethodCallExpr starChain) throws IllegalChainException;
+    ChainAnalysisDTO analyzeStarChain(MethodCallExpr starChain);
 
 }

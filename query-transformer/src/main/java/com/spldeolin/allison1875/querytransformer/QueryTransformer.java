@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ancestor.Allison1875MainService;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.FileFlush;
@@ -32,8 +33,6 @@ import com.spldeolin.allison1875.querytransformer.dto.GenerateParamRetval;
 import com.spldeolin.allison1875.querytransformer.dto.GenerateReturnTypeRetval;
 import com.spldeolin.allison1875.querytransformer.dto.ReplaceDesignArgs;
 import com.spldeolin.allison1875.querytransformer.dto.XmlSourceFile;
-import com.spldeolin.allison1875.querytransformer.exception.IllegalChainException;
-import com.spldeolin.allison1875.querytransformer.exception.IllegalDesignException;
 import com.spldeolin.allison1875.querytransformer.exception.SameNameTerminationMethodException;
 import com.spldeolin.allison1875.querytransformer.service.DesignService;
 import com.spldeolin.allison1875.querytransformer.service.MapperLayerService;
@@ -100,10 +99,10 @@ public class QueryTransformer implements Allison1875MainService {
                     try {
                         designMeta = designService.findDesignMeta(queryChain);
                         log.info("Design Meta found, designMeta={}", designMeta);
-                    } catch (IllegalDesignException e) {
-                        log.error("fail to find Design Meta, queryChain={}", queryChain, e);
-                        continue;
                     } catch (SameNameTerminationMethodException e) {
+                        continue;
+                    } catch (Allison1875Exception e) {
+                        log.error("fail to find Design Meta, queryChain={}", queryChain, e);
                         continue;
                     }
 
@@ -112,7 +111,7 @@ public class QueryTransformer implements Allison1875MainService {
                     try {
                         chainAnalysis = queryChainAnalyzerService.analyzeQueryChain(queryChain, designMeta);
                         log.info("Query Chain analyzed, chainAnalysis={}", chainAnalysis);
-                    } catch (IllegalChainException e) {
+                    } catch (Exception e) {
                         log.error("fail to analyze Query Chain, queryChain={}", queryChain, e);
                         continue;
                     }

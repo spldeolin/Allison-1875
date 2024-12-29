@@ -8,6 +8,7 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
 import com.spldeolin.allison1875.common.ancestor.Allison1875MainService;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.FileFlush;
@@ -17,7 +18,6 @@ import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.startransformer.dto.ChainAnalysisDTO;
 import com.spldeolin.allison1875.startransformer.dto.TransformStarChainArgs;
-import com.spldeolin.allison1875.startransformer.exception.IllegalChainException;
 import com.spldeolin.allison1875.startransformer.service.StarChainService;
 import com.spldeolin.allison1875.startransformer.service.StarChainTransformerService;
 import com.spldeolin.allison1875.startransformer.service.WholeDTOService;
@@ -58,7 +58,7 @@ public class StarTransformer implements Allison1875MainService {
                     try {
                         analysis = starChainService.analyzeStarChain(starChain);
                         log.info("Star Chain analyzed, analysis={}", analysis);
-                    } catch (IllegalChainException e) {
+                    } catch (Allison1875Exception e) {
                         log.error("fail to analyze Star Chain, starChain={}", starChain, e);
                         continue;
                     }
