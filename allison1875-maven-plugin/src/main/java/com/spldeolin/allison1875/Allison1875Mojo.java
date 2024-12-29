@@ -13,9 +13,9 @@ import org.apache.maven.project.MavenProject;
 import com.google.common.base.MoreObjects;
 import com.spldeolin.allison1875.ast.MavenProjectBuiltAstForest;
 import com.spldeolin.allison1875.common.Allison1875;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Module;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.config.CommonConfig;
+import com.spldeolin.allison1875.common.guice.Allison1875Module;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 

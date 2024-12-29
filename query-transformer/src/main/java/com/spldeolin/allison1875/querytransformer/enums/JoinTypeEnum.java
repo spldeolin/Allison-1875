@@ -1,6 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.enums;
 
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

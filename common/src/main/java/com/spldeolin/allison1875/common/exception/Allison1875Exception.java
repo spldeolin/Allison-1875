@@ -1,4 +1,4 @@
-package com.spldeolin.allison1875.common.ancestor;
+package com.spldeolin.allison1875.common.exception;
 
 /**
  * @author Deolin 2023-12-28

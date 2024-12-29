@@ -1,7 +1,7 @@
 package com.spldeolin.allison1875.handlertransformer;
 
 import javax.validation.constraints.NotEmpty;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Config;
+import com.spldeolin.allison1875.common.config.Allison1875Config;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;

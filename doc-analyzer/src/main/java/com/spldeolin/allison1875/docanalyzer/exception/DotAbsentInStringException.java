@@ -1,6 +1,6 @@
 package com.spldeolin.allison1875.docanalyzer.exception;
 
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 
 /**
  * 字符串中不存在符号<code>.</code>

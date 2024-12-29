@@ -1,10 +1,10 @@
 package com.spldeolin.allison1875.querytransformer;
 
 import java.util.List;
-import com.spldeolin.allison1875.common.ancestor.Allison1875MainService;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Module;
 import com.spldeolin.allison1875.common.config.CommonConfig;
 import com.spldeolin.allison1875.common.dto.InvalidDTO;
+import com.spldeolin.allison1875.common.guice.Allison1875MainService;
+import com.spldeolin.allison1875.common.guice.Allison1875Module;
 import lombok.ToString;
 
 /**

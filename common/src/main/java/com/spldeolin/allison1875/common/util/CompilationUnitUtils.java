@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import lombok.extern.slf4j.Slf4j;
 
 /**

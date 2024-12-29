@@ -1,4 +1,4 @@
-package com.spldeolin.allison1875.common.ancestor;
+package com.spldeolin.allison1875.common.guice;
 
 import com.spldeolin.allison1875.common.ast.AstForest;
 

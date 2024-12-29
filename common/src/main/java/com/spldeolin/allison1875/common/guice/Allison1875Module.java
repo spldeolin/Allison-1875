@@ -1,4 +1,4 @@
-package com.spldeolin.allison1875.common.ancestor;
+package com.spldeolin.allison1875.common.guice;
 
 import java.util.List;
 import com.google.inject.AbstractModule;

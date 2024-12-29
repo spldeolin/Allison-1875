@@ -1,6 +1,6 @@
 package com.spldeolin.allison1875.querytransformer.exception;
 
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 
 /**
  * @author Deolin 2022-01-16

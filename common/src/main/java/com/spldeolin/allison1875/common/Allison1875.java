@@ -11,12 +11,13 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Module;
+import com.google.inject.matcher.Matchers;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.dto.InvalidDTO;
-import com.spldeolin.allison1875.common.interceptor.ValidInterceptor;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
+import com.spldeolin.allison1875.common.guice.Allison1875Module;
+import com.spldeolin.allison1875.common.guice.ValidInterceptor;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +71,10 @@ public class Allison1875 {
         }
 
         // register interceptor
-        List<Module> guiceModules = Lists.newArrayList(allison1875Module, new ValidInterceptor().toGuiceModule());
+        ValidInterceptor validInterceptor = new ValidInterceptor();
+        List<Module> guiceModules = Lists.newArrayList(allison1875Module,
+                binder -> binder.bindInterceptor(Matchers.any(), Matchers.any(), validInterceptor));
+
 
         // create ioc container
         Injector injector = Guice.createInjector(guiceModules);

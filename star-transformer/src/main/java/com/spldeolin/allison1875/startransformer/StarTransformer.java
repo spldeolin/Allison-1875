@@ -8,12 +8,12 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.ancestor.Allison1875MainService;
 import com.spldeolin.allison1875.common.ast.AstForest;
 import com.spldeolin.allison1875.common.ast.FileFlush;
 import com.spldeolin.allison1875.common.constant.BaseConstant;
 import com.spldeolin.allison1875.common.dto.DataModelGeneration;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
+import com.spldeolin.allison1875.common.guice.Allison1875MainService;
 import com.spldeolin.allison1875.common.service.ImportExprService;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.startransformer.dto.ChainAnalysisDTO;

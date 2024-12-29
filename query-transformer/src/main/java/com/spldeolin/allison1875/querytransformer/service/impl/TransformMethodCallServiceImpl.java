@@ -10,7 +10,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import com.spldeolin.allison1875.common.util.MoreStringUtils;
 import com.spldeolin.allison1875.persistencegenerator.facade.dto.DesignMetaDTO;
 import com.spldeolin.allison1875.persistencegenerator.facade.dto.PropertyDTO;

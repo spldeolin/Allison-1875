@@ -3,7 +3,7 @@ package com.spldeolin.allison1875.querytransformer.util;
 import com.github.javaparser.JavaToken;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.Node;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 
 /**
  * @author Deolin 2021-06-14

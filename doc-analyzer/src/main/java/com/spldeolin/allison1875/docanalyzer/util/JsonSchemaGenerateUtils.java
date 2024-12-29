@@ -3,7 +3,7 @@ package com.spldeolin.allison1875.docanalyzer.util;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import com.spldeolin.allison1875.docanalyzer.exception.DotAbsentInStringException;
 import lombok.extern.slf4j.Slf4j;
 

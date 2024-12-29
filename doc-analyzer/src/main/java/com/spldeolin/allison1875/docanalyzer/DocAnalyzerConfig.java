@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import com.google.common.collect.Lists;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Config;
+import com.spldeolin.allison1875.common.config.Allison1875Config;
 import com.spldeolin.allison1875.common.dto.InvalidDTO;
 import com.spldeolin.allison1875.common.util.ValidUtils;
 import com.spldeolin.allison1875.docanalyzer.enums.FlushToEnum;

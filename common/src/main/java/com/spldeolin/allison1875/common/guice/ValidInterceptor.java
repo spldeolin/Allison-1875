@@ -1,11 +1,11 @@
-package com.spldeolin.allison1875.common.interceptor;
+package com.spldeolin.allison1875.common.guice;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Interceptor;
 import com.spldeolin.allison1875.common.dto.InvalidDTO;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.ValidUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author Deolin 2024-02-14
  */
 @Slf4j
-public class ValidInterceptor extends Allison1875Interceptor {
+public class ValidInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {

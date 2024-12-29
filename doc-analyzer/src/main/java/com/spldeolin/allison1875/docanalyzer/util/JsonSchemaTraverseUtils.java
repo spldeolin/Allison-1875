@@ -4,7 +4,7 @@ import java.util.Map;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ArraySchema.Items;
 import com.google.common.base.Preconditions;
-import com.spldeolin.allison1875.common.ancestor.Allison1875Exception;
+import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import lombok.extern.slf4j.Slf4j;
 
 /**
