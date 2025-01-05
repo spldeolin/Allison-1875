@@ -18,6 +18,7 @@ import com.google.inject.Singleton;
 import com.spldeolin.allison1875.common.ast.AstForestContext;
 import com.spldeolin.allison1875.common.exception.Allison1875Exception;
 import com.spldeolin.allison1875.common.service.AnnotationExprService;
+import com.spldeolin.allison1875.common.util.CollectionUtils;
 import com.spldeolin.allison1875.common.util.CompilationUnitUtils;
 import com.spldeolin.allison1875.common.util.JavadocUtils;
 import com.spldeolin.allison1875.docanalyzer.DocAnalyzerConfig;
@@ -85,10 +86,12 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
                         continue;
                     }
 
-                    if (config.getMvcHandlerQualifierWildcards().stream().noneMatch(
-                            wildcard -> MethodQualifierUtils.getTypeQualifierWithMethodName(mvcHandlerMd)
-                                    .matches(convertGlobToRegex(wildcard)))) {
-                        continue;
+                    if (CollectionUtils.isNotEmpty(config.getMvcHandlerQualifierWildcards())) {
+                        if (config.getMvcHandlerQualifierWildcards().stream().noneMatch(
+                                wildcard -> MethodQualifierUtils.getTypeQualifierWithMethodName(mvcHandlerMd)
+                                        .matches(convertGlobToRegex(wildcard)))) {
+                            continue;
+                        }
                     }
 
                     MvcControllerDTO mvcController = new MvcControllerDTO();
@@ -133,8 +136,7 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
                 coid);
     }
 
-    private Class<?> tryReflectController(ClassOrInterfaceDeclaration controller)
-            throws ClassNotFoundException {
+    private Class<?> tryReflectController(ClassOrInterfaceDeclaration controller) throws ClassNotFoundException {
         String qualifier = controller.getFullyQualifiedName()
                 .orElseThrow(() -> new Allison1875Exception("Node '" + controller.getName() + "' has no Qualifier"));
         try {
