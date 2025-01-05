@@ -122,9 +122,9 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
         Map<String/*joinedEntityDesignQualifier*/, Set<JoinConditionDTO>> joinConditions = Maps.newHashMap();
 
         // 防Cond中的字段名重复（分析where和update中使用）
-        List<String> antiVarNameDuplInCond = Lists.newArrayList();
+        List<String> propertyVarNamesInParam = Lists.newArrayList();
         // 防Record中的字段名重复（分析select col和joined col中使用）
-        List<String> antiVarNameDuplInRecord = Lists.newArrayList();
+        List<String> propertyVarNamesInRecord = Lists.newArrayList();
 
         ClassOrInterfaceDeclaration joinChain = designService.findCoidWithChecksum(
                 commonConfig.getDesignPackage() + ".JoinChain");
@@ -152,7 +152,7 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
             // 对应SELECT子句中的col_name
             if (describe.startsWith(designQualifier + ".QueryChain")) {
                 selectProperties.add(designMeta.getProperties().get(fae.getNameAsString()));
-                antiVarNameDuplInRecord.add(fae.getNameAsString());
+                propertyVarNamesInRecord.add(fae.getNameAsString());
             }
 
             // 对应WHERE子句中的binary
@@ -165,8 +165,8 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 searchCond.setComparisonOperator(predicate);
                 if (CollectionUtils.isNotEmpty(parent.getArguments())) {
                     String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
-                            antiVarNameDuplInCond);
-                    antiVarNameDuplInCond.add(varName);
+                            propertyVarNamesInParam);
+                    propertyVarNamesInParam.add(varName);
                     searchCond.setVarName(varName);
                     searchCond.setArgument(parent.getArgument(0));
                 }
@@ -196,8 +196,8 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                     if (!parent.getArgument(0).calculateResolvedType().describe()
                             .startsWith(PropertyName.class.getName() + "<")) {
                         String varName = antiDuplicationService.getNewElementIfExist(fae.getNameAsString(),
-                                antiVarNameDuplInCond);
-                        antiVarNameDuplInCond.add(varName);
+                                propertyVarNamesInParam);
+                        propertyVarNamesInParam.add(varName);
                         joinCond.setVarName(varName);
                         joinCond.setArgument(parent.getArgument(0));
                     } else {
@@ -229,8 +229,8 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
             Stream<String> joinedPropertyNames = this.extractPropertyNames(joinedEntityWithProperty, joinedDesignMeta);
             joinedPropertyNames.forEach(joinedPropertyName -> {
                 String varName = StringUtils.uncapitalize(entityName) + StringUtils.capitalize(joinedPropertyName);
-                varName = antiDuplicationService.getNewElementIfExist(varName, antiVarNameDuplInRecord);
-                antiVarNameDuplInRecord.add(varName);
+                varName = antiDuplicationService.getNewElementIfExist(varName, propertyVarNamesInRecord);
+                propertyVarNamesInRecord.add(varName);
                 JoinedPropertyDTO joinedProperty = new JoinedPropertyDTO();
                 joinedProperty.setProperty(joinedDesignMeta.getProperties().get(joinedPropertyName));
                 joinedProperty.setVarName(varName);
@@ -276,8 +276,8 @@ public class QueryChainAnalyzerServiceImpl implements QueryChainAnalyzerService 
                 AssignmentDTO assignment = new AssignmentDTO();
                 assignment.setProperty(designMeta.getProperties().get(mce.getNameAsString()));
                 String varName = antiDuplicationService.getNewElementIfExist(mce.getNameAsString(),
-                        antiVarNameDuplInCond);
-                antiVarNameDuplInCond.add(varName);
+                        propertyVarNamesInParam);
+                propertyVarNamesInParam.add(varName);
                 assignment.setVarName(varName);
                 assignment.setArgument(mce.getArgument(0));
                 assignments.add(assignment);

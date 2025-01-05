@@ -33,9 +33,9 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
     public String methodCallExpr(String mapperVarName, ChainAnalysisDTO chainAnalysis,
             GenerateParamRetval paramGeneration) {
         String result = mapperVarName + "." + chainAnalysis.getMethodName() + "(";
-        if (paramGeneration.getIsCond()) {
-            String condQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
-            result += MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(condQualifier, "."));
+        if (paramGeneration.getIsParamDTO()) {
+            String paramDTOQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
+            result += MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(paramDTOQualifier, "."));
         } else {
             result += chainAnalysis.getBinariesAsArgs().stream().filter(b -> b.getArgument() != null)
                     .map(p -> p.getArgument().toString()).collect(Collectors.joining(", "));
@@ -48,15 +48,16 @@ public class TransformMethodCallServiceImpl implements TransformMethodCallServic
 
     @Override
     public List<Statement> argumentBuildStmts(ChainAnalysisDTO chainAnalysis, GenerateParamRetval paramGeneration) {
-        log.info("build Cond setters call");
-        String condTypeQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
-        String condVarName = MoreStringUtils.toLowerCamel(MoreStringUtils.splitAndGetLastPart(condTypeQualifier, "."));
+        log.info("build ParamDTO setters call");
+        String paramDTOTypeQualifier = paramGeneration.getParameters().get(0).getTypeAsString();
+        String paramDTOVarName = MoreStringUtils.toLowerCamel(
+                MoreStringUtils.splitAndGetLastPart(paramDTOTypeQualifier, "."));
         List<Statement> result = Lists.newArrayList();
         result.add(StaticJavaParser.parseStatement(
-                "final " + condTypeQualifier + " " + condVarName + " = new " + condTypeQualifier + "();"));
+                "final " + paramDTOTypeQualifier + " " + paramDTOVarName + " = new " + paramDTOTypeQualifier + "();"));
         for (Binary binariesAsArg : chainAnalysis.getBinariesAsArgs()) {
             result.add(StaticJavaParser.parseStatement(
-                    condVarName + ".set" + MoreStringUtils.toUpperCamel(binariesAsArg.getVarName()) + "("
+                    paramDTOVarName + ".set" + MoreStringUtils.toUpperCamel(binariesAsArg.getVarName()) + "("
                             + binariesAsArg.getArgument() + ");"));
         }
         return result;

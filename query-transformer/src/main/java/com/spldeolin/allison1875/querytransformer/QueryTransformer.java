@@ -127,8 +127,8 @@ public class QueryTransformer implements Allison1875MainService {
                         continue;
                     }
 
-                    if (generateParamRetval.getCondFlush() != null) {
-                        flushes.add(generateParamRetval.getCondFlush());
+                    if (generateParamRetval.getParamDTOFlush() != null) {
+                        flushes.add(generateParamRetval.getParamDTOFlush());
                     }
 
                     // generate Result Type

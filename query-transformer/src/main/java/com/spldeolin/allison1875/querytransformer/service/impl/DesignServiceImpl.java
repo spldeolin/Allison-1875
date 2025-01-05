@@ -151,7 +151,7 @@ public class DesignServiceImpl implements DesignService {
         }
 
         // 在ancestorStatement的上方添加argument build代码块（如果需要augument build的话）
-        if (generateParamRetval.getIsCond()) {
+        if (generateParamRetval.getIsParamDTO()) {
             List<Statement> argumentBuildStmts = transformMethodCallService.argumentBuildStmts(chainAnalysis,
                     generateParamRetval);
             replacementStatements.addAll(0, argumentBuildStmts);

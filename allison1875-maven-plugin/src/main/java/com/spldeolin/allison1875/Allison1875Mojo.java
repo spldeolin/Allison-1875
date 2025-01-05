@@ -77,9 +77,10 @@ public abstract class Allison1875Mojo extends AbstractMojo {
                 MoreObjects.firstNonNull(commonConfig.getEntityPackage(), basePackage + ".entity"));
         commonConfig.setDesignPackage(
                 MoreObjects.firstNonNull(commonConfig.getDesignPackage(), basePackage + ".design"));
-        commonConfig.setCondPackage(MoreObjects.firstNonNull(commonConfig.getCondPackage(), basePackage + ".dto.cond"));
-        commonConfig.setRecordPackage(
-                MoreObjects.firstNonNull(commonConfig.getRecordPackage(), basePackage + ".dto.record"));
+        commonConfig.setParamDTOPackage(
+                MoreObjects.firstNonNull(commonConfig.getParamDTOPackage(), basePackage + ".dto.param"));
+        commonConfig.setRecordDTOPackage(
+                MoreObjects.firstNonNull(commonConfig.getRecordDTOPackage(), basePackage + ".dto.record"));
         commonConfig.setWholeDTOPackage(
                 MoreObjects.firstNonNull(commonConfig.getWholeDTOPackage(), basePackage + ".dto"));
         commonConfig.setMapperXmlDirs(

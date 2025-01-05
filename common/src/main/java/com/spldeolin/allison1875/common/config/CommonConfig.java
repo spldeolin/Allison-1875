@@ -67,16 +67,16 @@ public class CommonConfig extends Allison1875Config {
     String designPackage;
 
     /**
-     * 持久层Mapper方法签名中Cond类所在包的包名
+     * 持久层Mapper方法签名中Param类所在包的包名
      */
     @NotEmpty
-    String condPackage;
+    String paramDTOPackage;
 
     /**
      * 持久层Mapper方法签名中Record类所在包的包名
      */
     @NotEmpty
-    String recordPackage;
+    String recordDTOPackage;
 
     /**
      * WholeDTO类所在包的包名

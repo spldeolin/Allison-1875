@@ -50,18 +50,18 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
     @Override
     public GenerateParamRetval generateParam(ChainAnalysisDTO chainAnalysis) {
         List<Parameter> params = Lists.newArrayList();
-        boolean isDTO = false;
-        FileFlush condFlush = null;
+        boolean isParamDTO = false;
+        FileFlush paramDTOFlush = null;
 
         Set<Binary> binaries = chainAnalysis.getBinariesAsArgs();
         if (binaries.size() > 3) {
             DataModelArg dataModelArg = new DataModelArg();
             dataModelArg.setAstForest(AstForestContext.get());
-            dataModelArg.setPackageName(commonConfig.getCondPackage());
+            dataModelArg.setPackageName(commonConfig.getParamDTOPackage());
             if (commonConfig.getEnableLotNoAnnounce()) {
                 dataModelArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
             }
-            dataModelArg.setClassName(MoreStringUtils.toUpperCamel(chainAnalysis.getMethodName()) + "Cond");
+            dataModelArg.setClassName(MoreStringUtils.toUpperCamel(chainAnalysis.getMethodName()) + "Param");
             dataModelArg.setAuthor(commonConfig.getAuthor());
             dataModelArg.setIsDataModelSerializable(commonConfig.getIsDataModelSerializable());
             dataModelArg.setIsDataModelCloneable(commonConfig.getIsDataModelCloneable());
@@ -80,13 +80,13 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
                 dataModelArg.getFieldArgs().add(fieldArg);
             }
             dataModelArg.setDataModelExistenceResolution(FileExistenceResolutionEnum.RENAME);
-            DataModelGeneration condGeneration = dataModelGeneratorService.generateDataModel(dataModelArg);
-            condFlush = condGeneration.getFileFlush();
+            DataModelGeneration paramDTOGeneration = dataModelGeneratorService.generateDataModel(dataModelArg);
+            paramDTOFlush = paramDTOGeneration.getFileFlush();
             Parameter param = new Parameter();
-            param.setType(condGeneration.getDtoQualifier());
-            param.setName(MoreStringUtils.toLowerCamel(condGeneration.getDtoName()));
+            param.setType(paramDTOGeneration.getDtoQualifier());
+            param.setName(MoreStringUtils.toLowerCamel(paramDTOGeneration.getDtoName()));
             params.add(param);
-            isDTO = true;
+            isParamDTO = true;
         } else if (CollectionUtils.isNotEmpty(binaries)) {
             for (Binary binary : binaries) {
                 String varName = binary.getVarName();
@@ -105,13 +105,13 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
                 params.add(param);
             }
         } else {
-            return new GenerateParamRetval().setIsCond(false);
+            return new GenerateParamRetval().setIsParamDTO(false);
         }
 
         GenerateParamRetval result = new GenerateParamRetval();
         result.getParameters().addAll(params);
-        result.setIsCond(isDTO);
-        result.setCondFlush(condFlush);
+        result.setIsParamDTO(isParamDTO);
+        result.setParamDTOFlush(paramDTOFlush);
         return result;
     }
 
@@ -148,7 +148,7 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
         if (returnProps.size() > 1) {
             DataModelArg dataModelArg = new DataModelArg();
             dataModelArg.setAstForest(AstForestContext.get());
-            dataModelArg.setPackageName(commonConfig.getRecordPackage());
+            dataModelArg.setPackageName(commonConfig.getRecordDTOPackage());
             if (commonConfig.getEnableLotNoAnnounce()) {
                 dataModelArg.setDescription(BaseConstant.LOT_NO_ANNOUNCE_PREFIXION + chainAnalysis.getLotNo());
             }
@@ -165,15 +165,15 @@ public class MethodGeneratorServiceImpl implements MethodGeneratorService {
                 dataModelArg.getFieldArgs().add(fieldArg);
             }
             dataModelArg.setDataModelExistenceResolution(FileExistenceResolutionEnum.RENAME);
-            DataModelGeneration recordGeneration = dataModelGeneratorService.generateDataModel(dataModelArg);
-            result.setFlush(recordGeneration.getFileFlush());
-            result.setElementTypeQualifier(recordGeneration.getDtoQualifier());
+            DataModelGeneration recordDTOGeneration = dataModelGeneratorService.generateDataModel(dataModelArg);
+            result.setFlush(recordDTOGeneration.getFileFlush());
+            result.setElementTypeQualifier(recordDTOGeneration.getDtoQualifier());
             if (Lists.newArrayList(ReturnShapeEnum.many, ReturnShapeEnum.each, ReturnShapeEnum.multiEach)
                     .contains(chainAnalysis.getReturnShape())) {
                 result.setResultType(
-                        StaticJavaParser.parseType("java.util.List<" + recordGeneration.getDtoQualifier() + ">"));
+                        StaticJavaParser.parseType("java.util.List<" + recordDTOGeneration.getDtoQualifier() + ">"));
             } else {
-                result.setResultType(StaticJavaParser.parseType(recordGeneration.getDtoQualifier()));
+                result.setResultType(StaticJavaParser.parseType(recordDTOGeneration.getDtoQualifier()));
             }
             return result;
 

@@ -19,8 +19,8 @@ public class GenerateParamRetval {
 
     final List<Parameter> parameters = Lists.newArrayList();
 
-    Boolean isCond;
+    Boolean isParamDTO;
 
-    FileFlush condFlush;
+    FileFlush paramDTOFlush;
 
 }
