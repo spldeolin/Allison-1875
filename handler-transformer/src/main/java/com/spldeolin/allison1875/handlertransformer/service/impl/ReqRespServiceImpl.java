@@ -221,9 +221,9 @@ public class ReqRespServiceImpl implements ReqRespService {
             DTOTypeEnum dtoType) {
         String dtoName;
         if (dtoType == DTOTypeEnum.REQ_DTO) {
-            dtoName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "ReqDTO";
+            dtoName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "Req";
         } else if (dtoType == DTOTypeEnum.RESP_DTO) {
-            dtoName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "RespDTO";
+            dtoName = MoreStringUtils.toUpperCamel(initDecAnalysis.getMvcHandlerMethodName()) + "Resp";
         } else {
             String originName = dto.getNameAsString();
             if (!StringUtils.endsWithIgnoreCase(originName, "dto")) {
