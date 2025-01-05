@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MvcControllerDTO {
 
-    String cat;
-
     ClassOrInterfaceDeclaration coid;
 
     Class<?> reflection;

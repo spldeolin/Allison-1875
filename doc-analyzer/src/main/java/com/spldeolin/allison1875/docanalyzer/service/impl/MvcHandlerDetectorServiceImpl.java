@@ -95,7 +95,6 @@ public class MvcHandlerDetectorServiceImpl implements MvcHandlerDetectorService 
                     }
 
                     MvcControllerDTO mvcController = new MvcControllerDTO();
-                    mvcController.setCat(mvcControllerCat);
                     mvcController.setCoid(coid);
                     mvcController.setReflection(mvcControllerReflection);
                     MvcHandlerDTO mvcHandler = new MvcHandlerDTO();

@@ -17,8 +17,6 @@ public class EndpointDTO {
 
     String cat;
 
-    String handlerSimpleName;
-
     List<String> descriptionLines;
 
     Boolean isDeprecated;
@@ -42,7 +40,6 @@ public class EndpointDTO {
     public EndpointDTO copy() {
         EndpointDTO result = new EndpointDTO();
         result.setCat(cat);
-        result.setHandlerSimpleName(handlerSimpleName);
         result.setDescriptionLines(descriptionLines);
         result.setIsDeprecated(isDeprecated);
         result.setAuthor(author);

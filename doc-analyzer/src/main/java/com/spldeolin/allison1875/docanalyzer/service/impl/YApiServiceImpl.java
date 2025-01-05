@@ -82,9 +82,6 @@ public class YApiServiceImpl implements YApiService {
         for (EndpointDTO endpoint : endpoints) {
             List<String> descriptionLines = endpoint.getDescriptionLines();
             String title = Iterables.getFirst(descriptionLines, null);
-            if (StringUtils.isEmpty(title)) {
-                title = endpoint.getHandlerSimpleName();
-            }
             String yapiDesc = this.generateEndpointDoc(endpoint);
 
             String reqJs = this.generateReqOrRespDoc(endpoint.getRequestBodyJsonSchema());

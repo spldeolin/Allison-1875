@@ -74,9 +74,6 @@ public class MarkdownServiceImpl implements MarkdownService {
     protected String generateEndpointDoc(EndpointDTO endpoint) {
         StringBuilder result = new StringBuilder(64);
         String title = Iterables.getFirst(endpoint.getDescriptionLines(), null);
-        if (StringUtils.isEmpty(title)) {
-            title = endpoint.getHandlerSimpleName();
-        }
         result.append("## ").append(title).append("\n");
 
         if (endpoint.getDescriptionLines().size() > 1) {
