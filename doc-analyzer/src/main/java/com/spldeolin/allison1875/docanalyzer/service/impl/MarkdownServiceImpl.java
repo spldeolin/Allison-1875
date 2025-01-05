@@ -71,6 +71,14 @@ public class MarkdownServiceImpl implements MarkdownService {
         }
     }
 
+    @Override
+    public void flushToSingleMarkdown(List<EndpointDTO> endpoints) {
+        // description的第一行（即API的标题）作为cat，以复用this.flushToMarkdown方法来实现singleMarkdown
+        endpoints = endpoints.stream().map(e -> e.copy().setCat(e.getDescriptionLines().get(0)))
+                .collect(Collectors.toList());
+        flushToMarkdown(endpoints);
+    }
+
     protected String generateEndpointDoc(EndpointDTO endpoint) {
         StringBuilder result = new StringBuilder(64);
         String title = Iterables.getFirst(endpoint.getDescriptionLines(), null);

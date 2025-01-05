@@ -38,8 +38,8 @@ public class DocAnalyzerConfig extends Allison1875Config {
     /**
      * 文档保存到...
      */
-    @NotNull(message = "must be 'LOCAL_MARKDOWN' or 'YAPI'")
-    FlushToEnum flushTo = FlushToEnum.LOCAL_MARKDOWN;
+    @NotNull(message = "must be 'MARKDOWN', 'YAPI' or 'SINGLE_MARKDOWN'")
+    FlushToEnum flushTo = FlushToEnum.MARKDOWN;
 
     /**
      * 文档输出到YApi时，YApi请求URL
@@ -84,7 +84,7 @@ public class DocAnalyzerConfig extends Allison1875Config {
                         .setReason("must not be null"));
             }
         }
-        if (FlushToEnum.LOCAL_MARKDOWN.equals(flushTo)) {
+        if (FlushToEnum.MARKDOWN.equals(flushTo)) {
             if (markdownDir == null) {
                 invalids.add(new InvalidDTO().setPath("markdownDirectoryPath")
                         .setValue(ValidUtils.formatValue(markdownDir)).setReason("must not be null"));

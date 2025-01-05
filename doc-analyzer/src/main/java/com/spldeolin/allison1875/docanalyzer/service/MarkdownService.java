@@ -13,4 +13,6 @@ public interface MarkdownService {
 
     void flushToMarkdown(List<EndpointDTO> endpoints);
 
+    void flushToSingleMarkdown(List<EndpointDTO> endpoints);
+
 }

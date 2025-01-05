@@ -8,11 +8,16 @@ public enum FlushToEnum {
     /**
      * 本地markdown文件
      */
-    LOCAL_MARKDOWN,
+    MARKDOWN,
 
     /**
-     * YAPI
+     * 通过OpenAPI同步到YAPI平台
      */
     YAPI,
+
+    /**
+     * 每个endpoint输出到单独的本地markdown文件
+     */
+    SINGLE_MARKDOWN,
 
 }

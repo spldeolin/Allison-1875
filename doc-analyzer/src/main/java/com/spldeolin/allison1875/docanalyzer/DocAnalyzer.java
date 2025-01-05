@@ -4,7 +4,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchemaGenerator;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.inject.Inject;
@@ -82,12 +81,15 @@ public class DocAnalyzer implements Allison1875MainService {
         // 收集endpoint
         List<EndpointDTO> endpoints = Lists.newArrayList();
 
-        // 遍历controller、遍历handler
+        // 发现mvcHandlers
         List<MvcHandlerDTO> mvcHandlers = mvcHandlerDetectorService.detectMvcHandler();
         if (CollectionUtils.isEmpty(mvcHandlers)) {
-            log.info("no MVC Handlers detected");
+            log.warn("no MVC Handlers detected");
             return;
         }
+        log.info("{} MVC Handler(s) detected", mvcHandlers.size());
+
+        // 遍历mvcHandlers
         for (MvcHandlerDTO mvcHandler : mvcHandlers) {
             MvcControllerDTO mvcController = mvcHandler.getMvcController();
             EndpointDTO endpoint = new EndpointDTO();
@@ -120,27 +122,19 @@ public class DocAnalyzer implements Allison1875MainService {
 
                 endpoints.add(endpoint);
             } catch (Exception e) {
-                log.info("description={} author={} sourceCode={}", Joiner.on(" ").join(endpoint.getDescriptionLines()),
-                        endpoint.getSourceCode(), endpoint.getAuthor(), e);
+                log.error("fail to analyze api doc, ignore, endpoint={}", endpoint, e);
             }
         }
 
-        // 保存到YAPI
-        if (config.getFlushTo().equals(FlushToEnum.YAPI)) {
-            try {
-                yapiService.flushToYApi(endpoints);
-            } catch (Exception e) {
-                log.error("fail to flush to YApi", e);
-            }
+        // 输出
+        if (config.getFlushTo() == FlushToEnum.YAPI) {
+            yapiService.flushToYApi(endpoints);
         }
-
-        // 保存到本地Markdwon
-        if (config.getFlushTo().equals(FlushToEnum.LOCAL_MARKDOWN)) {
-            try {
-                markdownService.flushToMarkdown(endpoints);
-            } catch (Exception e) {
-                log.error("fail to flush to Markdown", e);
-            }
+        if (config.getFlushTo() == FlushToEnum.MARKDOWN) {
+            markdownService.flushToMarkdown(endpoints);
+        }
+        if (config.getFlushTo() == FlushToEnum.SINGLE_MARKDOWN) {
+            markdownService.flushToSingleMarkdown(endpoints);
         }
 
         log.info("endpoints.size={}", endpoints.size());
