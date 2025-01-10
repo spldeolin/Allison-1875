@@ -99,11 +99,12 @@ public class MarkdownServiceImpl implements MarkdownService {
         result.append(this.generateReqOrRespDoc(endpoint, false));
 
         // 生成cURL
-//        result.append(this.generateCurl(endpoint, astForest));
+        result.append(this.generateCurlSample(endpoint));
 
         // 生成返回值示例
-//        result.append(this.generateRespSample(endpoint, astForest));
+        result.append(this.generateRespSample(endpoint));
 
+        // 可拓展的更多文档内容
         result.append(this.generateMoreDoc(endpoint));
 
         // markdown语法的分隔线
@@ -112,44 +113,47 @@ public class MarkdownServiceImpl implements MarkdownService {
     }
 
     private String generateRespSample(EndpointDTO endpoint) {
-        if (config.getEnableResponseBodySample() && endpoint.getResponseBodyDescribe() != null) {
+        if (!config.getEnableResponseBodySample() || endpoint.getResponseBodyDescribe() == null) {
             return "";
         }
-        StringBuilder result = new StringBuilder();
-        String fakeRespJson = fakeJsonByDescribe(endpoint.getResponseBodyDescribe());
-        if (fakeRespJson != null) {
-            result.append("### Response Body的示例\n");
-            result.append("```json\n");
-            result.append(fakeRespJson);
-            result.append("\n```\n");
+        try {
+            String mockRespJson = mockJsonByDescribe(endpoint.getResponseBodyDescribe());
+            if (mockRespJson == null) {
+                return "";
+            }
+            return "### Response Body的示例\n" + "```json\n" + mockRespJson + "\n```\n";
+        } catch (Exception e) {
+            log.warn("fail to mock DTO, describe={}", endpoint.getRequestBodyDescribe(), e);
+            return "";
         }
-        return result.toString();
     }
 
-    private String generateCurl(EndpointDTO endpoint) {
-        if (config.getEnableCurl() && endpoint.getRequestBodyDescribe() != null) {
+    private String generateCurlSample(EndpointDTO endpoint) {
+        if (!config.getEnableCurl() || endpoint.getRequestBodyDescribe() == null) {
             return "";
         }
         StringBuilder result = new StringBuilder(64);
-        String fakeReqJson = fakeJsonByDescribe(endpoint.getRequestBodyDescribe());
-        if (fakeReqJson != null) {
-            result.append("### cURL\n");
+        result.append("### cURL\n");
+        try {
+            String mockReqJson = mockJsonByDescribe(endpoint.getRequestBodyDescribe());
             result.append("```shell\n");
             result.append(String.format(
                     "curl --request %s --url 'http://localhost:8080%s' --header " + "'content-type:application/json' "
                             + "--data '", endpoint.getHttpMethod().toUpperCase(), endpoint.getUrls().get(0)));
-            result.append(fakeReqJson);
+            result.append(mockReqJson);
             result.append("'\n```\n");
+        } catch (Exception e) {
+            log.warn("fail to mock DTO, describe={}", endpoint.getRequestBodyDescribe(), e);
+            return "";
         }
         return result.toString();
     }
 
-    private String fakeJsonByDescribe(String describe) {
+    private String mockJsonByDescribe(String describe) {
         try {
-            Object fakeDTO = er.nextObject(LoadClassUtils.loadClass(describe, AstForestContext.get().getClassLoader()));
-            return JsonUtils.toJsonPrettily(fakeDTO);
+            Object mockDTO = er.nextObject(LoadClassUtils.loadClass(describe, AstForestContext.get().getClassLoader()));
+            return JsonUtils.toJsonPrettily(mockDTO);
         } catch (Exception e) {
-            log.error("fail to fake json, describe={}", describe, e);
             throw new Allison1875Exception(e);
         }
     }
